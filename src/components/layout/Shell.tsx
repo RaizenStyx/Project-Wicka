@@ -65,7 +65,7 @@ export default function Shell({
         {/* Left Toggle */}
         <button 
           onClick={() => setShowLeft(!showLeft)}
-          className={`p-2 rounded-full transition-colors ${showLeft ? 'bg-slate-800 text-purple-400' : 'hover:bg-slate-800 text-slate-400'}`}
+          className={`p-2 rounded-full transition-colors cursor-pointer ${showLeft ? 'bg-slate-800 text-purple-400' : 'hover:bg-slate-800 text-slate-400'}`}
           aria-label="Toggle Navigation"
         >
           <Menu className="w-6 h-6" />
@@ -80,7 +80,7 @@ export default function Shell({
         {/* Right Toggle */}
         <button 
           onClick={() => setShowRight(!showRight)}
-          className={`p-2 rounded-full transition-colors ${showRight ? 'bg-slate-800 text-indigo-400' : 'hover:bg-slate-800 text-slate-400'}`}
+          className={`p-2 rounded-full transition-colors cursor-pointer ${showRight ? 'bg-slate-800 text-indigo-400' : 'hover:bg-slate-800 text-slate-400'}`}
           aria-label="Toggle Grimoire"
         >
           <Moon className="w-6 h-6" />
