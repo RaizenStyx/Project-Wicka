@@ -32,7 +32,8 @@ export default async function SettingsPage() {
     username: profile?.username || '',
     coven_name: profile?.coven_name || '',
     moon_phase: profile?.moon_phase || '',
-    website: profile?.website || ''
+    website: profile?.website || '',
+    handle: profile?.handle || ''
   }
 
   return (
@@ -40,7 +41,7 @@ export default async function SettingsPage() {
       <div className="max-w-2xl mx-auto">
         <h1 className="text-3xl font-serif text-purple-400 mb-2">Edit Grimoire</h1>
         <p className="text-slate-500 mb-8">Update your public persona within the coven.</p>
-        <Link href={`/u/${profile?.username || 'profile'}`} className="text-sm text-purple-400 hover:underline mb-6 inline-block">
+        <Link href={`/u/${profile?.handle || 'handle'}`} className="text-sm text-purple-400 hover:underline mb-6 inline-block">
           &larr; View Public Profile
         </Link>
         {/* Render the Client Component */}

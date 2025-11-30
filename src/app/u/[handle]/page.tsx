@@ -2,12 +2,11 @@ import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { notFound, redirect } from 'next/navigation'
 import PostCard from '@/components/PostCard'
-import { signOut } from '@/app/actions/authActions'
 import Link from 'next/link'
 
-export default async function ProfilePage({ params }: { params: { username: string } }) {
+export default async function ProfilePage({ params }: { params: { handle: string } }) {
   // Await params for Next.js 15
-  const { username } = await params
+  const { handle } = await params
   
   const cookieStore = await cookies()
   const supabase = createServerClient(
@@ -17,11 +16,11 @@ export default async function ProfilePage({ params }: { params: { username: stri
   )
 
   // 1. Fetch the Profile to display
-  // We search by the 'username' column, not the ID
+  // We search by the 'handle' column, not the ID
   const { data: profile } = await supabase
     .from('profiles')
     .select('*')
-    .eq('username', username)
+    .eq('handle', handle)
     .single()
 
   if (!profile) return notFound() // Shows a 404 page if user doesn't exist
@@ -39,23 +38,6 @@ export default async function ProfilePage({ params }: { params: { username: stri
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-200 font-sans">
-      
-      {/* Top Nav (Simplified for this page) */}
-      <nav className="border-b border-slate-800 bg-slate-950/80 p-4 sticky top-0 z-50 backdrop-blur">
-        <div className="max-w-4xl mx-auto flex justify-between items-center">
-          <Link href="/" className="text-xl font-serif text-purple-400 font-bold">COVEN</Link>
-          <div className="flex gap-4 text-sm">
-             <Link href="/" className="hover:text-purple-400">Feed</Link>
-             {/* If it's the owner, show Sign Out */}
-             {isOwner && (
-               <form action={signOut}>
-                 <button className="text-slate-400 hover:text-red-400">Sign Out</button>
-               </form>
-             )}
-          </div>
-        </div>
-      </nav>
-
       <main className="max-w-4xl mx-auto px-4 py-8">
         
         {/* PROFILE HEADER (The "Wall" Header) */}
