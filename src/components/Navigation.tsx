@@ -6,6 +6,7 @@ import { signOut } from '@/app/actions/authActions'
 import { useState } from "react";
 
 type Profile = {
+    username?: string;
     handle?: string;
     avatar_url?: string | null;
     id: string;
@@ -22,23 +23,29 @@ const Navigation: React.FC<NavigationProps> = ({ profile }) => {
     return (
         <nav className="sticky top-0 z-50 border-b border-slate-800 bg-slate-950/80 backdrop-blur-md">
             <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+                {/* 1. Title */}
                 <div className="text-2xl font-serif text-purple-400 tracking-wider font-bold">
                     COVEN
                 </div>
 
-                <div className="hidden md:flex space-x-6 text-sm font-medium text-slate-400">
+                {/* 2. Old code for other nav items that may be potentially added */}
+                {/* <div className="hidden md:flex space-x-6 text-sm font-medium text-slate-400">
                     <button className="hover:text-purple-300 transition-colors" type="button">
                         Grimoire
                     </button>
                     <button className="hover:text-purple-300 transition-colors" type="button">
                         Gatherings
                     </button>
-                    <Link href="/" className="hover:text-purple-300 transition-colors">Feed</Link>
-                    <Link href={`/u/${username}`} className="hover:text-purple-300 transition-colors">
-                        Profile
-                    </Link>
+                </div> */}
+
+                {/* 2. Welcome */}
+                <div className="text-sm text-slate-400 hidden md:block">
+                    Welcome, <span className="text-purple-400 font-medium">{profile?.username || 'Witch'}</span>
                 </div>
 
+
+
+                {/* 3. The Profile Avatar/Button */}
                 <div className="relative">
                 <button
                     onClick={() => setIsOpen(!isOpen)}

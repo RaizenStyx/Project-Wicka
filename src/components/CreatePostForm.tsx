@@ -23,7 +23,7 @@ export default function CreatePostForm() {
   }, [state.success])
 
   return (
-    <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 shadow-lg mb-6">
+    <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 shadow-lg mb-6 mt-6">
       
       {/* Show Error */}
       {state.error && (
@@ -34,9 +34,9 @@ export default function CreatePostForm() {
 
       <form ref={formRef} action={formAction}>
         <div className="flex gap-4">
-          <div className="h-10 w-10 rounded-full bg-slate-800 shrink-0 border border-slate-700">
+          {/* <div className="h-10 w-10 rounded-full bg-slate-800 shrink-0 border border-slate-700">
             
-          </div>
+          </div> */}
           <input 
             name="content"
             type="text" 

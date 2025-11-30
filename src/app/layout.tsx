@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
-import Navigation from "@/components/Navigation";
+import Shell from "@/components/layout/Shell";
+import SidebarLinks from "@/components/SidebarLinks";
+import WidgetSidebar from "@/components/widgets/WidgetSidebar";
+// import Navigation from "@/components/Navigation";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
@@ -46,11 +49,15 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable} ${playfair.variable} bg-slate-950 text-slate-200`}>
-        <Navigation 
+        {/* <Navigation 
            profile={userProfile} 
-           //currentUser={user ? { id: user.id } : null} 
-        />
+        /> */}
+        <Shell 
+          leftSidebar={<SidebarLinks profile={userProfile} />}
+          rightSidebar={<WidgetSidebar />}
+        >
         {children}
+        </Shell>
       </body>
     </html>
   );

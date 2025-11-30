@@ -7,7 +7,7 @@ const WidgetSidebar = () => {
   // const { activeWidgets } = useUserPreferences();
 
   return (
-    <div className="hidden md:block col-span-1 space-y-0">
+    <div className="col-span-1 space-y-0">
       {/* Since the WidgetFrame includes 'mb-6' (margin bottom), 
          they will stack perfectly. 
       */}

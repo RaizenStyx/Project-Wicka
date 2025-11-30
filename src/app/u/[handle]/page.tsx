@@ -3,6 +3,7 @@ import { cookies } from 'next/headers'
 import { notFound, redirect } from 'next/navigation'
 import PostCard from '@/components/PostCard'
 import Link from 'next/link'
+import { signOut } from '@/app/actions/authActions'
 
 export default async function ProfilePage({ params }: { params: { handle: string } }) {
   // Await params for Next.js 15
@@ -103,6 +104,9 @@ export default async function ProfilePage({ params }: { params: { handle: string
                  </div>
                </div>
              </div>
+             <form action={signOut}>
+                <button className="block w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-slate-700 hover:text-red-300">Sign Out</button>
+             </form>
           </div>
 
           {/* Right: Posts Feed */}
@@ -112,9 +116,13 @@ export default async function ProfilePage({ params }: { params: { handle: string
              {posts?.map((post) => (
                 <PostCard 
                   key={post.id}
-                  username={post.profiles?.username}
-                  timeAgo={new Date(post.created_at).toLocaleDateString()}
+                  // We handle the case where profiles might be null (though it shouldn't be)
+                  username={post.profiles?.username || 'Unknown Witch'}
+                  // Simple math to show time (or use a library like 'date-fns' later)
+                  timeAgo={new Date(post.created_at).toLocaleDateString()} 
                   content={post.content}
+                  // Pass the role down
+                  currentUserRole={profile?.role} 
                 />
              ))}
 
