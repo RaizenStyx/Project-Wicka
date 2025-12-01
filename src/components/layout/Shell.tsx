@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { Menu, Moon, X, Sparkles } from 'lucide-react';
 
 export default function Shell({
@@ -15,9 +16,10 @@ export default function Shell({
   // State for visibility
   // Defaulting to true creates a "flash" on mobile, so we start false 
   // and check screen size on mount, or rely on CSS for initial state.
-  const [showLeft, setShowLeft] = useState(false);
-  const [showRight, setShowRight] = useState(false);
-  const [isMobile, setIsMobile] = useState(true);
+  const pathname = usePathname(); 
+  const [showLeft, setShowLeft] = useState(true);
+  const [showRight, setShowRight] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
 
   // Handle Screen Resize & Initial Mount
   useEffect(() => {
@@ -27,12 +29,12 @@ export default function Shell({
       
       // On Desktop, default sidebars to OPEN if they haven't been touched yet
       // You can tweak this preference
-      if (!mobile) {
-        setShowLeft(true);
-        setShowRight(true);
-      } else {
+      if (mobile) {
         setShowLeft(false);
         setShowRight(false);
+      } else {
+        setShowLeft(true);
+        setShowRight(true);
       }
     };
 
@@ -52,7 +54,12 @@ export default function Shell({
     }
   }, [isMobile, showLeft, showRight]);
   
-  
+  useEffect(() => {
+    if (isMobile) {
+      setShowLeft(false);
+      setShowRight(false);
+    }
+  }, [pathname, isMobile]);
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-200 flex flex-col">

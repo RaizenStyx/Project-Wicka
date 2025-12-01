@@ -104,9 +104,11 @@ export default async function ProfilePage({ params }: { params: { handle: string
                  </div>
                </div>
              </div>
+             {isOwner && (
              <form action={signOut}>
                 <button className="block w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-slate-700 hover:text-red-300">Sign Out</button>
              </form>
+             )}
           </div>
 
           {/* Right: Posts Feed */}

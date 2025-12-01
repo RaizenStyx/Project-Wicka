@@ -43,24 +43,24 @@ const SidebarLinks = ({ profile }: SidebarLinksProps) => {
       href: '/settings',
     },
     {
-      label: 'Chat - NO LINK YET TODO',
-      href: '/',
+      label: 'Chat',
+      href: '/chat',
     },
     { 
-      label: 'Home Altar - NO LINK YET TODO', 
-      href: '/' 
+      label: 'Home Altar', 
+      href: '/altar' 
     },
     { 
-      label: 'Spellbook - NO LINK YET TODO', 
-      href: '/' 
+      label: 'Spellbook', 
+      href: '/spellbook' 
     },
     { 
-      label: 'Crystal Log - NO LINK YET TODO', 
-      href: '/' 
+      label: 'Crystal Log', 
+      href: '/crystal-log' 
     },
     { 
-      label: 'Tarot Daily - NO LINK YET TODO', 
-      href: '/' 
+      label: 'Tarot Draw', 
+      href: '/tarot-draw' 
     },
     { 
       label: 'Oracle AI Chat', 
