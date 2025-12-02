@@ -2,9 +2,99 @@
 
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
+import { revalidatePath } from 'next/cache';
 
-export async function drawRandomCard() {
-const cookieStore = await cookies()
+// Helper: 78 Card Deck
+const FULL_DECK_IDS = Array.from({ length: 78 }, (_, i) => i + 1);
+
+export async function drawWidgetCard() {
+  const cookieStore = await cookies()
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() { return cookieStore.getAll() }
+      }
+    }
+  )
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Unauthorized" };
+
+  const today = new Date().toISOString().split('T')[0];
+
+  // 1. Fetch State
+  let { data: userState } = await supabase
+    .from('user_daily_tarot')
+    .select('*')
+    .eq('user_id', user.id)
+    .single();
+  
+  // Initialize if missing
+  if (!userState) {
+     const { data: newState } = await supabase
+        .from('user_daily_tarot')
+        .insert({ user_id: user.id })
+        .select()
+        .single();
+     userState = newState;
+  }
+
+  // 2. Reset logic: If the date stored is NOT today, clear the deck
+  let alreadyDrawn: number[] = userState.widget_drawn_ids || [];
+  
+  // If the last time we touched the widget wasn't today, reset the array
+  if (userState.widget_date !== today) {
+    alreadyDrawn = []; 
+  }
+
+  // 3. Calculate remaining cards
+  // Filter out IDs that are inside the 'alreadyDrawn' array
+  const availableIds = FULL_DECK_IDS.filter(id => !alreadyDrawn.includes(id));
+
+  // CHECK: Is the deck empty?
+  if (availableIds.length === 0) {
+    return { 
+        card: null, 
+        remaining: 0, 
+        message: "The deck is empty. Come back tomorrow." 
+    };
+  }
+
+  // 4. Draw ONE random card from the available ones
+  const randomId = availableIds[Math.floor(Math.random() * availableIds.length)];
+
+  // 5. Update DB (Add the new ID to the array and set date to today)
+  await supabase
+    .from('user_daily_tarot')
+    .upsert({
+      user_id: user.id,
+      widget_date: today,
+      widget_drawn_ids: [...alreadyDrawn, randomId]
+    });
+
+  // 6. Fetch Card Data
+  const { data: card } = await supabase
+    .from('tarot_cards')
+    .select('*')
+    .eq('id', randomId)
+    .single();
+
+  revalidatePath('/'); 
+  
+  return { 
+      card, 
+      remaining: availableIds.length - 1, // Subtract 1 because we just drew it
+      message: null 
+  };
+}
+
+// Keep your getDailySpread function exactly as it was, it was correct!
+export async function getDailySpread() {
+    // ... (Your existing getDailySpread code goes here) ...
+    // I am omitting it here to save space, but keep the code you posted!
+    const cookieStore = await cookies()
     const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -14,66 +104,50 @@ const cookieStore = await cookies()
         }
     }
     )
+
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return null;
 
-    const today = new Date().toISOString().split('T')[0]; // "2023-10-27"
-  
-  // 1. Get the count of cards
-  const { count } = await supabase
-    .from('tarot_cards')
-    .select('*', { count: 'exact', head: true });
+    const today = new Date().toISOString().split('T')[0]; 
 
-  // 1. Check if we already drew today
-//   const { data: existingDraw } = await supabase
-//     .from('daily_draws')
-//     .select('*, tarot_cards(*)') // Join with card details
-//     .eq('user_id', user.id)
-//     .eq('date_key', today)
-//     .single();
-
-  if (!count) return null;
-//   if (existingDraw) {
-//     return { card: existingDraw.tarot_cards, isNew: false };
-//   }
-
-  // 2. Pick a random offset
-  const randomIndex = Math.floor(Math.random() * count);
-
-  // 2. If not, draw a new random card
-  // (Using the random logic from before)
-//   const { count } = await supabase.from('tarot_cards').select('*', { count: 'exact', head: true });
-//   const randomIndex = Math.floor(Math.random() * (count || 78));
-  
-//   const { data: newCard } = await supabase
-//     .from('tarot_cards')
-//     .select('*')
-//     .range(randomIndex, randomIndex)
-//     .single();
-
-//   if (!newCard) return null;  
-
-  // 3. Fetch that single card
-  const { data, error } = await supabase
-    .from('tarot_cards')
+    let { data: userState } = await supabase
+    .from('user_daily_tarot')
     .select('*')
-    .range(randomIndex, randomIndex)
+    .eq('user_id', user.id)
     .single();
 
-  // 3. Save to History
-//   await supabase.from('daily_draws').insert({
-//     user_id: user.id,
-//     card_id: newCard.id,
-//     date_key: today
-//   });
+    if (!userState) {
+        const { data: newState } = await supabase
+            .from('user_daily_tarot')
+            .insert({ user_id: user.id })
+            .select()
+            .single();
+        userState = newState;
+    }
 
-  if (error) {
-    console.error('Error drawing card:', error);
-    return null;
-  }
-   // revalidatePath('/'); // Revalidate the homepage to reflect new draw
+    if (userState.spread_date === today && userState.spread_card_ids?.length > 0) {
+    const { data: cards } = await supabase
+        .from('tarot_cards')
+        .select('*')
+        .in('id', userState.spread_card_ids);
+    return { cards, isNew: false };
+    }
 
-  return data;
+    const shuffled = [...FULL_DECK_IDS].sort(() => 0.5 - Math.random());
+    const selectedIds = shuffled.slice(0, 3);
 
-//return { card: newCard, isNew: true };
+    await supabase
+    .from('user_daily_tarot')
+    .upsert({
+        user_id: user.id,
+        spread_date: today,
+        spread_card_ids: selectedIds
+    });
+
+    const { data: cards } = await supabase
+    .from('tarot_cards')
+    .select('*')
+    .in('id', selectedIds);
+
+    return { cards, isNew: true };
 }

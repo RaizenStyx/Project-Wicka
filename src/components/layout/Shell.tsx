@@ -81,10 +81,10 @@ export default function Shell({
 
         {/* Logo / Title */}
         <div className="flex items-center gap-2">
-          <Link href="/">
            <Sparkles className="w-5 h-5 text-purple-500" />
-           <span className="font-serif text-xl font-bold tracking-wider text-slate-100">COVEN</span>
-        </Link>
+           <Link href="/">
+            <span className="font-serif text-xl font-bold tracking-wider text-slate-100">COVEN</span>
+           </Link>
         </div>
 
         {/* Right Toggle */}
