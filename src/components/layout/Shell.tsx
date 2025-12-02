@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { Menu, Moon, X, Sparkles } from 'lucide-react';
+import Link from 'next/link';
 
 export default function Shell({
   children,
@@ -80,8 +81,10 @@ export default function Shell({
 
         {/* Logo / Title */}
         <div className="flex items-center gap-2">
+          <Link href="/">
            <Sparkles className="w-5 h-5 text-purple-500" />
            <span className="font-serif text-xl font-bold tracking-wider text-slate-100">COVEN</span>
+        </Link>
         </div>
 
         {/* Right Toggle */}

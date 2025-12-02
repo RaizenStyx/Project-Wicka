@@ -2,6 +2,7 @@ import React from 'react';
 import WidgetFrame from './WidgetFrame';
 import { Sparkles } from 'lucide-react';
 import { Moon } from 'lunarphase-js'
+import Link from 'next/link';
 
 const MoonWidget = () => {
   // 1. Get current date
@@ -58,7 +59,7 @@ const MoonWidget = () => {
 
       {/* Main Visual */}
       <div className="text-6xl filter drop-shadow-[0_0_10px_rgba(168,85,247,0.4)] hover:scale-110 transition-transform duration-500 cursor-pointer">
-        {phaseEmoji}
+        <Link href={'/moon'}> {phaseEmoji}</Link>
       </div>
 
       {/* Text Info */}

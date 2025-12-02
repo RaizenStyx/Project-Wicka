@@ -20,13 +20,13 @@ export default function JoinPage() {
     ];
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white py-12 px-4">
+        <div className="min-h-screen bg-gradient-to-b bg-slate-950 py-12 px-4">
             <div className="max-w-6xl mx-auto">
                 <div className="text-center mb-12">
-                    <h1 className="text-4xl font-bold text-gray-900 mb-4">
+                    <h1 className="text-4xl font-bold text-gray-300 mb-4">
                         Become a Verified Member
                     </h1>
-                    <p className="text-xl text-gray-600">
+                    <p className="text-xl text-gray-300">
                         Follow these 3 simple steps to get verified
                     </p>
                 </div>
@@ -35,15 +35,15 @@ export default function JoinPage() {
                     {steps.map((step) => (
                         <div
                             key={step.number}
-                            className="bg-white rounded-lg shadow-lg p-8 hover:shadow-xl transition-shadow"
+                            className="bg-slate-900 rounded-lg shadow-lg p-8 hover:shadow-xl transition-shadow"
                         >
-                            <div className="flex items-center justify-center w-12 h-12 rounded-full bg-blue-600 text-white font-bold text-lg mb-4">
+                            <div className="flex items-center justify-center w-12 h-12 rounded-full bg-blue-600 text-gray-900 font-bold text-lg mb-4">
                                 {step.number}
                             </div>
-                            <h2 className="text-2xl font-semibold text-gray-900 mb-3">
+                            <h2 className="text-2xl font-semibold text-gray-400 mb-3">
                                 {step.title}
                             </h2>
-                            <p className="text-gray-600">{step.description}</p>
+                            <p className="text-gray-300">{step.description}</p>
                         </div>
                     ))}
                 </div>

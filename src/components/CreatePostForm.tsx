@@ -23,7 +23,7 @@ export default function CreatePostForm() {
   }, [state.success])
 
   return (
-    <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 shadow-lg mb-6 mt-6">
+    <div className="p-4 shadow-lg mt-2 rounded-xl bg-slate-900 border border-slate-800">
       
       {/* Show Error */}
       {state.error && (

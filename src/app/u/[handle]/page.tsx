@@ -45,6 +45,25 @@ export default async function ProfilePage({ params }: { params: { handle: string
         <div className="relative mb-10">
           {/* Banner Image Placeholder */}
           <div className="h-48 w-full bg-gradient-to-r from-indigo-900 to-purple-900 rounded-xl mb-12 opacity-50"></div>
+
+          {/* Action Buttons (Only if Owner) */}
+          {isOwner && (
+            <div className="absolute -top-4 left-4">
+              <Link href="/settings">
+                <button className="bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-2 rounded-lg border border-slate-700 text-sm font-medium transition-colors cursor-pointer">
+                  Edit Profile
+                </button>
+              </Link>
+            </div>
+          )}
+
+          {isOwner && (
+            <div className="absolute -top-4 right-4">
+             <form action={signOut}>
+                <button className="bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg border border-slate-700 block w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-slate-700 hover:text-red-300 cursor-pointer">Sign Out</button>
+             </form>
+             </div>
+             )}
           
           <div className="absolute -bottom-6 left-8 flex items-end gap-6">
             {/* Avatar */}
@@ -63,17 +82,6 @@ export default async function ProfilePage({ params }: { params: { handle: string
               <p className="text-slate-400">{profile.coven_name || 'Solitary Practitioner'}</p>
             </div>
           </div>
-
-          {/* Action Buttons (Only if Owner) */}
-          {isOwner && (
-            <div className="absolute -bottom-4 right-4">
-              <Link href="/settings">
-                <button className="bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-2 rounded-lg border border-slate-700 text-sm font-medium transition-colors">
-                  Edit Profile
-                </button>
-              </Link>
-            </div>
-          )}
         </div>
 
         {/* FEED SECTION */}
@@ -104,16 +112,11 @@ export default async function ProfilePage({ params }: { params: { handle: string
                  </div>
                </div>
              </div>
-             {isOwner && (
-             <form action={signOut}>
-                <button className="block w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-slate-700 hover:text-red-300">Sign Out</button>
-             </form>
-             )}
           </div>
 
           {/* Right: Posts Feed */}
           <div className="md:col-span-2">
-             <h3 className="text-slate-500 text-sm mb-4">Recent Spells & Intentions</h3>
+             <h3 className="text-slate-500 text-sm mb-4">Recent</h3>
              
              {posts?.map((post) => (
                 <PostCard 
