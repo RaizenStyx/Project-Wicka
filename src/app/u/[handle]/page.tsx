@@ -200,6 +200,7 @@ export default async function ProfilePage({
                       timeAgo={new Date(post.created_at).toLocaleDateString()} 
                       content={post.content}
                       currentUserRole={profile?.role} 
+                      image_url={post.image_url}
                     />
                  ))}
                  {posts?.length === 0 && (

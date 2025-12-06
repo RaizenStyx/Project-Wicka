@@ -54,6 +54,7 @@ export default async function Home() {
                content={post.content}
                // Pass the role down if you want to show a badge!
                currentUserRole={profile?.role} 
+               image_url={post.image_url}
              />
             ))}
 

@@ -357,3 +357,38 @@ USING (
   bucket_id = 'avatars' 
   AND auth.uid() = owner
 );
+
+-- Create a new public bucket for post images
+-- 1. Create the bucket
+INSERT INTO storage.buckets (id, name, public) 
+VALUES ('post_images', 'post_images', true);
+
+
+-- 2. Policy: Public Viewing
+-- Anyone can view images in this bucket
+CREATE POLICY "Post images are public"
+ON storage.objects FOR SELECT
+USING ( bucket_id = 'post_images' );
+
+
+-- 3. Policy: Authenticated Uploads
+-- Only logged-in users can upload.
+-- They must upload to a folder matching their user ID to keep things organized.
+CREATE POLICY "Users can upload their own post images"
+ON storage.objects FOR INSERT
+WITH CHECK (
+  bucket_id = 'post_images' 
+  AND auth.role() = 'authenticated'
+  AND (storage.foldername(name))[1] = auth.uid()::text
+);
+
+
+-- 4. Policy: Owner Delete
+-- Users can only delete images located in their own folder.
+CREATE POLICY "Users can delete their own post images"
+ON storage.objects FOR DELETE
+USING (
+  bucket_id = 'post_images' 
+  AND auth.uid() = owner
+  AND (storage.foldername(name))[1] = auth.uid()::text
+);
