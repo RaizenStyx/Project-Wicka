@@ -1,7 +1,6 @@
 'use server'
 
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
+import { createClient } from '../utils/supabase/server'
 import { revalidatePath } from 'next/cache'
 
 // 1. Define the standard shape of your state
@@ -13,17 +12,7 @@ export type FormState = {
 
 // 2. Apply this type to the prevState and the Return Promise
 export async function createPost(prevState: FormState, formData: FormData): Promise<FormState> {
-  const cookieStore = await cookies()
-
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() { return cookieStore.getAll() }
-      }
-    }
-  )
+  const supabase = await createClient();
 
   // Default "empty" return state to keep TypeScript happy
   const emptyState: FormState = { message: '', error: '', success: '' }

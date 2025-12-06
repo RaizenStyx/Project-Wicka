@@ -1,23 +1,16 @@
 'use server'
 
-import { createServerClient } from '@supabase/ssr'
+import { createClient } from '@/app/utils/supabase/server'
 import { redirect } from 'next/navigation'
-import { cookies } from 'next/headers'
 import { X } from 'lucide-react'
 import clsx from 'clsx'
 import { Sparkles } from 'lucide-react'
+import Avatar from '../ui/Avatar'
 
 export default async function ProfileInfo() {
-    const cookieStore = await cookies()
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll() { return cookieStore.getAll() }
-        }
-      }
-    )
+
+    const supabase = await createClient();
+
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) redirect('/login')
 
@@ -28,20 +21,25 @@ export default async function ProfileInfo() {
     .single()
 
     const firstLetter = profile?.handle?.[0]?.toUpperCase() ?? "U";
+    const date = new Date(user.created_at).toLocaleDateString();
 
     return (    
     <>
         <div className="flex justify-between items-center gap-4 mb-4">
           <div className="flex items-center gap-3">
 
-            
-            <div className="h-16 w-16 rounded-full bg-indigo-900 flex items-center justify-center text-indigo-400 font-bold text-2xl">
-                {firstLetter}
-            </div>
+            <Avatar 
+              url={profile?.avatar_url || undefined} 
+              alt={profile?.username || 'User Avatar'} 
+              size={84} 
+              fallback = {firstLetter || 'M'} 
+              className = "border-slate-700 group-hover:border-purple-500 transition-colors" 
+            /> 
+
             <div>
                 <p className="font-medium text-slate-200 text-lg">Welcome, {profile?.username}</p> 
-                {/* TODO: Fix timestamp  */}
-                <p className="text-xs text-slate-500">You joined: {profile?.updated_at}</p>
+              
+                <p className="text-xs text-slate-500">You joined: {date}</p>
             </div>
             <X className="w-5 h-5 text-purple-500 rotate-45 -scale-x-100" />
           </div>

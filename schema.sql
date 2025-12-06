@@ -321,3 +321,39 @@ alter table altar_items enable row level security;
 -- Policies
 create policy "Users can manage own altar" on altar_items
   for all using (auth.uid() = user_id);
+
+-- 1. Create a new public bucket called 'avatars'
+INSERT INTO storage.buckets (id, name, public) 
+VALUES ('avatars', 'avatars', true);
+
+-- 2. Allow Public Access to View Avatars
+-- This allows anyone (even guests) to see profile pictures
+CREATE POLICY "Avatar images are publicly accessible."
+ON storage.objects FOR SELECT
+USING ( bucket_id = 'avatars' );
+
+-- 3. Allow Authenticated Users to Upload
+-- This restricts uploads to logged-in users. 
+-- The (storage.foldername(name))[1] syntax ensures they can only upload to a folder matching their UUID.
+CREATE POLICY "Anyone can upload an avatar."
+ON storage.objects FOR INSERT
+WITH CHECK ( 
+  bucket_id = 'avatars' 
+  AND auth.role() = 'authenticated'
+);
+
+-- 4. Allow Users to Update their own Avatar
+CREATE POLICY "Anyone can update their own avatar."
+ON storage.objects FOR UPDATE
+USING ( 
+  bucket_id = 'avatars' 
+  AND auth.uid() = owner
+);
+
+-- 5. Allow Users to Delete their own Avatar
+CREATE POLICY "Anyone can delete their own avatar."
+ON storage.objects FOR DELETE
+USING ( 
+  bucket_id = 'avatars' 
+  AND auth.uid() = owner
+);

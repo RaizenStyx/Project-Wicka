@@ -2,6 +2,8 @@ import { getMembers } from '@/app/actions/member-actions'
 import Link from 'next/link'
 import { User, MessageCircle, Shield, Sparkles, House, Cannabis, Cat } from 'lucide-react'
 import { clsx } from 'clsx'
+import ProfileHeader from '@/components/profile/ProfileHeader'
+import Avatar from '@/components/ui/Avatar'
 
 export default async function MembersPage() {
   const members = await getMembers()
@@ -28,10 +30,13 @@ export default async function MembersPage() {
           >
             {/* Header: Avatar & Role */}
             <div className="flex items-start justify-between mb-4">
-              <div className="h-12 w-12 rounded-full bg-slate-800 border-2 border-slate-700 flex items-center justify-center text-slate-400 group-hover:border-purple-500 group-hover:text-purple-300 transition-colors">
-                 {/* Eventually use member.avatar_url here */}
-                 <User className="w-6 h-6" />
-              </div>
+              
+              <Avatar url={member.avatar_url} 
+                alt ={member.username || 'Member Avatar'}
+                size={50}
+                fallback = {member.username?.[0]?.toUpperCase() || 'M'} 
+                className = "border-slate-700 group-hover:border-purple-500 transition-colors" 
+              /> 
 
               <RoleBadge role={member.role || 'initiate'} />
             </div>

@@ -1,9 +1,11 @@
 // src/components/PostCard.tsx
 import React from 'react';
+import Avatar from './Avatar';
 
 // This interface defines what data this component requires to work.
 interface PostCardProps {
   username: string;
+  avatar_url?: string | null;
   timeAgo: string;
   content: string;
   currentUserRole?: string; // Optional: to customize based on viewer's role
@@ -13,7 +15,7 @@ interface PostCardProps {
 
 // TODO: Add in functionality for likes, comments, and image rendering.
 
-const PostCard = ({ username, timeAgo, content, currentUserRole, moonPhase, hasImage }: PostCardProps) => {
+const PostCard = ({ username, avatar_url, timeAgo, content, currentUserRole, moonPhase, hasImage }: PostCardProps) => {
   // Check if user is allowed to interact
   const canInteract = currentUserRole && currentUserRole !== 'initiate';
   return (
@@ -22,10 +24,14 @@ const PostCard = ({ username, timeAgo, content, currentUserRole, moonPhase, hasI
       {/* Header: Avatar, Name, Time */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          {/* Placeholder Avatar */}
-          <div className="h-10 w-10 rounded-full bg-indigo-900 flex items-center justify-center text-indigo-400 font-bold">
-            {username[0]} {/* Grab first letter of username */}
-          </div>
+          {/* Avatar */}
+          <Avatar 
+              url={avatar_url} 
+              alt={username || 'User Avatar'} 
+              size={50} 
+              fallback = {username[0]?.toUpperCase() || 'M'} 
+              className = "border-slate-700" 
+            />
           <div>
             <p className="font-medium text-slate-200">{username}</p>
             <p className="text-xs text-slate-500">

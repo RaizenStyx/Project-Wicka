@@ -1,7 +1,6 @@
 'use server'
 
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
+import { createClient } from '../utils/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
@@ -17,17 +16,7 @@ export type Spell = {
 }
 
 export async function getSpells() {
-  const cookieStore = await cookies()
-
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() { return cookieStore.getAll() }
-      }
-    }
-  )
+  const supabase = await createClient();
   
   // 1. Get the current User's ID
   const { data: { user } } = await supabase.auth.getUser()
@@ -51,17 +40,7 @@ export async function getSpells() {
 }
 
 export async function createSpell(formData: FormData) {
-  const cookieStore = await cookies()
-
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() { return cookieStore.getAll() }
-      }
-    }
-  )
+  const supabase = await createClient();
   
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
@@ -95,17 +74,7 @@ export async function createSpell(formData: FormData) {
 }
 
 export async function deleteSpell(spellId: string) {
-  const cookieStore = await cookies()
-
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() { return cookieStore.getAll() }
-      }
-    }
-  )
+  const supabase = await createClient();
   
   const { error } = await supabase
     .from('spells')
@@ -122,17 +91,7 @@ export async function deleteSpell(spellId: string) {
 }
 
 export async function updateSpell(id: string, formData: FormData) {
-  const cookieStore = await cookies()
-
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() { return cookieStore.getAll() }
-      }
-    }
-  )
+  const supabase = await createClient();
   
   // Security check: Ensure user is logged in
   const { data: { user } } = await supabase.auth.getUser()

@@ -1,4 +1,4 @@
-import Construction from '@/components/Construction';
+import Construction from '@/components/ui/Construction';
 
 export default function ChatPage() {
   return (

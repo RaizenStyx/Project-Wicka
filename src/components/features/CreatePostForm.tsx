@@ -2,7 +2,7 @@
 
 import { useActionState } from 'react'
 import { useEffect, useRef } from 'react'
-import { createPost, type FormState } from '../app/actions/postActions'
+import { createPost, type FormState } from '../../app/actions/postActions'
 
 // Ensure initialState matches the type EXACTLY
 const initialState: FormState = {

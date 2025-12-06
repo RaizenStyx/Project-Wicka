@@ -1,22 +1,12 @@
-import PostCard from "../components/PostCard";
-import ProfileInfo from "@/components/ProfileInfo";
-import ProfileWidget from "@/components/FeedProfileWidget";
-import { createServerClient } from '@supabase/ssr'
+import PostCard from "../components/ui/PostCard";
+import ProfileInfo from "@/components/profile/ProfileInfo";
+import ProfileWidget from "@/components/ui/FeedProfileWidget";
+import { createClient } from "./utils/supabase/server";
 import { redirect } from 'next/navigation'
-import { cookies } from 'next/headers'
 
 export default async function Home() {
 
-   const cookieStore = await cookies()
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll() { return cookieStore.getAll() }
-        }
-      }
-    )
+    const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) redirect('/login')
     
@@ -31,7 +21,7 @@ export default async function Home() {
     .from('posts')
     .select(`
       *,
-      profiles ( username, role )
+      profiles ( username, role, avatar_url )
     `)
     .order('created_at', { ascending: false })
     
@@ -58,6 +48,7 @@ export default async function Home() {
                key={post.id}
                // We handle the case where profiles might be null (though it shouldn't be)
                username={post.profiles?.username || 'Unknown Witch'}
+               avatar_url={post.profiles?.avatar_url || null}
                // Simple math to show time (or use a library like 'date-fns' later)
                timeAgo={new Date(post.created_at).toLocaleDateString()} 
                content={post.content}
@@ -75,8 +66,6 @@ export default async function Home() {
 
         </div>
 
-        {/* Right Sidebar: Widgets */}
-        {/* <WidgetSidebar /> */}
       </main>
     </div>
   );

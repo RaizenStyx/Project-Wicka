@@ -1,14 +1,13 @@
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
+import { createClient } from '@/app/utils/supabase/server'
 import { notFound } from 'next/navigation'
-import PostCard from '@/components/PostCard'
+import PostCard from '@/components/ui/PostCard'
 import { Cannabis, Cat, Shield } from 'lucide-react'
 import SpellCard from '@/components/spellbook/SpellCard'
 import Link from 'next/link'
 import { signOut } from '@/app/actions/authActions'
-import { clsx } from 'clsx' // specific helper for classes
+import { clsx } from 'clsx'
+import ProfileHeader from '@/components/profile/ProfileHeader'
 
-// Next.js 15: searchParams is now a Promise
 export default async function ProfilePage({ 
   params, 
   searchParams 
@@ -23,12 +22,7 @@ export default async function ProfilePage({
   // Default to 'posts' if no view is specified
   const currentView = view === 'spells' ? 'spells' : 'posts';
 
-  const cookieStore = await cookies()
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { cookies: { getAll() { return cookieStore.getAll() } } }
-  )
+  const supabase = await createClient();
 
   // 1. Fetch the Profile
   const { data: profile } = await supabase
@@ -48,7 +42,7 @@ export default async function ProfilePage({
   if (currentView === 'posts') {
     const { data } = await supabase
       .from('posts')
-      .select('*, profiles(username, role)')
+      .select('*, profiles(username, role, avatar_url)')
       .eq('user_id', profile.id)
       .order('created_at', { ascending: false });
     posts = data;
@@ -95,9 +89,8 @@ export default async function ProfilePage({
           )}
           
           <div className="absolute -bottom-6 left-8 flex items-end gap-6">
-            <div className="h-32 w-32 rounded-full bg-slate-900 border-4 border-slate-950 flex items-center justify-center text-4xl shadow-xl">
-               <span className="text-purple-500 font-serif">{profile.username?.[0]?.toUpperCase()}</span>
-            </div>
+            
+            <ProfileHeader profile={profile} isOwnProfile={isOwner} />
             
             <div className="mb-2">
               <h1 className="text-3xl font-bold text-white flex items-center gap-2">
@@ -203,6 +196,7 @@ export default async function ProfilePage({
                     <PostCard 
                       key={post.id}
                       username={post.profiles?.username || 'Unknown Witch'}
+                      avatar_url={post.profiles?.avatar_url || null}
                       timeAgo={new Date(post.created_at).toLocaleDateString()} 
                       content={post.content}
                       currentUserRole={profile?.role} 

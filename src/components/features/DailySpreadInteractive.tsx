@@ -34,7 +34,7 @@ export default function DailySpreadInteractive({ cards, isNew }: Props) {
       {/* --- THE DECK --- */}
       {/* Only show the deck if there are cards left to draw */}
       {/* This div controls the height */}
-      <div className="mb-12 relative h-25 w-40">
+      <div className="mb-12 relative h-60 w-40">
         {revealedCount < 3 ? (
           <motion.button
             layout // This helps smooth layout changes when it disappears

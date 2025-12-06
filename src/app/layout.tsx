@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
+import { createClient } from "./utils/supabase/server";
 import Shell from "@/components/layout/Shell";
-import SidebarLinks from "@/components/SidebarLinks";
+import SidebarLinks from "@/components/ui/SidebarLinks";
 import WidgetSidebar from "@/components/widgets/WidgetSidebar";
 import "./globals.css";
 
@@ -20,17 +19,8 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // 1. Setup Supabase
-  const cookieStore = await cookies();
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() { return cookieStore.getAll() },
-      },
-    }
-  );
+  // Create Supabase Client on the Server
+  const supabase = await createClient();
 
   // 2. Fetch User
   const { data: { user } } = await supabase.auth.getUser();

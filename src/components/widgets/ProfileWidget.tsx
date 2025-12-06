@@ -1,6 +1,5 @@
 import React from 'react';
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
+import { createClient } from '@/app/utils/supabase/server';
 import WidgetFrame from './WidgetFrame';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
@@ -29,17 +28,8 @@ function RoleBadge({ role }: { role: string }) {
 }
 
 export default async function ProfileWidget() {
-    const cookieStore = await cookies()
 
-    const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
-            cookies: {
-                getAll() { return cookieStore.getAll() }
-            }
-        }
-    )
+    const supabase = await createClient();
 
     // 1. Get the current User
     const { data: { user } } = await supabase.auth.getUser()

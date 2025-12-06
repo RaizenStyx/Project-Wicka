@@ -1,23 +1,13 @@
 'use server'
 
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
+import { createClient } from '../utils/supabase/server'
 import { revalidatePath } from 'next/cache';
 
 // Helper: 78 Card Deck
 const FULL_DECK_IDS = Array.from({ length: 78 }, (_, i) => i + 1);
 
 export async function drawWidgetCard() {
-  const cookieStore = await cookies()
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() { return cookieStore.getAll() }
-      }
-    }
-  )
+  const supabase = await createClient();
 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "Unauthorized" };
@@ -90,20 +80,8 @@ export async function drawWidgetCard() {
   };
 }
 
-// Keep your getDailySpread function exactly as it was, it was correct!
 export async function getDailySpread() {
-    // ... (Your existing getDailySpread code goes here) ...
-    // I am omitting it here to save space, but keep the code you posted!
-    const cookieStore = await cookies()
-    const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-        cookies: {
-        getAll() { return cookieStore.getAll() }
-        }
-    }
-    )
+    const supabase = await createClient();
 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return null;

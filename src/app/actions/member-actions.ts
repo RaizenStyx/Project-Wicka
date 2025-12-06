@@ -1,7 +1,6 @@
 'use server'
 
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
+import { createClient } from '../utils/supabase/server'
 
 // 1. Define the shape of the data we expect
 export type MemberProfile = {
@@ -12,24 +11,16 @@ export type MemberProfile = {
   coven_name: string | null
   updated_at: string
   // Add avatar_url if you have it in your DB Schema
-  // avatar_url: string | null 
+  avatar_url: string | null 
 }
 
 export async function getMembers(): Promise<MemberProfile[]> {
-const cookieStore = await cookies()
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() { return cookieStore.getAll() }
-      }
-    }
-  )
+  // 1. Create Supabase Client with cookies for SSR
+  const supabase = await createClient();
 
  const { data: profiles, error } = await supabase
     .from('profiles')
-    .select('id, username, handle, role, coven_name, updated_at') // Be specific with columns
+    .select('id, username, handle, role, coven_name, updated_at, avatar_url') // Be specific with columns
     .order('updated_at', { ascending: false })
     .limit(50)
 

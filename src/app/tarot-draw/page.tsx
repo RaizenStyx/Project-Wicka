@@ -1,5 +1,5 @@
 import { getDailySpread } from "@/app/actions/tarot";
-import DailySpreadInteractive from "@/components/DailySpreadInteractive";
+import DailySpreadInteractive from "@/components/features/DailySpreadInteractive";
 
 export default async function TarotDraw() {
   // Fetch data on the server

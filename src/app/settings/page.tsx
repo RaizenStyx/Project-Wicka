@@ -1,21 +1,11 @@
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
+import { createClient } from '../utils/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import ProfileForm from './ProfileFile' 
-import PasswordForm from '@/components/PasswordForm'
+import PasswordForm from '@/components/features/PasswordForm'
 
 export default async function SettingsPage() {
-  const cookieStore = await cookies()
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() { return cookieStore.getAll() }
-      }
-    }
-  )
+  const supabase = await createClient();
 
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
