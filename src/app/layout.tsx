@@ -5,14 +5,13 @@ import { cookies } from "next/headers";
 import Shell from "@/components/layout/Shell";
 import SidebarLinks from "@/components/SidebarLinks";
 import WidgetSidebar from "@/components/widgets/WidgetSidebar";
-// import Navigation from "@/components/Navigation";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-serif" });
 
 export const metadata: Metadata = {
-  title: "Wicka - Coven of Creators",
+  title: "Notca - Creators of Night",
   description: "A mystical social platform for witches and wizards to share their spells and connect with fellow coven members.",
 };
 
@@ -49,9 +48,6 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable} ${playfair.variable} bg-slate-950 text-slate-200`}>
-        {/* <Navigation 
-           profile={userProfile} 
-        /> */}
         <Shell 
           leftSidebar={<SidebarLinks profile={userProfile} />}
           rightSidebar={<WidgetSidebar />}

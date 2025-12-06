@@ -1,10 +1,55 @@
-import Construction from '@/components/Construction';
+import { getSpells, createSpell, deleteSpell } from '@/app/actions/spell-actions'
+import { BookOpen, Feather, Moon, Trash2, Lock, Globe } from 'lucide-react'
+import SpellForm from '@/components/spellbook/SpellForm' 
+import SpellCard from '@/components/spellbook/SpellCard' 
 
-export default function SpellbookPage() {
+export default async function SpellbookPage() {
+  const spells = await getSpells()
+
   return (
-    <Construction 
-      title="Book of Shadows" 
-      description="Your personal grimoire. Soon you will be able to document spells, rituals, and potion recipes here." 
-    />
-  );
+    <div className="max-w-4xl mx-auto p-6 min-h-screen">
+      
+      {/* Header */}
+      <div className="flex flex-col md:flex-row justify-between items-end mb-8 gap-4 border-b border-slate-800 pb-6">
+        <div>
+          <h1 className="text-4xl font-serif text-purple-200 flex items-center gap-3">
+            <BookOpen className="w-8 h-8 text-purple-400" />
+            My Grimoire
+          </h1>
+          <p className="text-slate-400 mt-2">
+            Record your rituals, recipes, and intentions.
+          </p>
+        </div>
+        
+        {/* We will trigger a modal or toggle with this eventually, 
+            for now we just render the form below */}
+      </div>
+
+      {/* CREATE SECTION */}
+      <div className="mb-12">
+        <SpellForm />
+      </div>
+
+      {/* SPELL LIST */}
+      <div className="space-y-6">
+        <h2 className="text-xl font-serif text-slate-300 mb-4 pl-2 border-l-4 border-purple-500">
+          Recorded Spells ({spells.length})
+        </h2>
+        
+        {spells.length === 0 ? (
+          <div className="text-center py-12 bg-slate-900/50 rounded-xl border border-dashed border-slate-800">
+            <Feather className="w-12 h-12 text-slate-600 mx-auto mb-3" />
+            <p className="text-slate-500">Your pages are empty. Write your first spell above.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-6">
+             {spells.map((spell) => (
+               <SpellCard key={spell.id} spell={spell} />
+             ))}
+          </div>
+        )}
+      </div>
+
+    </div>
+  )
 }

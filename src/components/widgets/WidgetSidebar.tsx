@@ -1,8 +1,9 @@
 import React from 'react';
+import ProfileWidget from './ProfileWidget';
 import MoonWidget from './MoonWidget';
 import TarotWidget from './TarotWidget';
 
-const WidgetSidebar = () => {
+export default async function WidgetSidebar() {
   // FUTURE TODO: Fetch user preferences here.
   // const { activeWidgets } = useUserPreferences();
 
@@ -11,7 +12,8 @@ const WidgetSidebar = () => {
       {/* Since the WidgetFrame includes 'mb-6' (margin bottom), 
          they will stack perfectly. 
       */}
-      
+      <ProfileWidget />
+
       <MoonWidget />
       <TarotWidget />
       
@@ -23,4 +25,3 @@ const WidgetSidebar = () => {
   );
 };
 
-export default WidgetSidebar;

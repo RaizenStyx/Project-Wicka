@@ -83,7 +83,7 @@ export default function Shell({
         <div className="flex items-center gap-2">
            <Sparkles className="w-5 h-5 text-purple-500" />
            <Link href="/">
-            <span className="font-serif text-xl font-bold tracking-wider text-slate-100">COVEN</span>
+            <span className="font-serif text-xl font-bold tracking-wider text-slate-100">NOCTA</span>
            </Link>
         </div>
 

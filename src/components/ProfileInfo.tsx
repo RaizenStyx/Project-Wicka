@@ -4,6 +4,8 @@ import { createServerClient } from '@supabase/ssr'
 import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
 import { X } from 'lucide-react'
+import clsx from 'clsx'
+import { Sparkles } from 'lucide-react'
 
 export default async function ProfileInfo() {
     const cookieStore = await cookies()
@@ -43,13 +45,30 @@ export default async function ProfileInfo() {
             </div>
             <X className="w-5 h-5 text-purple-500 rotate-45 -scale-x-100" />
           </div>
-            <div>
-              <p className="text-sm bg-purple-500 text-white px-2 py-0.5 rounded-full inline-block" title="User Role">{profile?.role || 'witch'}</p>
-            </div>
+          <RoleBadge role={profile.role || 'initiate'} />
         </div>
         <p className="text-slate-300 text-sm">
             "This is a placeholder bio for the user profile. It gives a brief introduction about the user, their interests, and what they bring to the coven."
         </p>
     </>
+    )
+}
+
+// --- Helper Component for Roles ---
+function RoleBadge({ role }: { role: string }) {
+    // Customize colors based on role
+    const isSupporter = role === 'supporter' || role === 'admin' || role === 'Princess' || role === 'Goddess';
+    const isVerified = role === 'verified';
+    return (
+        <span className={clsx(
+        
+          "text-[10px] uppercase font-bold px-2 py-1 rounded-full border flex items-center gap-1",
+            isSupporter ? "bg-amber-900/20 text-amber-200 border-amber-800" :
+            isVerified ? "bg-purple-900/20 text-purple-200 border-purple-800" :
+            "bg-slate-800 text-slate-500 border-slate-700" // Initiate
+        )}>
+            {isSupporter && <Sparkles className="w-3 h-3" />}
+            {role || 'Initiate'}
+        </span>
     )
 }

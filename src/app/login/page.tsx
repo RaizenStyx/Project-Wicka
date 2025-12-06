@@ -45,7 +45,7 @@ export default function AuthPage() {
               <input name="password" type="password" placeholder="Password" required className="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-slate-200 focus:border-purple-500 outline-none" />
             </div>
             
-            <button disabled={loginPending} className="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 py-3 rounded-lg font-medium transition-all">
+            <button disabled={loginPending} className="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 py-3 rounded-lg font-medium transition-all cursor-pointer shadow-[0_0_10px_rgba(100,100,100,0.2)] hover:shadow-[0_0_15px_rgba(147,51,234,0.3)]">
               {loginPending ? 'Entering...' : 'Log In'}
             </button>
           </form>
@@ -66,7 +66,7 @@ export default function AuthPage() {
               <input name="confirmPassword" type="password" placeholder="Confirm" required className="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-slate-200 focus:border-purple-500 outline-none" />
             </div>
 
-            <button disabled={signupPending} className="w-full bg-purple-600 hover:bg-purple-500 text-white py-3 rounded-lg font-medium shadow-[0_0_15px_rgba(147,51,234,0.3)] transition-all">
+            <button disabled={signupPending} className="w-full bg-purple-600 hover:bg-purple-500 text-white py-3 rounded-lg font-medium shadow-[0_0_15px_rgba(147,51,234,0.3)] transition-all cursor-pointer">
               {signupPending ? 'Joining...' : 'Join Coven'}
             </button>
           </form>
@@ -79,7 +79,7 @@ export default function AuthPage() {
           </p>
           <button 
             onClick={() => setIsLogin(!isLogin)}
-            className="text-sm text-purple-400 hover:text-purple-300 underline underline-offset-4"
+            className="text-sm text-purple-400 hover:text-purple-300 underline underline-offset-4 cursor-pointer transition-colors"
           >
             {isLogin ? "Create an Account" : "Return to Login"}
           </button>

@@ -263,3 +263,61 @@ create policy "Users can update own tarot data" on user_daily_tarot
 
 create policy "Users can insert own tarot data" on user_daily_tarot
   for insert with check (auth.uid() = user_id);
+
+-- Create a table for Spells
+create table spells (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users not null,
+  
+  title text not null,
+  intent text, -- e.g. "Protection", "Love", "Wealth"
+  ingredients text, -- Simple text for now, can be JSON later
+  moon_phase text, -- e.g. "Waxing", "Full"
+  content text, -- The actual steps/description
+  is_private boolean default true, -- Default to private
+  
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+-- Enable Security
+alter table spells enable row level security;
+
+-- Policies
+create policy "Public spells are viewable by everyone" on spells
+  for select using (
+    -- Rule: You are the owner OR the spell is not private
+    auth.uid() = user_id OR is_private = false
+  );
+
+create policy "Users can insert own spells" on spells
+  for insert with check (auth.uid() = user_id);
+
+create policy "Users can update own spells" on spells
+  for update using (auth.uid() = user_id);
+
+create policy "Users can delete own spells" on spells
+  for delete using (auth.uid() = user_id);
+
+-- Create a table for Altar Items
+create table altar_items (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users not null,
+  
+  item_type text not null, -- 'candle', 'crystal', 'incense'
+  variant text, -- 'white_candle', 'amethyst', etc.
+  
+  position_x integer default 50, -- For future drag-and-drop (percentage 0-100)
+  position_y integer default 50, -- For future drag-and-drop
+  
+  active_since timestamp with time zone, -- When the candle was lit
+  duration_minutes integer, -- How long it lasts (e.g., 1440 for 24 hours)
+  
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+-- Enable RLS
+alter table altar_items enable row level security;
+
+-- Policies
+create policy "Users can manage own altar" on altar_items
+  for all using (auth.uid() = user_id);

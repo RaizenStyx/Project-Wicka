@@ -1,6 +1,6 @@
 import { getMembers } from '@/app/actions/member-actions'
 import Link from 'next/link'
-import { User, MessageCircle, Shield, Sparkles } from 'lucide-react'
+import { User, MessageCircle, Shield, Sparkles, House, Cannabis, Cat } from 'lucide-react'
 import { clsx } from 'clsx'
 
 export default async function MembersPage() {
@@ -12,7 +12,7 @@ export default async function MembersPage() {
       {/* Page Header */}
       <div className="mb-10 text-center">
         <h1 className="text-4xl font-serif text-purple-200 drop-shadow-[0_0_10px_rgba(168,85,247,0.5)]">
-          Coven Members
+          Nocta Members
         </h1>
         <p className="text-slate-400 mt-2">
           Connect with your fellow witches and practitioners.
@@ -41,14 +41,23 @@ export default async function MembersPage() {
               <h3 className="text-lg font-bold text-slate-100 font-serif tracking-wide">
                 {member.username || 'Unknown Soul'}
               </h3>
-              <p className="text-xs text-slate-500 font-mono">
+              <p className="text-xs text-slate-400 mt-1 flex items-center gap-1">
                 @{member.handle}
+                {/* Optional Role Badge */}
+                  {(member.role === 'verified' || member.role === 'supporter') && (
+                      <Shield className="w-3 h-3 text-purple-400 fill-purple-400/20" />
+                  )}
+                  {(member.role === 'Goddess') && (
+                      <Cannabis className="w-3 h-3 text-purple-400 fill-purple-400/20" />
+                  )}
+                  {(member.role === 'Princess') && (
+                      <Cat className="w-3 h-3 text-purple-400 fill-purple-400/20" />
+                  )}
               </p>
-              
               {/* Optional: Show Coven Name if they have one */}
               {member.coven_name && (
                 <div className="mt-3 flex items-center gap-2 text-xs text-purple-300/80 bg-purple-900/20 px-2 py-1 rounded w-fit">
-                    <Shield className="w-3 h-3" />
+                    <House className="w-3 h-3" />
                     {member.coven_name}
                 </div>
               )}
@@ -92,12 +101,12 @@ export default async function MembersPage() {
 // --- Helper Component for Roles ---
 function RoleBadge({ role }: { role: string }) {
     // Customize colors based on role
-    const isSupporter = role === 'supporter' || role === 'admin';
-    const isVerified = role === 'verified' || role === 'Princess' || role === 'Goddess';
-    
+    const isSupporter = role === 'supporter' || role === 'admin' || role === 'Princess' || role === 'Goddess';
+    const isVerified = role === 'verified';
     return (
         <span className={clsx(
-            "text-[10px] uppercase font-bold px-2 py-1 rounded-full border flex items-center gap-1",
+        
+          "text-[10px] uppercase font-bold px-2 py-1 rounded-full border flex items-center gap-1",
             isSupporter ? "bg-amber-900/20 text-amber-200 border-amber-800" :
             isVerified ? "bg-purple-900/20 text-purple-200 border-purple-800" :
             "bg-slate-800 text-slate-500 border-slate-700" // Initiate

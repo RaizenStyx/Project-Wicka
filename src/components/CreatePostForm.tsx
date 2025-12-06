@@ -23,7 +23,7 @@ export default function CreatePostForm() {
   }, [state.success])
 
   return (
-    <div className="p-4 shadow-lg mt-2 rounded-xl bg-slate-900 border border-slate-800">
+    <div className="p-4 shadow-lg mt-2 rounded-xl bg-slate-700 border border-slate-800">
       
       {/* Show Error */}
       {state.error && (
@@ -37,12 +37,13 @@ export default function CreatePostForm() {
           {/* <div className="h-10 w-10 rounded-full bg-slate-800 shrink-0 border border-slate-700">
             
           </div> */}
-          <input 
+          <textarea  
             name="content"
-            type="text" 
+            rows={3} 
             placeholder="Share your intention..." 
             className="w-full bg-transparent border-none focus:ring-0 text-slate-200 placeholder-slate-600 outline-none"
             autoComplete="off"
+            maxLength={300}
             disabled={isPending}
           />
         </div>

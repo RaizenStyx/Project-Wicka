@@ -58,6 +58,7 @@ const TarotWidget = () => {
 
   return (
     <WidgetFrame title="Card of the Day">
+      <p>TODO: Make first draw an intentional card, save to profile for the day?</p>
       <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-lg flex flex-col items-center justify-center min-h-[340px]">
       
         {/* Header */}

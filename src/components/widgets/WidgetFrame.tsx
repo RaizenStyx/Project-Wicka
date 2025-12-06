@@ -2,7 +2,7 @@
 import React from 'react';
 
 interface WidgetFrameProps {
-  title: string;
+  title: React.ReactNode;
   children: React.ReactNode;
   className?: string; // Allow custom styles (like gradients) if needed
 }

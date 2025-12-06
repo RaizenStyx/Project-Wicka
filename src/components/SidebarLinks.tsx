@@ -36,8 +36,8 @@ export default function SidebarLinks({ profile }: SidebarLinksProps) {
 
   // Static Home List
   const navHome: NavItem[] = [
-    { label: 'Feed', href: '/' },
     { label: 'Join the Coven', href: '/join', allowedRoles: ['initiate'] },
+    { label: 'Feed', href: '/' },
     { label: 'Profile', href: "/u/" + (profile?.handle || 'profile') },
     { label: 'Settings', href: '/settings' },
     { label: 'Chat', href: '/chat' },
@@ -51,9 +51,9 @@ export default function SidebarLinks({ profile }: SidebarLinksProps) {
       icon: Sparkles, 
       items: [
         { label: 'Daily Tarot', href: '/tarot-draw' },
-        { label: 'Home Altar - 1', href: '/altar' },
-        { label: 'Spellbook - 2', href: '/spellbook' },
-        { label: 'Crystal Log - 3', href: '/crystal-log' },
+        { label: 'Home Altar', href: '/altar' },
+        { label: 'Spellbook', href: '/spellbook' },
+        { label: 'Crystal Log - 1', href: '/crystal-log' },
         { label: 'Oracle AI', href: 'https://ai-oracle-eight.vercel.app/access', allowedRoles: ['supporter', 'admin'], isExternal: true }
       ]
     },

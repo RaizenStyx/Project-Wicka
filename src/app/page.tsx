@@ -1,13 +1,9 @@
 import PostCard from "../components/PostCard";
-import WidgetSidebar from "@/components/widgets/WidgetSidebar";
-import CreatePostForm from "@/components/CreatePostForm";
-import SidebarLinks from "@/components/SidebarLinks";
 import ProfileInfo from "@/components/ProfileInfo";
-import ProfileWidget from "@/components/ProfileWidget";
+import ProfileWidget from "@/components/FeedProfileWidget";
 import { createServerClient } from '@supabase/ssr'
 import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
-// import Link from "next/link";
 
 export default async function Home() {
 
@@ -42,21 +38,7 @@ export default async function Home() {
   return (
   <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-purple-500 selection:text-white">
 
-      <main className="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 gap-8">
-        
-        {/* Left Sidebar: Navigation & Quick Links */}
-        {/* <div className="hidden md:block col-span-1 space-y-6"> */}
-           {/* <SidebarLinks profile={profile} />  */}
-         
-          {/* <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 shadow-lg">
-            <h3 className="text-slate-500 text-xs uppercase tracking-widest font-bold mb-4">Coven Space? TODO</h3>
-            <ul className="space-y-3">
-                <li className="cursor-pointer text-slate-300 hover:text-purple-400 hover:pl-2 transition-all duration-200">
-                {profile?.coven_name || 'Witch'}
-                </li>
-            </ul>
-          </div> */}
-        {/* </div> */}
+      <main className="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 gap-8"> 
         
         {/* Center: The Social Feed */}
         <div className="space-y-6">
@@ -69,13 +51,9 @@ export default async function Home() {
             <ProfileWidget />
           )}
           </div>
-          
-          
-            
-            
-          
+
           {/* REAL POSTS LOOP */}
-          {posts?.map((post) => (
+            {posts?.slice(0, 25).map((post) => (
              <PostCard 
                key={post.id}
                // We handle the case where profiles might be null (though it shouldn't be)
@@ -86,7 +64,7 @@ export default async function Home() {
                // Pass the role down if you want to show a badge!
                currentUserRole={profile?.role} 
              />
-          ))}
+            ))}
 
           {/* Show a message if no posts exist */}
           {(!posts || posts.length === 0) && (
