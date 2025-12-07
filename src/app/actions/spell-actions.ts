@@ -12,6 +12,7 @@ export type Spell = {
   moon_phase: string | null
   content: string | null
   is_private: boolean
+  is_published: boolean
   created_at: string
 }
 
@@ -51,6 +52,12 @@ export async function createSpell(formData: FormData) {
   const ingredients = formData.get('ingredients') as string
   const content = formData.get('content') as string
   const is_private = formData.get('is_private') === 'on'
+  const is_published = formData.get('is_published') === 'on'
+
+  // Logic check: You can't publish a private spell
+  if (is_private && is_published) {
+     return { error: "You cannot publish a private spell to the community." }
+  }
 
   const { error } = await supabase
     .from('spells')
@@ -61,7 +68,8 @@ export async function createSpell(formData: FormData) {
       moon_phase,
       ingredients,
       content,
-      is_private
+      is_private,
+      is_published
     })
 
   if (error) {
@@ -103,6 +111,12 @@ export async function updateSpell(id: string, formData: FormData) {
   const ingredients = formData.get('ingredients') as string
   const content = formData.get('content') as string
   const is_private = formData.get('is_private') === 'on'
+  const is_published = formData.get('is_published') === 'on'
+
+  // Logic check: You can't publish a private spell
+  if (is_private && is_published) {
+     return { error: "You cannot publish a private spell to the community." }
+  }
 
   const { error } = await supabase
     .from('spells')
@@ -112,7 +126,8 @@ export async function updateSpell(id: string, formData: FormData) {
       moon_phase,
       ingredients,
       content,
-      is_private
+      is_private,
+      is_published
     })
     .eq('id', id)
     .eq('user_id', user.id) // Double security: Only update if they own it
@@ -124,6 +139,29 @@ export async function updateSpell(id: string, formData: FormData) {
 
   // Refresh the data on all pages
   revalidatePath('/spellbook')
-  revalidatePath('/', 'layout') // Ensures Profile pages update too
+  revalidatePath('/', 'layout') 
   return { success: true }
+}
+
+export async function getCommunitySpells() {
+  const supabase = await createClient()
+  
+  console.log("Fetching community spells..."); // Debug Log
+
+  const { data } = await supabase
+    .from('spells')
+    .select(`
+      *,
+      profiles (
+        username,
+        handle,
+        avatar_url
+      )
+    `)
+    .eq('is_published', true)
+    .eq('is_private', false)
+    .order('created_at', { ascending: false })
+    .limit(50)
+  
+  return data || []
 }

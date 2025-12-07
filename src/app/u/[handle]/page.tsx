@@ -51,7 +51,7 @@ export default async function ProfilePage({
       .from('spells')
       .select('*')
       .eq('user_id', profile.id)
-      .eq('is_private', false) // IMPORTANT: Only show public spells
+      .eq('is_private', false)
       .order('created_at', { ascending: false });
     spells = data;
   }
@@ -161,8 +161,8 @@ export default async function ProfilePage({
              {/* --- TABS NAVIGATION --- */}
              <div className="flex items-center gap-6 mb-6 border-b border-slate-800">
                 <Link 
-                  href={`/u/${handle}`} // Default link (Posts)
-                  scroll={false} // Prevents scroll jump
+                  href={`/u/${handle}`} 
+                  scroll={false} 
                   className={clsx(
                     "pb-3 text-sm font-medium transition-colors border-b-2",
                     currentView === 'posts' 

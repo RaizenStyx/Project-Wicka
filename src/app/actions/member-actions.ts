@@ -10,12 +10,11 @@ export type MemberProfile = {
   role: string | null
   coven_name: string | null
   updated_at: string
-  // Add avatar_url if you have it in your DB Schema
   avatar_url: string | null 
 }
 
 export async function getMembers(): Promise<MemberProfile[]> {
-  // 1. Create Supabase Client with cookies for SSR
+  // 1. Create Supabase Client
   const supabase = await createClient();
 
  const { data: profiles, error } = await supabase

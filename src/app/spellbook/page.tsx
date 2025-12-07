@@ -1,5 +1,5 @@
-import { getSpells, createSpell, deleteSpell } from '@/app/actions/spell-actions'
-import { BookOpen, Feather, Moon, Trash2, Lock, Globe } from 'lucide-react'
+import { getSpells } from '@/app/actions/spell-actions'
+import { BookOpen, Feather } from 'lucide-react'
 import SpellForm from '@/components/spellbook/SpellForm' 
 import SpellCard from '@/components/spellbook/SpellCard' 
 
@@ -12,7 +12,7 @@ export default async function SpellbookPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-end mb-8 gap-4 border-b border-slate-800 pb-6">
         <div>
-          <h1 className="text-4xl font-serif text-purple-200 flex items-center gap-3">
+          <h1 className="text-4xl font-serif text-purple-200 flex items-center gap-3 drop-shadow-[0_0_15px_rgba(168,85,247,0.3)]">
             <BookOpen className="w-8 h-8 text-purple-400" />
             My Grimoire
           </h1>
@@ -20,15 +20,10 @@ export default async function SpellbookPage() {
             Record your rituals, recipes, and intentions.
           </p>
         </div>
-        
-        {/* We will trigger a modal or toggle with this eventually, 
-            for now we just render the form below */}
       </div>
 
       {/* CREATE SECTION */}
-      <div className="mb-12">
-        <SpellForm />
-      </div>
+      <SpellForm />
 
       {/* SPELL LIST */}
       <div className="space-y-6">
@@ -37,9 +32,9 @@ export default async function SpellbookPage() {
         </h2>
         
         {spells.length === 0 ? (
-          <div className="text-center py-12 bg-slate-900/50 rounded-xl border border-dashed border-slate-800">
-            <Feather className="w-12 h-12 text-slate-600 mx-auto mb-3" />
-            <p className="text-slate-500">Your pages are empty. Write your first spell above.</p>
+          <div className="text-center py-20 bg-slate-900/30 rounded-xl border border-dashed border-slate-800">
+            <Feather className="w-12 h-12 text-slate-700 mx-auto mb-3" />
+            <p className="text-slate-500">Your pages are empty. <br/>Write your first spell above.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-6">

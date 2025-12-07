@@ -26,13 +26,12 @@ export default function Avatar({
     <>
       {!url ? (
        
-        <div style={{ width: size, height: size }}
+        <div 
+        style={{ width: size, height: size }}
         className="rounded-full bg-slate-900 border-6 border-slate-900 flex items-center justify-center shadow-lg overflow-hidden text-2xl">
-            
-        <span className="text-purple-500 font-serif font-bold">
-        {fallback.toUpperCase().slice(0, 1)}
-        </span>
-            
+          <span className="text-purple-500 font-serif font-bold">
+            {fallback.toUpperCase().slice(0, 1)}
+          </span>  
         </div>
       ) : (
         <Image

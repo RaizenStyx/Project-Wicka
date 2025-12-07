@@ -102,7 +102,7 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
       <div className="pt-4 flex justify-end">
         <button 
           type="submit" 
-          disabled={isPending} // Disable button while saving
+          disabled={isPending} 
           className="bg-purple-600 hover:bg-purple-500 text-white px-6 py-2 rounded-lg transition-all shadow-[0_0_15px_rgba(147,51,234,0.3)] disabled:opacity-50"
         >
           {isPending ? 'Saving...' : 'Save Changes'}

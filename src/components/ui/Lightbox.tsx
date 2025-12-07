@@ -18,7 +18,7 @@ export default function Lightbox({ src, alt, onClose }: LightboxProps) {
     };
     if (src) {
         window.addEventListener('keydown', handleKeyDown);
-        document.body.style.overflow = 'hidden'; // Lock scroll
+        document.body.style.overflow = 'hidden'; 
     }
     return () => {
       window.removeEventListener('keydown', handleKeyDown);

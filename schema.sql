@@ -264,39 +264,86 @@ create policy "Users can update own tarot data" on user_daily_tarot
 create policy "Users can insert own tarot data" on user_daily_tarot
   for insert with check (auth.uid() = user_id);
 
--- Create a table for Spells
-create table spells (
-  id uuid default gen_random_uuid() primary key,
-  user_id uuid references auth.users not null,
+/** * TABLE: SPELLS
+* Description: Stores user grimoire entries.
+* Features: 
+* - Private Mode (User only)
+* - Public Profile Mode (Visible on Profile)
+* - Community Mode (Visible in Library)
+*/
+
+-- 1. Create the Table
+CREATE TABLE public.spells (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   
-  title text not null,
-  intent text, -- e.g. "Protection", "Love", "Wealth"
-  ingredients text, -- Simple text for now, can be JSON later
-  moon_phase text, -- e.g. "Waxing", "Full"
-  content text, -- The actual steps/description
-  is_private boolean default true, -- Default to private
+  -- Foreign Key to Auth Users (Owner)
+  user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
   
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+  -- Core Data
+  title text NOT NULL,
+  intent text,         -- e.g. "Protection", "Love"
+  ingredients text,    -- e.g. "Salt, Candle"
+  moon_phase text,     -- e.g. "Waxing", "Full"
+  content text,        -- The ritual steps
+  
+  -- Visibility Flags
+  is_private boolean DEFAULT true,    -- If true, only Owner can see
+  is_published boolean DEFAULT false, -- If true, shows up in Global Library
+  
+  -- Timestamps
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- Enable Security
-alter table spells enable row level security;
+-- 2. Add Foreign Key Constraint for Profiles
+-- This allows us to fetch Author Name/Avatar when querying spells
+ALTER TABLE public.spells
+ADD CONSTRAINT spells_user_id_profiles_fkey
+FOREIGN KEY (user_id)
+REFERENCES public.profiles(id)
+ON DELETE CASCADE;
 
--- Policies
-create policy "Public spells are viewable by everyone" on spells
-  for select using (
-    -- Rule: You are the owner OR the spell is not private
-    auth.uid() = user_id OR is_private = false
-  );
+-- 3. Enable Security
+ALTER TABLE public.spells ENABLE ROW LEVEL SECURITY;
 
-create policy "Users can insert own spells" on spells
-  for insert with check (auth.uid() = user_id);
+-- 4. RLS Policies
 
-create policy "Users can update own spells" on spells
-  for update using (auth.uid() = user_id);
+-- Policy A: VIEWING Spells
+-- Logic: You can see the spell IF:
+-- 1. You are the owner (auth.uid() = user_id)
+-- 2. OR the spell is NOT private (is_private = false)
+--    (This covers both "Profile Only" and "Community" spells)
+CREATE POLICY "Public or Owner can view spells"
+ON public.spells FOR SELECT
+USING ( 
+  auth.uid() = user_id 
+  OR 
+  is_private = false 
+);
 
-create policy "Users can delete own spells" on spells
-  for delete using (auth.uid() = user_id);
+-- Policy B: INSERTING Spells
+-- Logic: Users can only create spells for themselves
+CREATE POLICY "Users can insert own spells"
+ON public.spells FOR INSERT
+WITH CHECK ( auth.uid() = user_id );
+
+-- Policy C: UPDATING Spells
+-- Logic: Users can only edit their own spells
+CREATE POLICY "Users can update own spells"
+ON public.spells FOR UPDATE
+USING ( auth.uid() = user_id );
+
+-- Policy D: DELETING Spells
+-- Logic: Users can only delete their own spells
+CREATE POLICY "Users can delete own spells"
+ON public.spells FOR DELETE
+USING ( auth.uid() = user_id );
+
+
+-- 5. Profile Visibility Helper
+-- Ensure profiles are visible so the "Scribed By" badge works
+CREATE POLICY "Public profiles are viewable by everyone"
+ON public.profiles FOR SELECT
+USING ( true );
 
 -- Create a table for Altar Items
 create table altar_items (

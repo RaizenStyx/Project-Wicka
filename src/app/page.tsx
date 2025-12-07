@@ -46,13 +46,10 @@ export default async function Home() {
             {posts?.slice(0, 25).map((post) => (
              <PostCard 
                key={post.id}
-               // We handle the case where profiles might be null (though it shouldn't be)
                username={post.profiles?.username || 'Unknown Witch'}
                avatar_url={post.profiles?.avatar_url || null}
-               // Simple math to show time (or use a library like 'date-fns' later)
                timeAgo={new Date(post.created_at).toLocaleDateString()} 
                content={post.content}
-               // Pass the role down if you want to show a badge!
                currentUserRole={profile?.role} 
                image_url={post.image_url}
              />

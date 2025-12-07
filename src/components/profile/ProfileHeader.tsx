@@ -5,13 +5,13 @@ import Avatar from '@/components/ui/Avatar'
 import AvatarUploadModal from './AvatarUploadModal'
 import { useRouter } from 'next/navigation' 
 
-// Define the shape of your profile data
+// Define the shape of profile data
 interface ProfileData {
     id: string
     username: string
     handle: string
     avatar_url: string | null
-    // ... any other props you need
+    // ... any other props
 }
 
 interface Props {

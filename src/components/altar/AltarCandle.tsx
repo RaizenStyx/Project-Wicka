@@ -44,11 +44,12 @@ export default function AltarCandle({ item }: { item: AltarItemProps }) {
         height: '200px' // Max Candle Height
       }}
     >
-      <Flame className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-6 text-orange-400 animate-pulse z-20" />
+      
       {/* --- FLAME AREA --- */}
       <div className="relative w-full flex justify-center h-10 -mb-1 z-10">
         {!isBurnedOut && (
           <div className="relative">
+            <Flame className="absolute left-1/2 -translate-x-1/2 w-6 h-6 text-orange-400 animate-pulse z-20" />
              {/* Core Flame */}
              <div className="w-4 h-8 bg-orange-400 rounded-full blur-[2px] animate-pulse absolute bottom-0 left-1/2 -translate-x-1/2" />
              {/* Outer Glow */}

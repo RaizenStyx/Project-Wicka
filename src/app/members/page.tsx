@@ -1,8 +1,7 @@
 import { getMembers } from '@/app/actions/member-actions'
 import Link from 'next/link'
-import { User, MessageCircle, Shield, Sparkles, House, Cannabis, Cat } from 'lucide-react'
+import { MessageCircle, Shield, Sparkles, House, Cannabis, Cat } from 'lucide-react'
 import { clsx } from 'clsx'
-import ProfileHeader from '@/components/profile/ProfileHeader'
 import Avatar from '@/components/ui/Avatar'
 
 export default async function MembersPage() {
@@ -14,7 +13,7 @@ export default async function MembersPage() {
       {/* Page Header */}
       <div className="mb-10 text-center">
         <h1 className="text-4xl font-serif text-purple-200 drop-shadow-[0_0_10px_rgba(168,85,247,0.5)]">
-          Nocta Members
+          Nocta Members 
         </h1>
         <p className="text-slate-400 mt-2">
           Connect with your fellow witches and practitioners.

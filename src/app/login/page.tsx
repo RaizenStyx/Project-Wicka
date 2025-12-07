@@ -1,13 +1,8 @@
 'use client'
 
 import { useState, useActionState } from 'react'
-import { login, signup, type AuthState } from '@/app/login/actions'
+import { login, signup } from '@/app/login/actions'
 
-// Define initial state matching the Type EXACTLY
-const initialState: AuthState = {
-  error: null,
-  success: null
-}
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true) // Toggle state
@@ -27,7 +22,7 @@ export default function AuthPage() {
       <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-2xl relative z-10 transition-all duration-300">
         
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-serif text-purple-400 tracking-wider font-bold mb-2">COVEN</h1>
+          <h1 className="text-3xl font-serif text-purple-400 tracking-wider font-bold mb-2">NOCTA</h1>
           <p className="text-slate-500 text-sm">
             {isLogin ? 'Enter the circle.' : 'Begin your journey.'}
           </p>

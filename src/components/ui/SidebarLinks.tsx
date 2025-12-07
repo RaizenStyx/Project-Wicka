@@ -64,7 +64,8 @@ export default function SidebarLinks({ profile }: SidebarLinksProps) {
         { label: 'Crystals Database', href: '/crystals-db' },
         { label: 'Herbs Database', href: '/herbs-db' },
         { label: 'Runes Database', href: '/runes-db' },
-        { label: 'Tarot Meanings', href: '/tarot-db' }
+        { label: 'Tarot Meanings', href: '/tarot-db' },
+        { label: 'Published Spells', href: '/library'}
       ]
     },
     COVENS: {
