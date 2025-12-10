@@ -6,7 +6,7 @@ import { Plus, X, Sparkles, Scroll, Lock, Eye, Globe } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { clsx } from 'clsx'
 
-export default function SpellForm() {
+export default function SpellForm({ userRole }: {userRole: string}) {
   const [isOpen, setIsOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   
@@ -36,9 +36,10 @@ export default function SpellForm() {
     }
   }
 
+  const canPublish = userRole !== 'initiate';
+
   return (
     <div className="mb-8">
-      <p>Add a way to prevent initiate role to not post to community</p>
       <AnimatePresence mode='wait'>
         {!isOpen ? (
           <motion.button 
@@ -140,16 +141,27 @@ export default function SpellForm() {
 
                       {/* Option 3: Community */}
                       <div 
-                        onClick={() => setVisibility('community')}
+                        onClick={() => {
+                            if (canPublish) setVisibility('community')
+                            else alert("You must advance beyond Initiate to publish spells.")
+                        }}
                         className={clsx(
-                            "cursor-pointer border rounded-lg p-3 flex flex-col items-center gap-2 transition-all",
-                            visibility === 'community' ? "bg-purple-900/30 border-purple-500 text-purple-100" : "bg-slate-950 border-slate-800 text-slate-500 hover:border-slate-700"
+                            "border rounded-lg p-3 flex flex-col items-center gap-2 transition-all",
+                            // Style logic
+                            visibility === 'community' 
+                                ? "bg-purple-900/30 border-purple-500 text-purple-100" 
+                                : "bg-slate-950 border-slate-800 text-slate-500",
+                            
+                            // Disable logic
+                            canPublish ? "cursor-pointer hover:border-slate-700" : "opacity-50 cursor-not-allowed"
                         )}
-                      >
-                         <Globe className="w-5 h-5" />
-                         <span className="text-xs font-bold">Community</span>
-                         <span className="text-[10px] text-center opacity-70">Publish to Library</span>
-                      </div>
+                    >
+                        <Globe className="w-5 h-5" />
+                        <span className="text-xs font-bold">Community</span>
+                        <span className="text-[10px] text-center opacity-70">
+                            {canPublish ? "Publish to Library" : "Locked (Initiate)"}
+                        </span>
+                    </div>
 
                    </div>
                 </div>

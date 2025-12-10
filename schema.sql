@@ -439,3 +439,149 @@ USING (
   AND auth.uid() = owner
   AND (storage.foldername(name))[1] = auth.uid()::text
 );
+
+-- Crystal database
+-- Add a column for the user's personal photo of the crystal
+alter table public.user_crystal_collection 
+add column user_image_url text;
+-- 1. Create the Master Crystals Table
+create table public.crystals (
+  id uuid default gen_random_uuid() primary key,
+  name text not null,
+  meaning text not null,
+  element text not null, -- e.g., 'Earth', 'Water', 'Fire', 'Air', 'Spirit'
+  color text not null,   -- Hex code for UI styling (e.g., '#9966CC')
+  image_url text,        -- Optional: URL to an image in Supabase Storage
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+-- 2. Create the Collection (Join) Table
+create table public.user_crystal_collection (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users(id) on delete cascade not null,
+  crystal_id uuid references public.crystals(id) on delete cascade not null,
+  acquired_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  
+  -- Constraint: A user can only have one entry per crystal type
+  unique(user_id, crystal_id)
+);
+
+-- 3. Enable Row Level Security (RLS)
+alter table public.crystals enable row level security;
+alter table public.user_crystal_collection enable row level security;
+
+-- 4. Create Policies
+
+-- Crystals: Everyone can read, only service_role (admins) can write
+create policy "Crystals are viewable by everyone" 
+on public.crystals for select 
+using ( true );
+
+-- Collection: Users can view their own collection
+create policy "Users can view their own collection" 
+on public.user_crystal_collection for select 
+using ( auth.uid() = user_id );
+
+-- Collection: Users can insert into their own collection
+create policy "Users can add to their own collection" 
+on public.user_crystal_collection for insert 
+with check ( auth.uid() = user_id );
+
+-- Collection: Users can remove from their own collection
+create policy "Users can remove from their own collection" 
+on public.user_crystal_collection for delete 
+using ( auth.uid() = user_id );
+
+-- Seeding some crystals
+insert into public.crystals (name, meaning, element, color)
+values
+  (
+    'Amethyst', 
+    'Protects against psychic attack, relieves stress, and enhances spiritual awareness.', 
+    'Air', 
+    '#9966CC'
+  ),
+  (
+    'Rose Quartz', 
+    'The stone of universal love. Restores trust and harmony in relationships.', 
+    'Earth', 
+    '#F7C6C7'
+  ),
+  (
+    'Clear Quartz', 
+    'The master healer. Amplifies energy and thought, as well as the effect of other crystals.', 
+    'Spirit', 
+    '#E6E6E6'
+  ),
+  (
+    'Black Tourmaline', 
+    'Powerful protection against negative energy and electromagnetic smog.', 
+    'Earth', 
+    '#000000'
+  ),
+  (
+    'Citrine', 
+    'Attracts wealth, prosperity, and success. Imparts joy and enthusiasm.', 
+    'Fire', 
+    '#E4D00A'
+  ),
+  (
+    'Selenite', 
+    'Provides clarity of mind and cleanses negative energy from other stones.', 
+    'Air', 
+    '#FFFFFF'
+  ),
+  (
+    'Lapis Lazuli', 
+    'Encourages self-awareness, allows self-expression and reveals inner truth.', 
+    'Water', 
+    '#26619C'
+  ),
+  (
+    'Carnelian', 
+    'Restores vitality and motivation, and stimulates creativity.', 
+    'Fire', 
+    '#B31B1B'
+  ),
+  (
+    'Tiger''s Eye', 
+    'A stone of protection that may also bring good luck to the wearer.', 
+    'Fire', 
+    '#E08D3C'
+  ),
+  (
+    'Moonstone', 
+    'A stone of new beginnings. Promotes intuition and empathy.', 
+    'Water', 
+    '#F5F5DC'
+  ),
+  (
+    'Hematite', 
+    'Grounds and protects us. It strengthens our connection with the earth.', 
+    'Earth', 
+    '#708090'
+  ),
+  (
+    'Malachite', 
+    'A stone of transformation. Assists in changing situations and spiritual growth.', 
+    'Earth', 
+    '#0BDA51'
+  ),
+  (
+    'Labradorite', 
+    'A stone of transformation, it is a useful companion through change, imparting strength and perseverance.', 
+    'Water', 
+    '#607C8E'
+  ),
+  (
+    'Fluorite', 
+    'Cleanses and stabilizes the aura. It absorbs and neutralizes negative energy and stress.', 
+    'Air', 
+    '#A020F0'
+  ),
+  (
+    'Obsidian', 
+    'A strongly protective stone, it forms a shield against negativity.', 
+    'Fire', 
+    '#1C1C1C'
+  );

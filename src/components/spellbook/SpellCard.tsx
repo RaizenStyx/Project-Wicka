@@ -1,26 +1,35 @@
 'use client'
 
 import { deleteSpell, updateSpell, Spell } from '@/app/actions/spell-actions'
-import { Lock, Globe, Moon, Pencil, Save, X, Flame, Eye } from 'lucide-react' // Added Eye icon
+import { Lock, Globe, Moon, Pencil, Save, X, Flame, Eye } from 'lucide-react' 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { clsx } from 'clsx'
 
-// Extend Spell type to include is_published
+// Extend Spell type to include profile
 interface ExtendedSpell extends Spell {
-  profiles?: { username: string, handle: string }
+  profiles?: { username: string, handle: string, role: string }
 }
 
 interface SpellCardProps {
   spell: ExtendedSpell
   readOnly?: boolean 
   showAuthor?: boolean
+  userRole?: string
 }
 
-export default function SpellCard({ spell, readOnly = false, showAuthor = false }: SpellCardProps) {
+export default function SpellCard({ 
+  spell, 
+  readOnly = false, 
+  showAuthor = false, 
+  userRole = spell.profiles?.role || 'initiate' 
+}: SpellCardProps) {
+  
   const [isBurning, setIsBurning] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+
+  const canPublish = userRole !== 'initiate';
 
   // Helper to determine current visibility state
   const getInitialVisibility = () => {
@@ -42,8 +51,6 @@ export default function SpellCard({ spell, readOnly = false, showAuthor = false 
         // 2. Manually append to formData (overriding defaults)
         formData.set('is_private', isPrivate ? 'on' : 'off')
         formData.set('is_published', isPublished ? 'on' : 'off')
-
-        console.log(`Updating Spell: Private=${isPrivate}, Published=${isPublished}`); // Debug Log
 
         // 3. Send to Server
         const result = await updateSpell(spell.id, formData)
@@ -110,21 +117,27 @@ export default function SpellCard({ spell, readOnly = false, showAuthor = false 
                     <button 
                       type="button"
                       onClick={() => setEditVisibility('private')}
-                      className={clsx("px-3 py-1 text-xs rounded-md transition-all flex items-center gap-1", editVisibility === 'private' ? "bg-slate-800 text-white shadow" : "text-slate-500 hover:text-slate-300")}
+                      className={clsx("cursor-pointer px-3 py-1 text-xs rounded-md transition-all flex items-center gap-1", editVisibility === 'private' ? "bg-slate-800 text-white shadow" : "text-slate-500 hover:text-slate-300")}
                     >
                       <Lock className="w-3 h-3" /> Private
                     </button>
                     <button 
                       type="button"
                       onClick={() => setEditVisibility('profile')}
-                      className={clsx("px-3 py-1 text-xs rounded-md transition-all flex items-center gap-1", editVisibility === 'profile' ? "bg-slate-800 text-white shadow" : "text-slate-500 hover:text-slate-300")}
+                      className={clsx("cursor-pointer px-3 py-1 text-xs rounded-md transition-all flex items-center gap-1", editVisibility === 'profile' ? "bg-slate-800 text-white shadow" : "text-slate-500 hover:text-slate-300")}
                     >
                       <Eye className="w-3 h-3" /> Profile
                     </button>
                     <button 
                       type="button"
-                      onClick={() => setEditVisibility('community')}
-                      className={clsx("px-3 py-1 text-xs rounded-md transition-all flex items-center gap-1", editVisibility === 'community' ? "bg-purple-600 text-white shadow" : "text-slate-500 hover:text-slate-300")}
+                      onClick={() => {
+                            if (canPublish) setEditVisibility('community')
+                            else alert("You must advance beyond Initiate to publish spells.")
+                        }}
+                      className={clsx("cursor-pointer px-3 py-1 text-xs rounded-md transition-all flex items-center gap-1",
+                        editVisibility === 'community' ? "bg-purple-600 text-white shadow" : "text-slate-500 hover:text-slate-300",
+                        // Disable logic
+                        canPublish ? "cursor-pointer" : "opacity-50 cursor-not-allowed")}
                     >
                       <Globe className="w-3 h-3" /> Community
                     </button>

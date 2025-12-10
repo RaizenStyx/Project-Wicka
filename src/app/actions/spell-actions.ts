@@ -46,6 +46,13 @@ export async function createSpell(formData: FormData) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
 
+    // 1. Fetch the user's role
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
   const title = formData.get('title') as string
   const intent = formData.get('intent') as string
   const moon_phase = formData.get('moon_phase') as string
@@ -53,6 +60,11 @@ export async function createSpell(formData: FormData) {
   const content = formData.get('content') as string
   const is_private = formData.get('is_private') === 'on'
   const is_published = formData.get('is_published') === 'on'
+
+  // 2. The Check: If they are an initiate, they cannot publish
+  if (is_published && profile?.role === 'initiate') {
+      return { error: "Initiates must master their craft in private and become verified before publishing to the Archives." }
+  }
 
   // Logic check: You can't publish a private spell
   if (is_private && is_published) {

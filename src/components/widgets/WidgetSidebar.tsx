@@ -2,6 +2,7 @@ import React from 'react';
 import ProfileWidget from './ProfileWidget';
 import MoonWidget from './MoonWidget';
 import TarotWidget from './TarotWidget';
+import CrystalCollectionWidget from './CrystalCollectionWidget';
 
 export default async function WidgetSidebar() {
   // FUTURE TODO: Fetch user preferences here.
@@ -16,9 +17,9 @@ export default async function WidgetSidebar() {
 
       <MoonWidget />
       <TarotWidget />
+      <CrystalCollectionWidget  />
       
       {/* Placeholder for future widgets */}
-      {/* <CrystalWidget /> */}
       {/* <HoroscopeWidget /> */}
       
     </div>

@@ -1,9 +1,22 @@
 import { getSpells } from '@/app/actions/spell-actions'
 import { BookOpen, Feather } from 'lucide-react'
+import { createClient } from '../utils/supabase/server'
 import SpellForm from '@/components/spellbook/SpellForm' 
 import SpellCard from '@/components/spellbook/SpellCard' 
 
 export default async function SpellbookPage() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  
+  // 1. Fetch User Role
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user?.id)
+    .single()
+    
+  const userRole = profile?.role || 'initiate' // Default to safety
+
   const spells = await getSpells()
 
   return (
@@ -22,8 +35,8 @@ export default async function SpellbookPage() {
         </div>
       </div>
 
-      {/* CREATE SECTION */}
-      <SpellForm />
+      {/* Spell form */}
+      <SpellForm userRole = {userRole} />
 
       {/* SPELL LIST */}
       <div className="space-y-6">
@@ -39,7 +52,7 @@ export default async function SpellbookPage() {
         ) : (
           <div className="grid grid-cols-1 gap-6">
              {spells.map((spell) => (
-               <SpellCard key={spell.id} spell={spell} />
+               <SpellCard key={spell.id} spell={spell} userRole = {userRole}/>
              ))}
           </div>
         )}

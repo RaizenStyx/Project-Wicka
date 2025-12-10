@@ -53,7 +53,7 @@ export default function SidebarLinks({ profile }: SidebarLinksProps) {
         { label: 'Daily Tarot', href: '/tarot-draw' },
         { label: 'Home Altar', href: '/altar' },
         { label: 'Spellbook', href: '/spellbook' },
-        { label: 'Crystal Log - 1', href: '/crystal-log' },
+        { label: 'Crystal Log', href: '/crystals' },
         { label: 'Oracle AI', href: 'https://ai-oracle-eight.vercel.app/access', allowedRoles: ['supporter', 'admin'], isExternal: true }
       ]
     },
