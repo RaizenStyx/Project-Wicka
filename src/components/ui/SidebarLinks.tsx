@@ -41,7 +41,8 @@ export default function SidebarLinks({ profile }: SidebarLinksProps) {
     { label: 'Profile', href: "/u/" + (profile?.handle || 'profile') },
     { label: 'Settings', href: '/settings' },
     { label: 'Chat', href: '/chat' },
-    { label: 'Members', href: '/members' }
+    { label: 'Members', href: '/members' },
+    { label: 'Support', href: '/support'}
   ];
 
   // Dynamic Sections

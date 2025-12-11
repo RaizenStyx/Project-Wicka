@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import WidgetFrame from './WidgetFrame'; // Assuming this exists
+import WidgetFrame from './WidgetFrame'; 
 import { Sparkles, RefreshCw, Layers } from 'lucide-react';
-import { drawWidgetCard } from '@/app/actions/tarot'; // Make sure import matches file name
+import { drawWidgetCard } from '@/app/actions/tarot'; 
 import Image from 'next/image';
 
 type TarotCard = {
@@ -11,7 +11,7 @@ type TarotCard = {
   name: string;
   meaning_upright: string;
   description: string;
-  image_url?: string | null; // Added this optional field
+  image_url?: string | null; 
 };
 
 const TarotWidget = () => {

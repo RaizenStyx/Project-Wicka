@@ -466,6 +466,37 @@ create table public.user_crystal_collection (
   unique(user_id, crystal_id)
 );
 
+-- 2.2. Add the two boolean flags
+-- 'is_owned': True means they have it in their Satchel. Default true for existing rows.
+alter table public.user_crystal_collection 
+add column is_owned boolean not null default true;
+
+-- 'is_wishlisted': True means they want it. Default false.
+alter table public.user_crystal_collection 
+add column is_wishlisted boolean not null default false;
+
+-- 2.3. Add a constraint to prevent "Ghost Rows"
+-- (A row shouldn't exist if the user neither owns nor wishlists it)
+alter table public.user_crystal_collection
+add constraint check_valid_entry 
+check (is_owned = true or is_wishlisted = true);
+
+-- 2.4. Identify and remove duplicates, keeping the most recently updated one
+delete from public.user_crystal_collection a
+using public.user_crystal_collection b
+where a.id < b.id
+  and a.user_id = b.user_id
+  and a.crystal_id = b.crystal_id;
+
+-- 2.5. NOW, verify/add the Unique Constraint
+-- This ensures that 'upsert' updates the EXISTING row instead of creating a new one
+alter table public.user_crystal_collection
+drop constraint if exists user_crystal_collection_user_id_crystal_id_key; -- drop if exists just in case
+
+alter table public.user_crystal_collection
+add constraint user_crystal_collection_user_id_crystal_id_key
+unique (user_id, crystal_id);
+
 -- 3. Enable Row Level Security (RLS)
 alter table public.crystals enable row level security;
 alter table public.user_crystal_collection enable row level security;
@@ -491,6 +522,20 @@ with check ( auth.uid() = user_id );
 create policy "Users can remove from their own collection" 
 on public.user_crystal_collection for delete 
 using ( auth.uid() = user_id );
+
+-- 1. Enable users to UPDATE their own rows (Fixes the "Can't alter" bug)
+create policy "Users can update their own collection"
+on public.user_crystal_collection for update
+using ( auth.uid() = user_id )
+with check ( auth.uid() = user_id );
+
+-- 2. Ensure the unique constraint is correct (Prevent duplicates)
+alter table public.user_crystal_collection
+drop constraint if exists user_crystal_collection_user_id_crystal_id_key;
+
+alter table public.user_crystal_collection
+add constraint user_crystal_collection_user_id_crystal_id_key
+unique (user_id, crystal_id);
 
 -- Seeding some crystals
 insert into public.crystals (name, meaning, element, color)
@@ -585,3 +630,103 @@ values
     'Fire', 
     '#1C1C1C'
   );
+
+
+  -- Start interactions
+
+  create table likes (
+  user_id uuid references auth.users not null,
+  post_id uuid references posts(id) on delete cascade not null,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  
+  -- Composite Primary Key ensures unique likes per user per post
+  primary key (user_id, post_id)
+);
+
+create table comments (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users not null,
+  post_id uuid references posts(id) on delete cascade not null,
+  content text not null,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+-- Index for performance when loading the feed
+create index comments_post_id_idx on comments(post_id);
+
+alter table likes enable row level security;
+alter table comments enable row level security;
+
+-- Polices for likes
+-- 1. Everyone can view likes (needed to count them and show the heart icon)
+create policy "Likes are viewable by everyone"
+on likes for select
+to authenticated, anon
+using ( true );
+
+-- 2. Authenticated users can insert their own like
+create policy "Users can insert their own likes"
+on likes for insert
+to authenticated
+with check ( auth.uid() = user_id );
+
+-- 3. Users can delete (unlike) their own likes
+create policy "Users can delete their own likes"
+on likes for delete
+to authenticated
+using ( auth.uid() = user_id );
+
+-- Policies for comments
+-- 1. Everyone can view comments
+create policy "Comments are viewable by everyone"
+on comments for select
+to authenticated, anon
+using ( true );
+
+-- 2. Authenticated users can create comments
+create policy "Users can insert their own comments"
+on comments for insert
+to authenticated
+with check ( auth.uid() = user_id );
+
+-- 3. Users can delete their own comments
+create policy "Users can delete their own comments"
+on comments for delete
+to authenticated
+using ( auth.uid() = user_id );
+
+-- 1. Ensure RLS is enabled
+alter table comments enable row level security;
+
+-- 2. Drop the old policy if it exists (to avoid conflicts)
+drop policy if exists "Users can insert their own comments" on comments;
+
+-- 3. Re-create the INSERT policy explicitly
+create policy "Users can insert their own comments"
+on comments for insert
+to authenticated
+with check ( auth.uid() = user_id );
+
+-- 4. Double check the SELECT policy (so you can see what you posted)
+drop policy if exists "Comments are viewable by everyone" on comments;
+create policy "Comments are viewable by everyone"
+on comments for select
+to authenticated, anon
+using ( true );
+
+-- 1. Drop the old constraint that points to auth.users
+-- (Note: The constraint name might vary, but 'comments_user_id_fkey' is the default)
+alter table comments
+drop constraint if exists comments_user_id_fkey;
+
+-- 2. Add a new constraint that points explicitly to public.profiles
+alter table comments
+add constraint comments_user_id_fkey
+foreign key (user_id)
+references public.profiles (id)
+on delete cascade;
+
+
+-- Add a column to track when the user last 'grounded' their energy
+alter table profiles 
+add column last_read_notifications timestamptz default now();

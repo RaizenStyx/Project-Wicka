@@ -21,7 +21,9 @@ export default async function Home() {
     .from('posts')
     .select(`
       *,
-      profiles ( username, role, avatar_url )
+      profiles ( username, role, avatar_url ),
+      likes (user_id),
+      comments ( id )
     `)
     .order('created_at', { ascending: false })
     
@@ -44,15 +46,19 @@ export default async function Home() {
 
           {/* REAL POSTS LOOP */}
             {posts?.slice(0, 25).map((post) => (
-             <PostCard 
-               key={post.id}
-               username={post.profiles?.username || 'Unknown Witch'}
-               avatar_url={post.profiles?.avatar_url || null}
-               timeAgo={new Date(post.created_at).toLocaleDateString()} 
-               content={post.content}
-               currentUserRole={profile?.role} 
-               image_url={post.image_url}
-             />
+              <PostCard 
+                key={post.id}
+                id={post.id} 
+                currentUserId={user.id} 
+                likes={post.likes} 
+                commentsCount={post.comments ? post.comments.length : 0}
+                username={post.profiles?.username || 'Unknown Witch'}
+                avatar_url={post.profiles?.avatar_url || null}
+                timeAgo={new Date(post.created_at).toLocaleDateString()} 
+                content={post.content}
+                currentUserRole={profile?.role} 
+                image_url={post.image_url}
+              />
             ))}
 
           {/* Show a message if no posts exist */}

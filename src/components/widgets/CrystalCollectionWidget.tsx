@@ -28,18 +28,31 @@ export default async function CrystalCollectionWidget() {
     );
   }
 
-  // 2. Fetch User's Collection with Crystal Details
-  const { data: collection } = await supabase
+  // 1. Fetch Raw Data
+  const { data: rawCollection } = await supabase
     .from('user_crystal_collection')
     .select(`
       id,
       user_image_url,
+      is_owned,      
+      is_wishlisted, 
       crystals (*)
     `)
     .eq('user_id', user.id)
-    .limit(9); // Limit to 9 for a 3x3 grid, or however many fit
+    .or('is_owned.eq.true,is_wishlisted.eq.true')
+    .limit(50); 
 
-    const formattedCollection = collection as any[];
+  // 2. Transform Data to fix the "Array vs Object" type mismatch
+  const formattedCollection = (rawCollection || []).map((item: any) => ({
+    id: item.id,
+    user_image_url: item.user_image_url,
+    is_owned: item.is_owned,
+    is_wishlisted: item.is_wishlisted,
+    crystals: Array.isArray(item.crystals) ? item.crystals[0] : item.crystals
+  }));
+
+  // 3. Count for the badge
+  const ownedCount = formattedCollection.length;
 
   return (
     <WidgetFrame title={
@@ -47,13 +60,11 @@ export default async function CrystalCollectionWidget() {
         <Gem className="w-3 h-3 text-purple-400" />
         Satchel
         <span className="bg-slate-800 text-slate-500 text-[9px] px-1.5 py-0.5 rounded-full border border-slate-700">
-          {collection?.length || 0}
+          {ownedCount}
         </span>
-        WishList Tab?
       </div>
     }>
-    {/* Hand off the rendering to the Client Component */}
-      <CrystalWidgetClient collection={formattedCollection || []} />
+      <CrystalWidgetClient collection={formattedCollection} />
     </WidgetFrame>
   );
 }

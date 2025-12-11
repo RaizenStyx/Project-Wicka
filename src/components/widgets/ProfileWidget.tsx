@@ -1,11 +1,12 @@
 import React from 'react';
 import { createClient } from '@/app/utils/supabase/server';
-import WidgetFrame from './WidgetFrame';
 import { notFound } from 'next/navigation';
-import Link from 'next/link';
-import Image from 'next/image'; 
 import { Bell, User, Settings, Shield, Cannabis, Cat, Sparkles } from 'lucide-react';
 import { clsx } from 'clsx';
+import WidgetFrame from './WidgetFrame';
+import Link from 'next/link';
+import Avatar from '../ui/Avatar';
+import ResonanceLink from '../profile/ResonanceLink';
 
 // --- Helper Component for Roles ---
 function RoleBadge({ role }: { role: string }) {
@@ -57,6 +58,29 @@ export default async function ProfileWidget() {
     
     if (!profile) return notFound()
 
+    // --- NEW: Calculate "Resonance" (Unread Interactions) ---
+    const lastRead = profile.last_read_notifications || new Date(0).toISOString();
+
+    // A. Count New Likes on MY posts
+    const { count: newLikes } = await supabase
+        .from('likes')
+        .select('posts!inner(user_id)', { count: 'exact', head: true }) // !inner filters likes where post owner is me
+        .eq('posts.user_id', user.id)
+        .gt('created_at', lastRead);
+
+    // B. Count New Comments on MY posts
+    // (Exclude my own comments on my own posts if you want, but for now we count all)
+    const { count: newComments } = await supabase
+        .from('comments')
+        .select('posts!inner(user_id)', { count: 'exact', head: true })
+        .eq('posts.user_id', user.id)
+        .neq('user_id', user.id) // Don't count my own comments
+        .gt('created_at', lastRead);
+
+    const resonanceCount = (newLikes || 0) + (newComments || 0);
+
+    const firstLetter = profile?.handle?.[0]?.toUpperCase() ?? "U";
+
     return (
         <WidgetFrame title={
                 <div className="flex items-center gap-2">
@@ -76,22 +100,13 @@ export default async function ProfileWidget() {
                     {/* Avatar - Negative margin pulls it up into the banner */}
                     <div className="-mt-8 mb-3 flex justify-between items-end">
                         <Link href={`/u/${profile.handle}`} className="block">
-                            <div className="h-16 w-16 rounded-full bg-slate-900 border-4 border-slate-900 flex items-center justify-center shadow-lg overflow-hidden text-2xl">
-                                {profile.avatar_url ? (
-                                    <Image 
-                                        src={profile.avatar_url} 
-                                        alt={profile.username} 
-                                        width={64} 
-                                        height={64} 
-                                        className="object-cover h-full w-full"
-                                    />
-                                ) : (
-                                    // Fallback Initial
-                                    <span className="text-purple-500 font-serif font-bold">
-                                        {profile.username?.[0]?.toUpperCase()}
-                                    </span>
-                                )}
-                            </div>
+                            <Avatar 
+                                url={profile?.avatar_url || undefined} 
+                                alt={profile?.username || 'User Avatar'} 
+                                size={64} 
+                                fallback = {firstLetter || 'M'} 
+                                className = " border-slate-700 group-hover:border-purple-500 transition-colors" 
+                            />
                         </Link>
                         
                         {/* Quick Settings Link */}
@@ -122,9 +137,9 @@ export default async function ProfileWidget() {
                         </p>
                     </div>
 
-                    {/* --- 3. NOTIFICATIONS / ACTIONS (Placeholders) --- */}
+                    {/* --- 3. NOTIFICATIONS / ACTIONS (Chat needs to be done) --- */}
                     <div className="border-t border-slate-800 pt-3 space-y-2">
-                        
+                        <ResonanceLink count={resonanceCount} username={profile.username} />
                         {/* Example: Unread Messages */}
                         <Link href="/chat" className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-800 transition-colors group/item">
                             <div className="relative">
@@ -137,7 +152,7 @@ export default async function ProfileWidget() {
                             <span className="text-[10px] font-bold bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded border border-slate-700">2</span>
                         </Link>
 
-                        {/* Example: Profile Link */}
+                        {/* Profile Link */}
                         <Link href={`/u/${profile.handle}`} className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-800 transition-colors group/item">
                             <User className="w-4 h-4 text-slate-400 group-hover/item:text-purple-400" />
                             <div className="flex-1">

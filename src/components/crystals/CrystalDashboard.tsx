@@ -1,19 +1,21 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation' // 👈 Import navigation hooks
-import { Crystal } from '@/app/types/crystal'
+import { Crystal } from '@/app/types/database'
+import { Search } from 'lucide-react'
 import CrystalCard from './CrystalCard'
 import CrystalModal from './CrystalModal'
 
-type FilterType = 'all' | 'collected'
+// Define the shape of our user state
+type UserState = { isOwned: boolean; isWishlisted: boolean }
 
 interface DashboardProps {
   initialCrystals: Crystal[]
-  initialCollectedIds: string[]
+  initialStateMap: Record<string, UserState>
 }
 
-export default function CrystalDashboard({ initialCrystals, initialCollectedIds }: DashboardProps) {
+export default function CrystalDashboard({ initialCrystals, initialStateMap }: DashboardProps) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -22,85 +24,86 @@ export default function CrystalDashboard({ initialCrystals, initialCollectedIds 
   const openId = searchParams.get('open')
 
   const [search, setSearch] = useState('')
-  const [filter, setFilter] = useState<FilterType>('all')
-  const [collectedIds, setCollectedIds] = useState<Set<string>>(new Set(initialCollectedIds))
-  
-  // 2. We derive the selected crystal directly from the URL ID
-  const selectedCrystal = openId 
-    ? initialCrystals.find((c) => c.id === openId) || null 
-    : null
+  const [filter, setFilter] = useState<'all' | 'owned' | 'wishlist'>('all')
+  const [stateMap, setStateMap] = useState(initialStateMap)
 
-  // Filter Logic
+  // 1. Handle State Updates (passed down to Card and Modal)
+  const handleStateUpdate = (id: string, newState: UserState) => {
+    setStateMap((prev) => ({
+      ...prev,
+      [id]: newState
+    }))
+  }
+
+  // 2. Filter Logic
   const filteredCrystals = initialCrystals.filter((crystal) => {
-    const matchesSearch = crystal.name.toLowerCase().includes(search.toLowerCase()) || 
-                          crystal.meaning.toLowerCase().includes(search.toLowerCase())
-    const matchesCollection = filter === 'collected' ? collectedIds.has(crystal.id) : true
+    // Search Filter
+    const term = search.toLowerCase()
+    const nameMatch = crystal.name.toLowerCase().includes(term)
+    const meaningMatch = (crystal.meaning || '').toLowerCase().includes(term)
+    const matchesSearch = nameMatch || meaningMatch
     
-    return matchesSearch && matchesCollection
+    // Status Filter
+    const userState = stateMap[crystal.id] || { isOwned: false, isWishlisted: false }
+
+    if (filter === 'owned') return matchesSearch && userState.isOwned
+    if (filter === 'wishlist') return matchesSearch && userState.isWishlisted
+    
+    return matchesSearch
   })
 
-  const handleToggle = (id: string, isCollected: boolean) => {
-    const newSet = new Set(collectedIds)
-    if (isCollected) newSet.add(id)
-    else newSet.delete(id)
-    setCollectedIds(newSet)
-  }
+  // 3. Modal Selection Logic
+  const selectedCrystal = openId ? initialCrystals.find((c) => c.id === openId) : null
+  const selectedState = selectedCrystal 
+    ? (stateMap[selectedCrystal.id] || { isOwned: false, isWishlisted: false }) 
+    : { isOwned: false, isWishlisted: false }
 
-  // 3. Handler to Open Modal (Updates URL)
-  const handleOpenModal = (crystalId: string) => {
-    // We replace the current URL with one that includes ?open=ID
-    // scroll: false prevents the page from jumping to the top
-    router.push(`${pathname}?open=${crystalId}`, { scroll: false })
-  }
-
-  // 4. Handler to Close Modal (Cleans URL)
-  const handleCloseModal = () => {
-    // Remove the query param
-    router.push(pathname, { scroll: false })
-  }
+  const handleCloseModal = () => router.push(pathname, { scroll: false })
 
   return (
     <div>
       {/* Controls Area */}
       <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <input
-          type="text"
-          placeholder="Search crystals or meanings..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full rounded-lg border border-slate-700 bg-slate-900 px-4 py-2 text-slate-100 placeholder-slate-500 focus:border-purple-500 focus:outline-none md:w-96"
-        />
+        {/* Search Bar */}
+        <div className="relative w-full md:w-96">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+            <input
+            type="text"
+            placeholder="Search crystals or meanings..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full rounded-lg border border-slate-700 bg-slate-900 pl-10 pr-4 py-2 text-slate-100 placeholder-slate-500 focus:border-purple-500 focus:outline-none"
+            />
+        </div>
 
+        {/* Filter Tabs */}
         <div className="flex rounded-lg bg-slate-900 p-1">
-          <button
-            onClick={() => setFilter('all')}
-            className={`rounded-md px-4 py-1.5 text-sm transition-colors cursor-pointer ${
-              filter === 'all' ? 'bg-purple-900/50 text-purple-200' : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            All Crystals
-          </button>
-          <button
-            onClick={() => setFilter('collected')}
-            className={`rounded-md px-4 py-1.5 text-sm transition-colors cursor-pointer ${
-              filter === 'collected' ? 'bg-purple-900/50 text-purple-200' : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            My Collection ({collectedIds.size})
-          </button>
+          {(['all', 'owned', 'wishlist'] as const).map((f) => (
+             <button
+                key={f}
+                onClick={() => setFilter(f)}
+                className={`rounded-md px-4 py-1.5 text-sm capitalize transition-colors cursor-pointer ${
+                  filter === f 
+                    ? 'bg-purple-900/50 text-purple-200 shadow-sm' 
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+             >
+                {f === 'all' ? 'All Crystals' : f === 'owned' ? 'Collection' : 'Wishlist'}
+             </button>
+          ))}
         </div>
       </div>
 
-      {/* The Grid */}
+      {/* Grid */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {filteredCrystals.map((crystal) => (
           <CrystalCard
             key={crystal.id}
             crystal={crystal}
-            isCollected={collectedIds.has(crystal.id)}
-            onToggle={(newStatus) => handleToggle(crystal.id, newStatus)}
-            // 5. Connect the onClick to our new router handler
-            onClick={() => handleOpenModal(crystal.id)} 
+            isOwned={stateMap[crystal.id]?.isOwned || false}
+            isWishlisted={stateMap[crystal.id]?.isWishlisted || false}
+            onUpdate={(newState) => handleStateUpdate(crystal.id, newState)}
+            onClick={() => router.push(`${pathname}?open=${crystal.id}`, { scroll: false })}
           />
         ))}
       </div>
@@ -111,14 +114,18 @@ export default function CrystalDashboard({ initialCrystals, initialCollectedIds 
         </div>
       )}
 
-      {/* 6. Render Modal based on URL derived state */}
-      <CrystalModal 
-        isOpen={!!selectedCrystal}
-        onClose={handleCloseModal} // Uses router push to close
-        crystal={selectedCrystal!}
-        isCollected={selectedCrystal ? collectedIds.has(selectedCrystal.id) : false}
-        // userImage={...} // You will hook this up later
-      />
+      {/* Modal */}
+      {selectedCrystal && (
+        <CrystalModal 
+          isOpen={!!selectedCrystal}
+          onClose={handleCloseModal}
+          crystal={selectedCrystal}
+          isOwned={selectedState.isOwned}
+          isWishlisted={selectedState.isWishlisted}
+          onUpdate={(newState) => handleStateUpdate(selectedCrystal.id, newState)}
+          // userImage={...} // Hook this up when we do the Widgets/Image part next
+        />
+      )}
     </div>
   )
 }

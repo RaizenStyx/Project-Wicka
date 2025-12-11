@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { signOut } from '@/app/actions/authActions'
 import { clsx } from 'clsx'
 import ProfileHeader from '@/components/profile/ProfileHeader'
+import { redirect } from 'next/navigation'
 
 export default async function ProfilePage({ 
   params, 
@@ -23,12 +24,14 @@ export default async function ProfilePage({
   const currentView = view === 'spells' ? 'spells' : 'posts';
 
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
 
   // 1. Fetch the Profile
   const { data: profile } = await supabase
     .from('profiles')
     .select('*')
-    .eq('handle', handle)
+    .eq('id', user.id)
     .single()
 
   if (!profile) return notFound()
@@ -42,7 +45,7 @@ export default async function ProfilePage({
   if (currentView === 'posts') {
     const { data } = await supabase
       .from('posts')
-      .select('*, profiles(username, role, avatar_url)')
+      .select('*, profiles(username, role, avatar_url), likes (user_id), comments ( id )')
       .eq('user_id', profile.id)
       .order('created_at', { ascending: false });
     posts = data;
@@ -195,6 +198,10 @@ export default async function ProfilePage({
                  {posts?.map((post) => (
                     <PostCard 
                       key={post.id}
+                      id={post.id} 
+                      currentUserId={user.id} 
+                      likes={post.likes} 
+                      commentsCount={post.comments ? post.comments.length : 0}
                       username={post.profiles?.username || 'Unknown Witch'}
                       avatar_url={post.profiles?.avatar_url || null}
                       timeAgo={new Date(post.created_at).toLocaleDateString()} 

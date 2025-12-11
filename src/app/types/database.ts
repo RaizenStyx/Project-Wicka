@@ -15,3 +15,22 @@ export interface UserCollectionItem {
   acquired_at: string;
   crystals?: Crystal; 
 }
+
+export interface Like {
+  user_id: string;
+  post_id: string;
+  created_at: string;
+}
+
+export interface Comment {
+  id: string;
+  user_id: string;
+  post_id: string;
+  content: string;
+  created_at: string;
+  // Optional: You might join the profile data when fetching
+  author?: {
+    username: string;
+    avatar_url: string;
+  };
+}
