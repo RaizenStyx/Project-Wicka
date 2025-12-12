@@ -730,3 +730,14 @@ on delete cascade;
 -- Add a column to track when the user last 'grounded' their energy
 alter table profiles 
 add column last_read_notifications timestamptz default now();
+
+-- 1. Ensure the column exists
+alter table public.profiles 
+add column if not exists created_at timestamp with time zone default timezone('utc'::text, now()) not null;
+
+-- 2. Backfill: Copy the true signup date from auth.users to public.profiles
+-- (This requires the query to run with admin privileges, which the SQL Editor has)
+update public.profiles p
+set created_at = a.created_at
+from auth.users a
+where p.id = a.id;

@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Upload, Camera, Sparkles, Star } from 'lucide-react'
 import { Crystal } from '@/app/types/database'
-import { updateCrystalState } from '@/app/actions/crystals'
+import { updateCrystalState } from '@/app/actions/crystal-actions'
 
 interface CrystalModalProps {
   crystal: Crystal

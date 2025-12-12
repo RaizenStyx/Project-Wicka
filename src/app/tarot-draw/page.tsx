@@ -1,4 +1,4 @@
-import { getDailySpread } from "@/app/actions/tarot";
+import { getDailySpread } from "@/app/actions/tarot-actions";
 import DailySpreadInteractive from "@/components/features/DailySpreadInteractive";
 
 export default async function TarotDraw() {
@@ -18,8 +18,9 @@ export default async function TarotDraw() {
 
 
   // Sort them to ensure they appear in the order we expect (Postgres IN queries don't guarantee order)
-  // Note: For a real spread, you might want to save the order specifically in the DB, 
-  // but for now, we just render them.
+  
+  // TODO: For a real spread, you might want to save the order 
+  // specifically in the DB, but for now, just render them.
   
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 p-6">

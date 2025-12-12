@@ -139,7 +139,7 @@ export default async function ProfileWidget() {
 
                     {/* --- 3. NOTIFICATIONS / ACTIONS (Chat needs to be done) --- */}
                     <div className="border-t border-slate-800 pt-3 space-y-2">
-                        <ResonanceLink count={resonanceCount} username={profile.username} />
+                        <ResonanceLink count={resonanceCount} handle={profile.handle} />
                         {/* Example: Unread Messages */}
                         <Link href="/chat" className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-800 transition-colors group/item">
                             <div className="relative">
@@ -153,12 +153,12 @@ export default async function ProfileWidget() {
                         </Link>
 
                         {/* Profile Link */}
-                        <Link href={`/u/${profile.handle}`} className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-800 transition-colors group/item">
+                        {/* <Link href={`/u/${profile.handle}`} className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-800 transition-colors group/item">
                             <User className="w-4 h-4 text-slate-400 group-hover/item:text-purple-400" />
                             <div className="flex-1">
                                 <p className="text-xs text-slate-300">View Grimoire</p>
                             </div>
-                        </Link>
+                        </Link> */}
 
                     </div>
                 </div>

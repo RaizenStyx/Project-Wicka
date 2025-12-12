@@ -1,6 +1,6 @@
 'use client'
 
-import { updatePassword, sendResetEmail } from '@/app/actions/authActions'
+import { updatePassword, sendResetEmail } from '@/app/actions/auth-actions'
 import { useActionState } from 'react' 
 
 

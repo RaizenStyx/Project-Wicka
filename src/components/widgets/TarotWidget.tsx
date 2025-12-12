@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import WidgetFrame from './WidgetFrame'; 
 import { Sparkles, RefreshCw, Layers } from 'lucide-react';
-import { drawWidgetCard } from '@/app/actions/tarot'; 
+import { drawWidgetCard } from '@/app/actions/tarot-actions'; 
 import Image from 'next/image';
 
 type TarotCard = {

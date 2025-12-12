@@ -21,7 +21,7 @@ export default async function ProfileInfo() {
     .single()
 
     const firstLetter = profile?.handle?.[0]?.toUpperCase() ?? "U";
-    const date = new Date(user.created_at).toLocaleDateString();
+    const date = new Date(profile.created_at).toLocaleDateString();
 
     return (    
     <>

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
-import { Menu, Moon, X, Sparkles } from 'lucide-react';
+import { Menu, Moon, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 
 export default function Shell({
@@ -14,9 +14,6 @@ export default function Shell({
   leftSidebar: React.ReactNode;
   rightSidebar: React.ReactNode;
 }) {
-  // State for visibility
-  // Defaulting to true creates a "flash" on mobile, so we start false 
-  // and check screen size on mount, or rely on CSS for initial state.
   const pathname = usePathname(); 
   const [showLeft, setShowLeft] = useState(true);
   const [showRight, setShowRight] = useState(true);
@@ -29,7 +26,6 @@ export default function Shell({
       setIsMobile(mobile);
       
       // On Desktop, default sidebars to OPEN if they haven't been touched yet
-      // You can tweak this preference
       if (mobile) {
         setShowLeft(false);
         setShowRight(false);
@@ -39,7 +35,6 @@ export default function Shell({
       }
     };
 
-    // Run once on mount
     handleResize();
 
     window.addEventListener('resize', handleResize);
@@ -55,6 +50,7 @@ export default function Shell({
     }
   }, [isMobile, showLeft, showRight]);
   
+  // Close menus on route change (Mobile only)
   useEffect(() => {
     if (isMobile) {
       setShowLeft(false);
@@ -62,17 +58,32 @@ export default function Shell({
     }
   }, [pathname, isMobile]);
 
+  // --- TOGGLE HANDLERS ---
+  const toggleLeft = () => {
+    if (isMobile && !showLeft) {
+      // If we are about to OPEN the left menu on mobile, force close the right one
+      setShowRight(false);
+    }
+    setShowLeft(!showLeft);
+  };
+
+  const toggleRight = () => {
+    if (isMobile && !showRight) {
+      // If we are about to OPEN the right menu on mobile, force close the left one
+      setShowLeft(false);
+    }
+    setShowRight(!showRight);
+  };
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-200 flex flex-col">
       
-      {/* --- UNIFIED GLOBAL HEADER --- 
-        Sticky at the top. 
-      */}
+      {/* --- UNIFIED GLOBAL HEADER --- */}
       <header className="sticky top-0 z-50 h-16 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-4 shadow-md">
         
         {/* Left Toggle */}
         <button 
-          onClick={() => setShowLeft(!showLeft)}
+          onClick={toggleLeft} // Uses new handler
           className={`p-2 rounded-full transition-colors cursor-pointer ${showLeft ? 'bg-slate-800 text-purple-400' : 'hover:bg-slate-800 text-slate-400'}`}
           aria-label="Toggle Navigation"
         >
@@ -89,7 +100,7 @@ export default function Shell({
 
         {/* Right Toggle */}
         <button 
-          onClick={() => setShowRight(!showRight)}
+          onClick={toggleRight} // Uses new handler
           className={`p-2 rounded-full transition-colors cursor-pointer ${showRight ? 'bg-slate-800 text-indigo-400' : 'hover:bg-slate-800 text-slate-400'}`}
           aria-label="Toggle Grimoire"
         >
@@ -100,31 +111,23 @@ export default function Shell({
       {/* --- MAIN LAYOUT CONTAINER --- */}
       <div className="flex flex-1 relative">
 
-        {/* --- LEFT SIDEBAR --- 
-          Mobile: Fixed, slides in.
-          Desktop: Sticky, pushes content.
-        */}
+        {/* --- LEFT SIDEBAR --- */}
         <aside 
           className={`
-            /* Common */
             bg-slate-900 border-r border-slate-800 transition-all duration-300 ease-in-out
             
-            /* Mobile Specifics */
             ${isMobile ? 'fixed inset-y-0 left-0 z-40 w-72 pt-16' : ''} 
             ${isMobile && !showLeft ? '-translate-x-full' : 'translate-x-0'}
 
-            /* Desktop Specifics */
             ${!isMobile ? 'sticky top-16 h-[calc(100vh-4rem)]' : ''}
             ${!isMobile && showLeft ? 'w-72 border-r' : ''}
             ${!isMobile && !showLeft ? 'w-0 border-none overflow-hidden' : ''}
           `}
         >
-          {/* Inner container needed for width transition smoothness on desktop */}
           <div className="w-72 p-4">
-             {leftSidebar}
+              {leftSidebar}
           </div>
         </aside>
-
 
         {/* --- BACKDROP (Mobile Only) --- */}
         {isMobile && (showLeft || showRight) && (
@@ -134,33 +137,24 @@ export default function Shell({
           />
         )}
 
-
         {/* --- FEED / CONTENT --- */}
         <main className="flex-1 w-full min-w-0 bg-slate-950">
           {children}
         </main>
 
-
-        {/* --- RIGHT SIDEBAR --- 
-          Mobile: Fixed, slides in from RIGHT.
-          Desktop: Sticky, pushes content.
-        */}
+        {/* --- RIGHT SIDEBAR --- */}
         <aside 
           className={`
-            /* Common */
             bg-slate-900/50 border-l border-slate-800 overflow-y-auto overflow-hidden transition-all duration-300 ease-in-out
             
-            /* Mobile Specifics */
             ${isMobile ? 'fixed inset-y-0 right-0 z-40 w-80 pt-16' : ''} 
             ${isMobile && !showRight ? 'translate-x-full' : 'translate-x-0'}
 
-            /* Desktop Specifics */
             ${!isMobile ? 'sticky top-16 h-[calc(100vh-4rem)]' : ''}
             ${!isMobile && showRight ? 'w-80 border-l' : ''}
             ${!isMobile && !showRight ? 'w-0 border-none overflow-hidden' : ''}
           `}
         >
-          {/* Inner container needed for width transition smoothness on desktop */}
           <div className="w-80 p-4">
             {rightSidebar}
           </div>

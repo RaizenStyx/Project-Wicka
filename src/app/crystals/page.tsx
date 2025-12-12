@@ -1,4 +1,4 @@
-import { getCrystalsData } from '@/app/actions/crystals'
+import { getCrystalsData } from '@/app/actions/crystal-actions'
 import CrystalDashboard from '@/components/crystals/CrystalDashboard'
 
 export const dynamic = 'force-dynamic' 

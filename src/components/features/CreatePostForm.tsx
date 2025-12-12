@@ -1,7 +1,7 @@
 'use client'
 
 import { useActionState, useState, useRef, useEffect } from 'react'
-import { createPost, type FormState } from '../../app/actions/postActions'
+import { createPost, type FormState } from '../../app/actions/post-actions'
 import { X, Image as ImageIcon } from 'lucide-react' 
 
 const initialState: FormState = {

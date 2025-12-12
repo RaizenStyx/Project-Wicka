@@ -1,13 +1,12 @@
 import { createClient } from '@/app/utils/supabase/server'
-import { notFound } from 'next/navigation'
-import PostCard from '@/components/ui/PostCard'
+import { notFound, redirect } from 'next/navigation'
 import { Cannabis, Cat, Shield } from 'lucide-react'
-import SpellCard from '@/components/spellbook/SpellCard'
-import Link from 'next/link'
-import { signOut } from '@/app/actions/authActions'
+import { signOut } from '@/app/actions/auth-actions'
 import { clsx } from 'clsx'
 import ProfileHeader from '@/components/profile/ProfileHeader'
-import { redirect } from 'next/navigation'
+import PostCard from '@/components/ui/PostCard'
+import SpellCard from '@/components/spellbook/SpellCard'
+import Link from 'next/link'
 
 export default async function ProfilePage({ 
   params, 
@@ -24,21 +23,28 @@ export default async function ProfilePage({
   const currentView = view === 'spells' ? 'spells' : 'posts';
 
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
 
-  // 1. Fetch the Profile
+  // 1. Get the Current Logged-in User (The Viewer)
+  const { data: { user: currentUser } } = await supabase.auth.getUser()
+  if (!currentUser) redirect('/login')
+
+  // 2. Fetch the Viewer's Role (Needed for PostCard permissions)
+  const { data: viewerProfile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', currentUser.id)
+    .single()
+
+  // 3. Fetch the TARGET Profile (Based on the Handle in the URL)
   const { data: profile } = await supabase
     .from('profiles')
     .select('*')
-    .eq('id', user.id)
+    .eq('handle', handle) 
     .single()
 
   if (!profile) return notFound()
 
-  // 2. DATA FETCHING SPLIT
-  // We only fetch what we need based on 'currentView'
-  
+  // 4. DATA FETCHING SPLIT
   let posts = null;
   let spells = null;
 
@@ -46,7 +52,7 @@ export default async function ProfilePage({
     const { data } = await supabase
       .from('posts')
       .select('*, profiles(username, role, avatar_url), likes (user_id), comments ( id )')
-      .eq('user_id', profile.id)
+      .eq('user_id', profile.id) // Fetch posts for the profile we are viewing
       .order('created_at', { ascending: false });
     posts = data;
   } else if (currentView === 'spells') {
@@ -59,11 +65,12 @@ export default async function ProfilePage({
     spells = data;
   }
 
-  // 3. Check Ownership & Roles
-  const { data: { user: currentUser } } = await supabase.auth.getUser()
-  const isOwner = currentUser?.id === profile.id
-  const isSupporter = ['supporter', 'admin', 'verified', 'Goddess'].includes(profile.role);
+  // 5. Check Ownership
+  const isOwner = currentUser.id === profile.id
+  const isSupporter = ['supporter', 'admin', 'verified', 'Goddess', 'Princess'].includes(profile.role);
 
+  const date = new Date(profile.created_at).toLocaleDateString();
+  
   return (
     <div className="min-h-screen bg-slate-950 text-slate-200 font-sans">
       <main className="max-w-4xl mx-auto px-4 py-8">
@@ -104,7 +111,7 @@ export default async function ProfilePage({
               </h1>
               <p className="text-xs text-slate-400 mt-1 flex items-center gap-1">
                 @{profile.handle}
-                {/* Optional Role Badge */}
+                {/* Role Badge */}
                   {(profile.role === 'verified' || profile.role === 'supporter') && (
                       <Shield className="w-3 h-3 text-purple-400 fill-purple-400/20" />
                   )}
@@ -143,7 +150,7 @@ export default async function ProfilePage({
                  </div>
                  <div className="pt-2">
                    <span className="text-slate-500 block mb-1">Joined</span>
-                   <span className="text-slate-300">{new Date(profile.updated_at || profile.created_at).toLocaleDateString()}</span>
+                   <span className="text-slate-300">{date}</span>
                  </div>
                </div>
              </div>
@@ -160,77 +167,78 @@ export default async function ProfilePage({
 
           {/* RIGHT COL: Feed/Spells */}
           <div className="md:col-span-2">
-             
-             {/* --- TABS NAVIGATION --- */}
-             <div className="flex items-center gap-6 mb-6 border-b border-slate-800">
-                <Link 
-                  href={`/u/${handle}`} 
-                  scroll={false} 
-                  className={clsx(
-                    "pb-3 text-sm font-medium transition-colors border-b-2",
-                    currentView === 'posts' 
-                      ? "text-white border-purple-500" 
-                      : "text-slate-500 border-transparent hover:text-slate-300"
-                  )}
-                >
-                  Recent Posts
-                </Link>
+              
+              {/* --- TABS NAVIGATION --- */}
+              <div className="flex items-center gap-6 mb-6 border-b border-slate-800">
+                 <Link 
+                   href={`/u/${handle}`} 
+                   scroll={false} 
+                   className={clsx(
+                     "pb-3 text-sm font-medium transition-colors border-b-2",
+                     currentView === 'posts' 
+                       ? "text-white border-purple-500" 
+                       : "text-slate-500 border-transparent hover:text-slate-300"
+                   )}
+                 >
+                   Recent Posts
+                 </Link>
 
-                <Link 
-                  href={`/u/${handle}?view=spells`} 
-                  scroll={false}
-                  className={clsx(
-                    "pb-3 text-sm font-medium transition-colors border-b-2",
-                    currentView === 'spells' 
-                      ? "text-white border-purple-500" 
-                      : "text-slate-500 border-transparent hover:text-slate-300"
-                  )}
-                >
-                  Public Grimoire
-                </Link>
-             </div>
-             
-             {/* --- CONTENT AREA --- */}
+                 <Link 
+                   href={`/u/${handle}?view=spells`} 
+                   scroll={false}
+                   className={clsx(
+                     "pb-3 text-sm font-medium transition-colors border-b-2",
+                     currentView === 'spells' 
+                       ? "text-white border-purple-500" 
+                       : "text-slate-500 border-transparent hover:text-slate-300"
+                   )}
+                 >
+                   Public Grimoire
+                 </Link>
+              </div>
+              
+              {/* --- CONTENT AREA --- */}
 
-             {/* VIEW: POSTS */}
-             {currentView === 'posts' && (
-               <>
-                 {posts?.map((post) => (
-                    <PostCard 
-                      key={post.id}
-                      id={post.id} 
-                      currentUserId={user.id} 
-                      likes={post.likes} 
-                      commentsCount={post.comments ? post.comments.length : 0}
-                      username={post.profiles?.username || 'Unknown Witch'}
-                      avatar_url={post.profiles?.avatar_url || null}
-                      timeAgo={new Date(post.created_at).toLocaleDateString()} 
-                      content={post.content}
-                      currentUserRole={profile?.role} 
-                      image_url={post.image_url}
+              {/* VIEW: POSTS */}
+              {currentView === 'posts' && (
+                <>
+                  {posts?.map((post) => (
+                     <PostCard 
+                       key={post.id}
+                       id={post.id} 
+                       currentUserId={currentUser.id} // The viewer's ID
+                       likes={post.likes} 
+                       commentsCount={post.comments ? post.comments.length : 0}
+                       username={post.profiles?.username || 'Unknown Witch'}
+                       avatar_url={post.profiles?.avatar_url || null}
+                       timeAgo={new Date(post.created_at).toLocaleDateString()} 
+                       content={post.content}
+                       // 🛑 FIXED: Now passing the VIEWER'S role, not the profile owner's role
+                       currentUserRole={viewerProfile?.role} 
+                       image_url={post.image_url}
+                     />
+                  ))}
+                  {posts?.length === 0 && (
+                    <EmptyState text="This witch hasn't posted anything yet." />
+                  )}
+                </>
+              )}
+
+              {/* VIEW: SPELLS */}
+              {currentView === 'spells' && (
+                <div className="space-y-4">
+                  {spells?.map((spell) => (
+                    <SpellCard 
+                      key={spell.id} 
+                      spell={spell} 
+                      readOnly={!isOwner} 
                     />
-                 ))}
-                 {posts?.length === 0 && (
-                   <EmptyState text="This witch hasn't posted anything yet." />
-                 )}
-               </>
-             )}
-
-             {/* VIEW: SPELLS */}
-             {currentView === 'spells' && (
-               <div className="space-y-4">
-                 {spells?.map((spell) => (
-                   <SpellCard 
-                     key={spell.id} 
-                     spell={spell} 
-                     readOnly={!isOwner} 
-                   />
-                 ))}
-                 {spells?.length === 0 && (
-                   <EmptyState text="This grimoire is private or empty." />
-                 )}
-               </div>
-             )}
+                  ))}
+                  {spells?.length === 0 && (
+                    <EmptyState text="This grimoire is private or empty." />
+                  )}
+                </div>
+              )}
 
           </div>
 
@@ -240,7 +248,6 @@ export default async function ProfilePage({
   )
 }
 
-// Simple Helper for empty states
 function EmptyState({ text }: { text: string }) {
   return (
     <div className="p-12 rounded-xl border border-slate-800 border-dashed text-center">

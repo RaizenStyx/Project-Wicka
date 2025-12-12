@@ -1,7 +1,7 @@
 import { createClient } from '../utils/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import ProfileForm from './ProfileFile' 
+import ProfileForm from './ProfileForm' 
 import PasswordForm from '@/components/features/PasswordForm'
 
 export default async function SettingsPage() {

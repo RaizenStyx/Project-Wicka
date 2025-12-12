@@ -1,9 +1,8 @@
 import { getCommunitySpells } from '@/app/actions/spell-actions'
 import SpellCard from '@/components/spellbook/SpellCard'
-import { Search, BookOpen } from 'lucide-react' // Changed Library to BookOpen as Library icon can be flaky in some sets
+import { Search, BookOpen } from 'lucide-react' 
 
 export default async function CommunityLibraryPage() {
-  // This will now log to your terminal if it fails
   const spells = await getCommunitySpells()
 
   return (
@@ -17,7 +16,7 @@ export default async function CommunityLibraryPage() {
             </div>
         </div>
         <h1 className="text-5xl font-serif text-transparent bg-clip-text bg-gradient-to-r from-purple-200 to-indigo-200 mb-4 drop-shadow-[0_0_15px_rgba(168,85,247,0.4)]">
-           The Grand Archives
+           The Grand Grimoire
         </h1>
         <p className="text-slate-400 max-w-lg mx-auto text-lg">
           Discover rituals and intentions shared by the coven. 

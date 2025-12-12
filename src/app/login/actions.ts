@@ -11,7 +11,7 @@ export type AuthState = {
   success: string | null;
 }
 
-// 2. Fix Login Action
+// 2. Login Action
 export async function login(prevState: AuthState, formData: FormData): Promise<AuthState> {
   const supabase = await createClient()
   const email = formData.get('email') as string

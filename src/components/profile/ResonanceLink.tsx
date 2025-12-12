@@ -8,10 +8,10 @@ import { clsx } from 'clsx'
 
 interface ResonanceLinkProps {
   count: number
-  username: string
+  handle: string
 }
 
-export default function ResonanceLink({ count, username }: ResonanceLinkProps) {
+export default function ResonanceLink({ count, handle }: ResonanceLinkProps) {
   const [isPending, startTransition] = useTransition()
   
   // If we are currently "clearing" (pending), show 0 to make it feel instant
@@ -28,7 +28,7 @@ export default function ResonanceLink({ count, username }: ResonanceLinkProps) {
 
   return (
     <Link 
-      href={`/u/${username}`} 
+      href={`/u/${handle}`} 
       onClick={handleClick}
       className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-800 transition-colors group/item"
     >

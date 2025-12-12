@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Star, Sparkles } from 'lucide-react'
 import { Crystal } from '@/app/types/database'
-import { updateCrystalState } from '@/app/actions/crystals'
+import { updateCrystalState } from '@/app/actions/crystal-actions'
 
 interface CardProps {
   crystal: Crystal
