@@ -1,11 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { clsx } from 'clsx';
 import { 
-  BookOpen, 
   Sparkles, 
   Users, 
   LayoutDashboard,
@@ -54,7 +53,7 @@ export default function SidebarLinks({ profile }: SidebarLinksProps) {
         { label: 'Daily Tarot', href: '/tarot-draw' },
         { label: 'Home Altar', href: '/altar' },
         { label: 'Spellbook', href: '/spellbook' },
-        { label: 'Crystal Log', href: '/crystals' },
+        { label: 'My Collection', href: '/my-collection' },
         { label: 'Oracle AI', href: 'https://ai-oracle-eight.vercel.app/access', allowedRoles: ['supporter', 'admin'], isExternal: true }
       ]
     },
@@ -62,11 +61,11 @@ export default function SidebarLinks({ profile }: SidebarLinksProps) {
       title: 'Grimoire DB',
       icon: Search,
       items: [
-        { label: 'Published Spells', href: '/library'},
-        { label: 'All Crystals', href: '/crystals-db' },
-        { label: 'All Herbs', href: '/herbs-db' },
-        { label: 'All Runes', href: '/runes-db' },
-        { label: 'Tarot Meanings', href: '/tarot-db' }
+        { label: 'Grand Grimoire', href: '/grand-grimoire'},
+        { label: 'All Crystals', href: '/crystals' },
+        { label: 'All Herbs', href: '/herbs' },
+        { label: 'All Runes', href: '/runes' },
+        { label: 'Tarot Meanings', href: '/tarot-cards' }
       ]
     },
     COVENS: {
