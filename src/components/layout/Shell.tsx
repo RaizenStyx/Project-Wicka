@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
-import { Menu, Moon, Sparkles } from 'lucide-react';
+import { Menu, Moon, Sparkles, ChevronLeft } from 'lucide-react';
 import Link from 'next/link';
 
 export default function Shell({
@@ -91,11 +91,23 @@ export default function Shell({
         </button>
 
         {/* Logo / Title */}
-        <div className="flex items-center gap-2">
-           <Sparkles className="w-5 h-5 text-purple-500" />
-           <Link href="/">
-            <span className="font-serif text-xl font-bold tracking-wider text-slate-100">NOCTA</span>
-           </Link>
+        <div className="flex items-center">
+          {pathname !== '/' && (
+            <Link 
+              href="/" 
+              className="group flex items-center gap-1 pr-3 mr-3 border-r border-slate-700/50 text-slate-400 hover:text-purple-400 transition-colors"
+            > 
+              <ChevronLeft size={16} className="group-hover:-translate-x-0.5 transition-transform" />
+              <span className="text-sm font-medium tracking-wide uppercase">Feed</span>
+            </Link>
+          )}
+
+          <Link href="/" className="flex items-center gap-2 group">
+            <Sparkles className="w-5 h-5 text-purple-500 group-hover:text-purple-400 transition-colors" />
+            <span className="font-serif text-xl font-bold tracking-wider text-slate-100 group-hover:text-white transition-colors">
+              NOCTA
+            </span>
+          </Link>
         </div>
 
         {/* Right Toggle */}

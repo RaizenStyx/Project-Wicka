@@ -7,25 +7,6 @@ Project Wicka is a React-based application designed to provide a safe space for 
 - Media feed that shows posts from all users. 
 - Using Supabase for database
 
-## Getting Started
-
-### Prerequisites
-- Node.js (v14 or higher)
-- npm or yarn
-
-### Installation
-```bash
-git clone <repository-url>
-cd project-wicka
-npm install
-```
-
-### Running the Project
-```bash
-npm start
-```
-The application will open at `http://localhost:3000`.
-
 ## Technologies
 - React
 - Supabase

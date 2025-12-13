@@ -2,9 +2,7 @@
 
 import { createClient } from '@/app/utils/supabase/server'
 import { redirect } from 'next/navigation'
-import { X } from 'lucide-react'
-import clsx from 'clsx'
-import { Sparkles } from 'lucide-react'
+import RoleBadge from '../ui/RoleBadge'
 import Avatar from '../ui/Avatar'
 
 export default async function ProfileInfo() {
@@ -22,6 +20,7 @@ export default async function ProfileInfo() {
 
     const firstLetter = profile?.handle?.[0]?.toUpperCase() ?? "U";
     const date = new Date(profile.created_at).toLocaleDateString();
+    const bio = profile?.bio || 'Go to public profile to edit your bio';
 
     return (    
     <>
@@ -37,36 +36,22 @@ export default async function ProfileInfo() {
             /> 
 
             <div>
-                <p className="font-medium text-slate-200 text-lg">Welcome, {profile?.username}</p> 
-              
+                <p className="font-medium text-slate-200 text-lg">Welcome, {profile?.username}
+                   {profile.subtitle && (
+                    <>
+                    - <span className="font-bold tracking-wider text-purple-400 uppercase border border-purple-500/20 bg-purple-500/10 px-2 py-0.5 rounded">{profile.subtitle}</span>
+                    </>
+                   )}
+                   </p>               
                 <p className="text-xs text-slate-500">You joined: {date}</p>
             </div>
-            <X className="w-5 h-5 text-purple-500 rotate-45 -scale-x-100" />
+            
           </div>
           <RoleBadge role={profile.role || 'initiate'} />
         </div>
         <p className="text-slate-300 text-sm">
-            "This is a placeholder bio for the user profile. It gives a brief introduction about the user, their interests, and what they bring to the coven."
+         {bio}
         </p>
     </>
-    )
-}
-
-// --- Helper Component for Roles ---
-function RoleBadge({ role }: { role: string }) {
-    // Customize colors based on role
-    const isSupporter = role === 'supporter' || role === 'admin' || role === 'Princess' || role === 'Goddess';
-    const isVerified = role === 'verified';
-    return (
-        <span className={clsx(
-        
-          "text-[10px] uppercase font-bold px-2 py-1 rounded-full border flex items-center gap-1",
-            isSupporter ? "bg-amber-900/20 text-amber-200 border-amber-800" :
-            isVerified ? "bg-purple-900/20 text-purple-200 border-purple-800" :
-            "bg-slate-800 text-slate-500 border-slate-700" // Initiate
-        )}>
-            {isSupporter && <Sparkles className="w-3 h-3" />}
-            {role || 'Initiate'}
-        </span>
     )
 }

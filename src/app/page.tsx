@@ -21,7 +21,7 @@ export default async function Home() {
     .from('posts')
     .select(`
       *,
-      profiles ( username, role, avatar_url ),
+      profiles ( username, role, avatar_url, handle, subtitle ),
       likes (user_id),
       comments ( id )
     `)
@@ -53,11 +53,14 @@ export default async function Home() {
                 likes={post.likes} 
                 commentsCount={post.comments ? post.comments.length : 0}
                 username={post.profiles?.username || 'Unknown Witch'}
+                handle={post.profiles?.handle || ''}
+                subtitle={post.profiles?.subtitle}
                 avatar_url={post.profiles?.avatar_url || null}
                 timeAgo={new Date(post.created_at).toLocaleDateString()} 
                 content={post.content}
                 currentUserRole={profile?.role} 
                 image_url={post.image_url}
+                profileUserRole={post.profiles?.role || 'initiate'}
               />
             ))}
 

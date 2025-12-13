@@ -117,19 +117,21 @@ export default function CommentSection({ postId, currentUserId }: CommentSection
       {/* Input Form */}
       <form onSubmit={handleSubmit} className="flex gap-3 items-start">
         <div className="flex-1 relative">
-          <input
-            type="text"
+          <textarea
+            name="content"
+            rows={3}
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
             placeholder="Write a comment..."
             className="w-full bg-slate-950 border border-slate-800 rounded-full px-4 py-2 text-sm text-slate-200 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/20 placeholder:text-slate-600"
+            maxLength={300}
             disabled={isSubmitting}
           />
         </div>
         <button 
           type="submit" 
           disabled={!newComment.trim() || isSubmitting}
-          className="p-2 rounded-full bg-slate-800 text-purple-400 hover:bg-slate-700 hover:text-purple-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="p-2 rounded-full bg-slate-800 text-purple-400 hover:bg-slate-700 hover:text-purple-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
         >
           {isSubmitting ? <Loader2 size={18} className="animate-spin"/> : <Send size={18} />}
         </button>

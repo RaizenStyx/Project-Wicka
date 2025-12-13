@@ -1,8 +1,10 @@
 import { createClient } from '@/app/utils/supabase/server'
 import { notFound, redirect } from 'next/navigation'
-import { Cannabis, Cat, Shield } from 'lucide-react'
+import { Cannabis, Cat, Shield, ChevronLeft, Check } from 'lucide-react'
 import { signOut } from '@/app/actions/auth-actions'
 import { clsx } from 'clsx'
+import RoleBadge from '@/components/ui/RoleBadge'
+import ProfileInfoWidget from '@/components/profile/ProfileInfoWidget'
 import ProfileHeader from '@/components/profile/ProfileHeader'
 import PostCard from '@/components/ui/PostCard'
 import SpellCard from '@/components/spellbook/SpellCard'
@@ -13,11 +15,11 @@ export default async function ProfilePage({
   searchParams 
 }: { 
   params: Promise<{ handle: string }>,
-  searchParams: Promise<{ view?: string }> 
+  searchParams: Promise<{ view?: string; from?: string }> 
 }) {
   
   const { handle } = await params
-  const { view } = await searchParams
+  const { view, from } = await searchParams
   
   // Default to 'posts' if no view is specified
   const currentView = view === 'spells' ? 'spells' : 'posts';
@@ -51,8 +53,8 @@ export default async function ProfilePage({
   if (currentView === 'posts') {
     const { data } = await supabase
       .from('posts')
-      .select('*, profiles(username, role, avatar_url), likes (user_id), comments ( id )')
-      .eq('user_id', profile.id) // Fetch posts for the profile we are viewing
+      .select('*, profiles(username, role, avatar_url, subtitle), likes (user_id), comments ( id )')
+      .eq('user_id', profile.id) 
       .order('created_at', { ascending: false });
     posts = data;
   } else if (currentView === 'spells') {
@@ -69,6 +71,8 @@ export default async function ProfilePage({
   const isOwner = currentUser.id === profile.id
   const isSupporter = ['supporter', 'admin', 'verified', 'Goddess', 'Princess'].includes(profile.role);
 
+  const showBackButton = from === 'members';
+
   const date = new Date(profile.created_at).toLocaleDateString();
   
   return (
@@ -79,39 +83,91 @@ export default async function ProfilePage({
         <div className="relative mb-10">
           <div className="h-48 w-full bg-gradient-to-r from-indigo-900 to-purple-900 rounded-xl mb-12 opacity-50"></div>
 
-          {/* Action Buttons */}
-          {isOwner && (
-            <div className="absolute -top-4 left-4">
-              <Link href="/settings">
-                <button className="bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-2 rounded-lg border border-slate-700 text-sm font-medium transition-colors cursor-pointer">
-                  Edit Profile
-                </button>
-              </Link>
-            </div>
-          )}
-
-          {isOwner && (
-            <div className="absolute -top-4 right-4">
-             <form action={signOut}>
-                <button className="bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg border border-slate-700 block w-full text-left text-sm text-red-400 hover:text-red-300 cursor-pointer">Sign Out</button>
-             </form>
-             </div>
+          {/* Return to member page (Left) */}
+          {showBackButton && (
+          <div className="absolute -top-4 left-4">
+            <Link 
+              href="/members" 
+              className="
+                group flex items-center gap-2 
+                bg-slate-800/50 hover:bg-slate-800 
+                border border-slate-700/50 hover:border-purple-500/50
+                px-4 py-2 rounded-lg 
+                text-sm font-medium text-slate-400 hover:text-purple-400 
+                transition-all duration-200
+              "
+            >
+              <ChevronLeft 
+                size={16} 
+                className="group-hover:-translate-x-1 transition-transform duration-200" 
+              />
+              <span>Members</span>
+            </Link>  
+          </div>
           )}
           
+          {/* Action Buttons (Right) */}
+            <div className="absolute -top-4 right-4 flex items-center gap-3">
+              <RoleBadge role={profile?.role || 'initiate'} />
+             {isOwner && (
+              <>
+             <form action={signOut}>
+                <button className="bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg border border-slate-700 text-sm font-medium text-red-400 hover:text-red-300 transition-colors cursor-pointer">
+                  Sign Out
+                </button>
+             </form>
+
+             <Link 
+               href="/settings"
+               className="bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-2 rounded-lg border border-slate-700 text-sm font-medium transition-colors cursor-pointer"
+             >
+                Edit Profile
+             </Link>
+             </>
+             )}
+            </div>
+          
+          
           <div className="absolute -bottom-6 left-8 flex items-end gap-6">
-            
+  
+            {/* Avatar Section */}
             <ProfileHeader profile={profile} isOwnProfile={isOwner} />
             
-            <div className="mb-2">
-              <h1 className="text-3xl font-bold text-white flex items-center gap-2">
-                {profile.username}
-                {isSupporter && (
-                  <span className="text-xs bg-purple-500 text-white px-2 py-0.5 rounded-full" title="Verified Witch">✓</span>
+            {/* Text Info Section */}
+            <div className="mb-1 flex flex-col">
+              
+              {/* ROW 1: Identity (Username + Subtitle) */}
+              <div className="flex items-baseline gap-3">
+                <h1 className="text-3xl font-bold text-white flex items-center gap-2">
+                  {profile.username}
+                  {isSupporter && (
+                    <span 
+                      className="flex items-center justify-center w-5 h-5 bg-purple-500 rounded-full" 
+                      title="Verified Witch"
+                    >
+                      <Check size={12} className="text-white stroke-[4]" />
+                    </span>
+                  )}
+                </h1>
+
+                {/* Subtitle - Styled as a sleek tag next to the name */}
+                {profile.subtitle && (
+                  <span className="hidden sm:block text-purple-400 text-sm font-bold uppercase tracking-wider border border-purple-500/30 bg-purple-500/10 px-2 py-0.5 rounded">
+                    {profile.subtitle}
+                  </span>
                 )}
-              </h1>
+              </div>
+              {/* Mobile Only Subtitle (If screen is too small, subtitle drops below) */}
+              {profile.subtitle && (
+                  <p className="sm:hidden text-purple-400 text-xs font-bold uppercase tracking-wider mt-1">
+                    {profile.subtitle}
+                  </p>
+              )}
+
+              {/* ROW 2: Technical (Handle + Role/Badges) */}
               <p className="text-xs text-slate-400 mt-1 flex items-center gap-1">
-                @{profile.handle}
-                {/* Role Badge */}
+                  @{profile.handle}
+                  {/* Role Badge */}
                   {(profile.role === 'verified' || profile.role === 'supporter') && (
                       <Shield className="w-3 h-3 text-purple-400 fill-purple-400/20" />
                   )}
@@ -121,7 +177,8 @@ export default async function ProfilePage({
                   {(profile.role === 'Princess') && (
                       <Cat className="w-3 h-3 text-purple-400 fill-purple-400/20" />
                   )}
-              </p>
+                </p>
+
             </div>
           </div>
         </div>
@@ -131,29 +188,7 @@ export default async function ProfilePage({
           
           {/* LEFT COL: Info Widget */}
           <div className="md:col-span-1 space-y-6">
-             <div className="p-6 rounded-xl bg-slate-900 border border-slate-800">
-               <h3 className="text-xs uppercase tracking-widest text-slate-500 mb-4 font-bold">Grimoire Info</h3>
-               <div className="space-y-3 text-sm">
-                 <div className="flex justify-between border-b border-slate-800 pb-2">
-                   <span className="text-slate-500">Affinity</span>
-                   <span className="text-purple-300">{profile.moon_phase || 'Unknown'}</span>
-                 </div>
-                 <div className="flex justify-between border-b border-slate-800 pb-2">
-                   <span className="text-slate-500">Website</span>
-                   {profile.website ? (
-                     <a href={profile.website} target="_blank" className="text-purple-400 hover:underline truncate max-w-[120px]">
-                       Link
-                     </a>
-                   ) : (
-                     <span className="text-slate-600">-</span>
-                   )}
-                 </div>
-                 <div className="pt-2">
-                   <span className="text-slate-500 block mb-1">Joined</span>
-                   <span className="text-slate-300">{date}</span>
-                 </div>
-               </div>
-             </div>
+             <ProfileInfoWidget profile={profile} isOwner={isOwner} />
              <div className="p-6 rounded-xl bg-slate-900 border border-slate-800">
                <h3 className="text-xs uppercase tracking-widest text-slate-500 mb-4 font-bold">Coven Info</h3>
                <div className="space-y-3 text-sm">
@@ -206,14 +241,15 @@ export default async function ProfilePage({
                      <PostCard 
                        key={post.id}
                        id={post.id} 
-                       currentUserId={currentUser.id} // The viewer's ID
+                       currentUserId={currentUser.id} 
                        likes={post.likes} 
                        commentsCount={post.comments ? post.comments.length : 0}
                        username={post.profiles?.username || 'Unknown Witch'}
+                       handle={""}
+                       subtitle={""}
                        avatar_url={post.profiles?.avatar_url || null}
                        timeAgo={new Date(post.created_at).toLocaleDateString()} 
                        content={post.content}
-                       // 🛑 FIXED: Now passing the VIEWER'S role, not the profile owner's role
                        currentUserRole={viewerProfile?.role} 
                        image_url={post.image_url}
                      />

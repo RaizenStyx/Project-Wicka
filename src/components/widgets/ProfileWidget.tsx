@@ -1,32 +1,12 @@
-import React from 'react';
 import { createClient } from '@/app/utils/supabase/server';
 import { notFound } from 'next/navigation';
-import { Bell, User, Settings, Shield, Cannabis, Cat, Sparkles } from 'lucide-react';
-import { clsx } from 'clsx';
+import { Bell, Settings, Shield, Cannabis, Cat } from 'lucide-react';
+import RoleBadge from '../ui/RoleBadge';
 import WidgetFrame from './WidgetFrame';
 import Link from 'next/link';
 import Avatar from '../ui/Avatar';
 import ResonanceLink from '../profile/ResonanceLink';
 
-// --- Helper Component for Roles ---
-function RoleBadge({ role }: { role: string }) {
-    // Customize colors based on role
-    const isSupporter = role === 'supporter' || role === 'admin' || role === 'Princess' || role === 'Goddess';
-    const isVerified = role === 'verified';
-    if (!isSupporter && !isVerified) return null; 
-
-    return (
-        <span className={clsx(
-            "text-[9px] uppercase font-bold px-1.5 py-0.5 rounded-full border flex items-center gap-1 normal-case tracking-normal",
-            isSupporter ? "bg-amber-900/20 text-amber-200 border-amber-800" :
-            isVerified ? "bg-purple-900/20 text-purple-200 border-purple-800" :
-            "bg-slate-800 text-slate-500 border-slate-700"
-        )}>
-            {isSupporter && <Sparkles className="w-2 h-2" />}
-            {role}
-        </span>
-    )
-}
 
 export default async function ProfileWidget() {
 

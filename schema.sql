@@ -741,3 +741,9 @@ update public.profiles p
 set created_at = a.created_at
 from auth.users a
 where p.id = a.id;
+
+
+-- Add 'subtitle' column to profiles table
+ALTER TABLE public.profiles 
+ADD COLUMN subtitle TEXT DEFAULT '' NOT NULL;
+ADD COLUMN bio TEXT DEFAULT '' NOT NULL;

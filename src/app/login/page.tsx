@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useActionState } from 'react'
-import { login, signup } from '@/app/login/actions'
-
+import { useState, useActionState } from 'react';
+import { login, signup } from '@/app/login/actions';
+import { Eye, EyeOff } from 'lucide-react';
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true) // Toggle state
@@ -10,6 +10,8 @@ export default function AuthPage() {
   // We need two separate action hooks
   const [loginState, loginAction, loginPending] = useActionState(login, { error: '', success: '' })
   const [signupState, signupAction, signupPending] = useActionState(signup, { error: '', success: '' })
+
+  const [showPassword, setShowPassword] = useState(false);
 
   return (
     <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4">
@@ -36,8 +38,20 @@ export default function AuthPage() {
             <div>
               <input name="email" type="email" placeholder="Email Address" required className="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-slate-200 focus:border-purple-500 outline-none" />
             </div>
-            <div>
-              <input name="password" type="password" placeholder="Password" required className="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-slate-200 focus:border-purple-500 outline-none" />
+
+            <div className="relative">
+              <input name="password" type={showPassword ? "text" : "password"} placeholder="Password" required className="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-slate-200 focus:border-purple-500 outline-none" />
+              <button
+                type="button" 
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors cursor-pointer"
+              >
+                {showPassword ? (
+                  <EyeOff size={20} />
+                ) : (
+                  <Eye size={20} />
+                )}
+              </button>
             </div>
             
             <button disabled={loginPending} className="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 py-3 rounded-lg font-medium transition-all cursor-pointer shadow-[0_0_10px_rgba(100,100,100,0.2)] hover:shadow-[0_0_15px_rgba(147,51,234,0.3)]">

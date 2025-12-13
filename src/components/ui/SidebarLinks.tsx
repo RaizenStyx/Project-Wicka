@@ -60,13 +60,13 @@ export default function SidebarLinks({ profile }: SidebarLinksProps) {
     },
     KNOWLEDGE: {
       title: 'Grimoire DB',
-      icon: Search, // Changed icon to Search to imply "Looking up info"
+      icon: Search,
       items: [
-        { label: 'Crystals Database', href: '/crystals-db' },
-        { label: 'Herbs Database', href: '/herbs-db' },
-        { label: 'Runes Database', href: '/runes-db' },
-        { label: 'Tarot Meanings', href: '/tarot-db' },
-        { label: 'Published Spells', href: '/library'}
+        { label: 'Published Spells', href: '/library'},
+        { label: 'All Crystals', href: '/crystals-db' },
+        { label: 'All Herbs', href: '/herbs-db' },
+        { label: 'All Runes', href: '/runes-db' },
+        { label: 'Tarot Meanings', href: '/tarot-db' }
       ]
     },
     COVENS: {

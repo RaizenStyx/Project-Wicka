@@ -1,7 +1,7 @@
 import { getMembers } from '@/app/actions/member-actions'
 import Link from 'next/link'
-import { MessageCircle, Shield, Sparkles, House, Cannabis, Cat } from 'lucide-react'
-import { clsx } from 'clsx'
+import { MessageCircle, Shield, House, Cannabis, Cat } from 'lucide-react'
+import RoleBadge from '@/components/ui/RoleBadge'
 import Avatar from '@/components/ui/Avatar'
 
 export default async function MembersPage() {
@@ -71,7 +71,7 @@ export default async function MembersPage() {
             <div className="flex gap-3 mt-auto pt-4 border-t border-slate-800/50">
               {/* Profile Link */}
               <Link 
-                href={`/u/${member.handle}`}
+                href={`/u/${member.handle}?from=members`}
                 className="flex-1 text-center py-2 rounded-lg bg-slate-800 text-xs font-medium text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
               >
                 View Grimoire
@@ -100,23 +100,4 @@ export default async function MembersPage() {
 
     </div>
   )
-}
-
-// --- Helper Component for Roles ---
-function RoleBadge({ role }: { role: string }) {
-    // Customize colors based on role
-    const isSupporter = role === 'supporter' || role === 'admin' || role === 'Princess' || role === 'Goddess';
-    const isVerified = role === 'verified';
-    return (
-        <span className={clsx(
-        
-          "text-[10px] uppercase font-bold px-2 py-1 rounded-full border flex items-center gap-1",
-            isSupporter ? "bg-amber-900/20 text-amber-200 border-amber-800" :
-            isVerified ? "bg-purple-900/20 text-purple-200 border-purple-800" :
-            "bg-slate-800 text-slate-500 border-slate-700" // Initiate
-        )}>
-            {isSupporter && <Sparkles className="w-3 h-3" />}
-            {role || 'Initiate'}
-        </span>
-    )
 }

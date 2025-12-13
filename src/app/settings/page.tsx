@@ -23,7 +23,8 @@ export default async function SettingsPage() {
     coven_name: profile?.coven_name || '',
     moon_phase: profile?.moon_phase || '',
     website: profile?.website || '',
-    handle: profile?.handle || ''
+    handle: profile?.handle || '',
+    subtitle: profile?.subtitle
   }
 
   return (
