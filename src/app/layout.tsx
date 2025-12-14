@@ -10,7 +10,7 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-serif" });
 
 export const metadata: Metadata = {
-  title: "Notca - Creators of Night",
+  title: "Nocta - Creators of Night",
   description: "A mystical social platform for witches and wizards to share their spells and connect with fellow coven members.",
 };
 

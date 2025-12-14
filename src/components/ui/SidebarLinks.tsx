@@ -35,12 +35,12 @@ export default function SidebarLinks({ profile }: SidebarLinksProps) {
 
   // Static Home List
   const navHome: NavItem[] = [
-    { label: 'Join the Coven', href: '/join', allowedRoles: ['initiate'] },
+    { label: 'Join the Coven', href: '/join', allowedRoles: ['initiate', 'supporter'] },
     { label: 'Feed', href: '/' },
     { label: 'Profile', href: "/u/" + (profile?.handle || 'profile') },
     { label: 'Settings', href: '/settings' },
-    { label: 'Chat', href: '/chat' },
-    { label: 'Members', href: '/members' },
+    { label: 'Chat', href: '/chat', allowedRoles: ['guardian', 'supporter'] },
+    { label: 'Members', href: '/members', allowedRoles: ['guardian', 'supporter'] },
     { label: 'Support', href: '/support'}
   ];
 
@@ -53,7 +53,7 @@ export default function SidebarLinks({ profile }: SidebarLinksProps) {
         { label: 'Daily Tarot', href: '/tarot-draw' },
         { label: 'Home Altar', href: '/altar' },
         { label: 'Spellbook', href: '/spellbook' },
-        { label: 'My Collection', href: '/my-collection' },
+        { label: 'My Collection', href: '/my-collection', allowedRoles: ['guardian', 'supporter'] },
         { label: 'Oracle AI', href: 'https://ai-oracle-eight.vercel.app/access', allowedRoles: ['supporter', 'admin'], isExternal: true }
       ]
     },

@@ -64,7 +64,7 @@ export default function LikeButton({
         "tabular-nums", 
         optimisticState.isLiked && "text-purple-400"
       )}>
-        {optimisticState.likeCount > 0 ?  optimisticState.likeCount + " Manifested"  : "Manifest"}
+        {optimisticState.likeCount > 0 ?  optimisticState.likeCount : "Manifest"}
       </span>
     </button>
   )

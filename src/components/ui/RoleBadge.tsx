@@ -4,7 +4,7 @@ import { Sparkles, Cannabis, Cat, Shield, ChevronLeft, Check } from 'lucide-reac
 export default function RoleBadge({ role }: { role: string }) {
     // Customize colors based on role
     const isSupporter = role === 'supporter' || role === 'admin';
-    const isVerified = role === 'verified';
+    const isVerified = role === 'guardian';
     const isWife = role === 'Goddess';
     const isDaughter = role === 'Princess';
     return (

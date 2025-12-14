@@ -34,7 +34,7 @@ export default async function ProfileInfo() {
               fallback = {firstLetter || 'M'} 
               className = "border-slate-700 group-hover:border-purple-500 transition-colors" 
             /> 
-            
+
             <div className="mb-1 flex flex-col">
               {/* ROW 1: Identity (Username + Subtitle) */}
               <div className="flex items-baseline gap-3">
@@ -48,7 +48,7 @@ export default async function ProfileInfo() {
             </div>
             {/* Mobile Only Subtitle (If screen is too small, subtitle drops below) */}
               {profile.subtitle && (
-                  <p className="sm:hidden text-purple-400 text-xs font-bold uppercase tracking-wider mt-1">
+                  <p className="sm:hidden text-purple-400 text-xs font-bold uppercase tracking-wider">
                     {profile.subtitle}
                   </p>
               )}
