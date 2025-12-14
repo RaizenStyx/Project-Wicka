@@ -58,14 +58,16 @@ export default async function ProfileWidget() {
         .gt('created_at', lastRead);
 
     const resonanceCount = (newLikes || 0) + (newComments || 0);
-
+    const date = new Date(profile.created_at).toLocaleDateString();
     const firstLetter = profile?.handle?.[0]?.toUpperCase() ?? "U";
 
     return (
         <WidgetFrame title={
                 <div className="flex items-center gap-2">
                     Identity
-                    <RoleBadge role={profile.role || 'initiate'} />
+                    <div className='text-amber-300 animate-pulse'>
+                        <RoleBadge role={profile.role || 'initiate'} />
+                    </div>
                 </div>
             }>
             <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-lg group">
@@ -115,6 +117,7 @@ export default async function ProfileWidget() {
                                 <Cat className="w-3 h-3 text-purple-400 fill-purple-400/20" />
                             )}
                         </p>
+                        <p className="text-xs text-slate-500">Member since: {date}</p>
                     </div>
 
                     {/* --- 3. NOTIFICATIONS / ACTIONS (Chat needs to be done) --- */}

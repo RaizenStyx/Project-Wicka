@@ -3,6 +3,7 @@ import ProfileInfo from "@/components/profile/ProfileInfo";
 import ProfileWidget from "@/components/ui/FeedProfileWidget";
 import { createClient } from "./utils/supabase/server";
 import { redirect } from 'next/navigation'
+import WelcomeBanner from "@/components/ui/WelcomeBanner";
 
 export default async function Home() {
 
@@ -37,6 +38,7 @@ export default async function Home() {
           
           {/* Post Input Box Component */}
           {/* LOGIC: Only show Create Form if NOT an initiate */}
+          <WelcomeBanner />
           <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 shadow-lg">
           <ProfileInfo />
           {profile?.role !== 'initiate' && (
@@ -44,7 +46,7 @@ export default async function Home() {
           )}
           </div>
 
-          {/* REAL POSTS LOOP */}
+          {/* POSTS LOOP */}
             {posts?.slice(0, 25).map((post) => (
               <PostCard 
                 key={post.id}

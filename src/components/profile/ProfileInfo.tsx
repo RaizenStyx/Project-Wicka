@@ -2,6 +2,7 @@
 
 import { createClient } from '@/app/utils/supabase/server'
 import { redirect } from 'next/navigation'
+import { Sparkles } from 'lucide-react'
 import RoleBadge from '../ui/RoleBadge'
 import Avatar from '../ui/Avatar'
 
@@ -19,7 +20,6 @@ export default async function ProfileInfo() {
     .single()
 
     const firstLetter = profile?.handle?.[0]?.toUpperCase() ?? "U";
-    const date = new Date(profile.created_at).toLocaleDateString();
     const bio = profile?.bio || 'Go to public profile to edit your bio';
 
     return (    
@@ -36,12 +36,20 @@ export default async function ProfileInfo() {
             /> 
 
             <div className="mb-1 flex flex-col">
+              <p className="sm:hidden w-min">
+                <RoleBadge role={profile.role || 'initiate'} />
+              </p>
               {/* ROW 1: Identity (Username + Subtitle) */}
-              <div className="flex items-baseline gap-3">
-                <p className="font-medium text-slate-200 text-lg">Welcome, {profile?.username}</p>
+              <div className="flex gap-3">
+              <h1 className="text-3xl md:text-4xl font-serif font-bold text-slate-100">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 animate-gradient-x">
+                  {profile?.username}
+                </span>
+              </h1>
+
                 {/* Subtitle - Styled as a sleek tag next to the name */}
                 {profile.subtitle && (
-                  <span className="hidden sm:block text-purple-400 text-sm font-bold uppercase tracking-wider border border-purple-500/30 bg-purple-500/10 px-2 py-0.5 rounded">
+                  <span className="hidden sm:block content-center text-purple-400 text-sm font-bold uppercase tracking-wider border border-purple-500/30 bg-purple-500/10 px-2 py-0.5 rounded">
                     {profile.subtitle}
                   </span>
                 )}
@@ -50,14 +58,17 @@ export default async function ProfileInfo() {
               {profile.subtitle && (
                   <p className="sm:hidden text-purple-400 text-xs font-bold uppercase tracking-wider">
                     {profile.subtitle}
+                    {/* <RoleBadge role={profile.role || 'initiate'} /> */}
                   </p>
               )}
-            <p className="text-xs text-slate-500">You joined: {date}</p>
+            
             </div>
           </div>
-          <RoleBadge role={profile.role || 'initiate'} />
+          <div className='hidden sm:block'>
+            <RoleBadge role={profile.role || 'initiate'} />
+          </div>
         </div>
-        <p className="text-slate-300 text-sm">
+        <p className="text-slate-300 text-sm py-2.5">
          {bio}
         </p>
     </>
