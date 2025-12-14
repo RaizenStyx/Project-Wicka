@@ -70,25 +70,21 @@ export default function CommentSection({ postId, currentUserId }: CommentSection
   }
 
   // 3. Handle Delete 
-  // const handleDelete = async (e: React.FormEvent) => {
-  //   e.preventDefault()
-  //   if (!newComment.trim()) return
+  const handleDelete = async (commentId: string) => {
+    // Optional: Simple confirmation
+    if (!confirm("Delete this whisper?")) return
 
-  //   setIsSubmitting(true)
+    // Optimistic Update: Remove it from the screen immediately
+    setComments((prev) => prev.filter((c) => c.id !== commentId))
     
-  //   try {
-  //     // Call Server Action
-  //     const newCommentData = await deleteComment(postId, newComment)
-      
-  //     // Update Local State immediately
-  //     setComments((prev) => [...prev, newCommentData])
-  //     setNewComment('') // Clear input
-  //   } catch (error) {
-  //     console.error("Failed to post comment")
-  //   } finally {
-  //     setIsSubmitting(false)
-  //   }
-  // }
+    try {
+      // Call Server Action
+      await deleteComment(commentId)
+    } catch (error) {
+      console.error("Failed to delete comment")
+      // Ideally, you would trigger a toast error here if it fails
+    }
+  }
   
 
 
@@ -127,8 +123,17 @@ export default function CommentSection({ postId, currentUserId }: CommentSection
                 </div>
                 {/* Optional: Delete button if it's my comment */}
                 {comment.user_id === currentUserId && (
-                  <button className="text-xs text-slate-600 hover:text-red-400 mt-1 ml-1 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Trash2 size={12} /> Delete
+                  <button 
+                    onClick={() => handleDelete(comment.id)}
+                    className="
+                      text-xs text-slate-600 hover:text-red-400 
+                      mt-1 ml-1 flex items-center gap-1 
+                      transition-opacity cursor-pointer
+                      opacity-100 sm:opacity-0 sm:group-hover:opacity-100
+                    "
+                  >
+                    <Trash2 size={12} /> 
+                    Delete
                   </button>
                 )}
               </div>

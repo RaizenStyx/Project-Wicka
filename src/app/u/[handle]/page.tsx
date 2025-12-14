@@ -111,24 +111,41 @@ export default async function ProfilePage({
               </div>
              {isOwner && (
               <>
-             <form action={signOut}>
+              {/* Only show these on desktop */}
+              <Link 
+               href="/settings"
+               className="bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-2 rounded-lg border border-slate-700 text-sm font-medium transition-colors cursor-pointer hidden sm:block"
+             >
+                Edit Profile
+             </Link>
+
+             <form action={signOut} className='hidden sm:block'>
                 <button className="bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg border border-slate-700 text-sm font-medium text-red-400 hover:text-red-300 transition-colors cursor-pointer">
                   Sign Out
                 </button>
              </form>
+             
+             {/* Only show these on mobile */}
+             <div className='md:hidden flex flex-col items-end gap-2.5'>
+               <Link 
+                href="/settings"
+                className="bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-2 rounded-lg border border-slate-700 text-sm font-medium transition-colors cursor-pointer"
+              >
+                  Edit Profile
+              </Link>
 
-             <Link 
-               href="/settings"
-               className="bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-2 rounded-lg border border-slate-700 text-sm font-medium transition-colors cursor-pointer"
-             >
-                Edit Profile
-             </Link>
+              <form action={signOut}>
+                  <button className="bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg border border-slate-700 text-sm font-medium text-red-400 hover:text-red-300 transition-colors cursor-pointer">
+                    Sign Out
+                  </button>
+              </form>
+             </div>
              </>
              )}
             </div>
           
           
-          <div className="absolute -bottom-6 left-8 flex items-end gap-6">
+          <div className="absolute -bottom-6 md:left-16 flex items-end gap-6">
   
             {/* Avatar Section */}
             <ProfileHeader profile={profile} isOwnProfile={isOwner} />
@@ -194,6 +211,8 @@ export default async function ProfilePage({
           {/* LEFT COL: Info Widget */}
           <div className="md:col-span-1 space-y-6">
              <ProfileInfoWidget profile={profile} isOwner={isOwner} />
+             
+             {/* Coven Widget */}
              <div className="p-6 rounded-xl bg-slate-900 border border-slate-800">
                <h3 className="text-xs uppercase tracking-widest text-slate-500 mb-4 font-bold">Coven Info</h3>
                <div className="space-y-3 text-sm">
@@ -203,6 +222,40 @@ export default async function ProfilePage({
                   </div>
                </div>
              </div>
+
+            {/* Placeholder Widget */}
+             <div className="p-6 rounded-xl bg-slate-900 border border-slate-800">
+               <h3 className="text-xs uppercase tracking-widest text-slate-500 mb-4 font-bold">Astrology Info</h3>
+               <div className="space-y-3 text-sm">
+                 <div className="flex justify-between pb-2">
+                   <span className="text-slate-500">Placeholder:</span>
+                   <p className="text-slate-400">???</p>
+                  </div>
+               </div>
+             </div>
+
+              {/* Placeholder Widget */}
+             <div className="p-6 rounded-xl bg-slate-900 border border-slate-800">
+               <h3 className="text-xs uppercase tracking-widest text-slate-500 mb-4 font-bold">Tarot Info</h3>
+               <div className="space-y-3 text-sm">
+                 <div className="flex justify-between pb-2">
+                   <span className="text-slate-500">Placeholder:</span>
+                   <p className="text-slate-400">Place daily tarot card here?</p>
+                  </div>
+               </div>
+             </div>
+
+            {/* Placeholder Widget */}
+             <div className="p-6 rounded-xl bg-slate-900 border border-slate-800">
+               <h3 className="text-xs uppercase tracking-widest text-slate-500 mb-4 font-bold">Any Info</h3>
+               <div className="space-y-3 text-sm">
+                 <div className="flex justify-between pb-2">
+                   <span className="text-slate-500">Placeholder:</span>
+                   <p className="text-slate-400">Let me know what would be a good idea to use for these side widgets on the user's public profile!</p>
+                  </div>
+               </div>
+             </div>
+
           </div>
 
           {/* RIGHT COL: Feed/Spells */}
