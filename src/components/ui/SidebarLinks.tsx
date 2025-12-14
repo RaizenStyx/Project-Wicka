@@ -54,11 +54,12 @@ export default function SidebarLinks({ profile }: SidebarLinksProps) {
         { label: 'Home Altar', href: '/altar' },
         { label: 'Spellbook', href: '/spellbook' },
         { label: 'My Collection', href: '/my-collection', allowedRoles: ['guardian', 'supporter'] },
-        { label: 'Oracle AI', href: 'https://ai-oracle-eight.vercel.app/access', allowedRoles: ['supporter', 'admin'], isExternal: true }
+        { label: 'Oracle AI', href: 'https://ai-oracle-eight.vercel.app/access', allowedRoles: ['supporter', 'admin'], isExternal: true },
+        { label: 'Zodiac placeholder?', href: '/' },
       ]
     },
     KNOWLEDGE: {
-      title: 'Grimoire DB',
+      title: 'Knowledge',
       icon: Search,
       items: [
         { label: 'Grand Grimoire', href: '/grand-grimoire'},
