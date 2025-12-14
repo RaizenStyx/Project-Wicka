@@ -1,6 +1,6 @@
 import Construction from '@/components/ui/Construction';
 
-export default function HerbDBPage() {
+export default function HerbPage() {
   return (
     <Construction 
       title="Herb information" 

@@ -56,7 +56,7 @@ export default function SupportPage() {
                             </li>
                         </ul>
 
-                        <button className="w-full bg-white hover:bg-slate-200 text-slate-900 font-bold py-4 rounded-xl transition-colors mb-4">
+                        <button className="w-full bg-white hover:bg-slate-200 text-slate-900 font-bold py-4 rounded-xl transition-colors mb-4 cursor-pointer">
                             Subscribe Now
                         </button>
                         <p className="text-xs text-slate-500">Cancel anytime. Secure payment via Stripe.</p>
@@ -72,7 +72,7 @@ export default function SupportPage() {
                                 The Bazaar <span className="text-xs bg-slate-800 text-slate-400 px-2 py-1 rounded ml-2 border border-slate-700">COMING SOON</span>
                             </h3>
                             <p className="text-slate-400 max-w-xl">
-                                A marketplace for permanent unlocks. Supporters will gain exclusive access to buy special profile frames, rune sets, and custom app icons.
+                                A marketplace for permanent unlocks. Supporters will gain exclusive access to buy special profile frames, tarot sets, and custom roles and badges.
                             </p>
                         </div>
                         <div className="flex gap-4 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">

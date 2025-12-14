@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/app/utils/supabase/client'
 import Avatar from './Avatar'
 import { Send, Loader2, Trash2 } from 'lucide-react'
-import { addComment } from '@/app/actions/social-actions'
+import { addComment, deleteComment } from '@/app/actions/social-actions'
 import { formatDistanceToNow } from 'date-fns' 
 
 interface Comment {
@@ -68,6 +68,29 @@ export default function CommentSection({ postId, currentUserId }: CommentSection
       setIsSubmitting(false)
     }
   }
+
+  // 3. Handle Delete 
+  // const handleDelete = async (e: React.FormEvent) => {
+  //   e.preventDefault()
+  //   if (!newComment.trim()) return
+
+  //   setIsSubmitting(true)
+    
+  //   try {
+  //     // Call Server Action
+  //     const newCommentData = await deleteComment(postId, newComment)
+      
+  //     // Update Local State immediately
+  //     setComments((prev) => [...prev, newCommentData])
+  //     setNewComment('') // Clear input
+  //   } catch (error) {
+  //     console.error("Failed to post comment")
+  //   } finally {
+  //     setIsSubmitting(false)
+  //   }
+  // }
+  
+
 
   return (
     <div className="mt-4 pt-4 border-t border-slate-800/50 animate-in fade-in slide-in-from-top-2 duration-200">

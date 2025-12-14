@@ -1,6 +1,6 @@
 import Construction from '@/components/ui/Construction';
 
-export default function TarotDBPage() {
+export default function TarotCardsPage() {
   return (
     <Construction 
       title="Tarot Card information" 

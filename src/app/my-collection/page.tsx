@@ -1,6 +1,6 @@
 import Construction from '@/components/ui/Construction';
 
-export default function CrystalDBPage() {
+export default function MyCollectionPage() {
   return (
     <Construction 
       title="Collection of Stuff from user" 

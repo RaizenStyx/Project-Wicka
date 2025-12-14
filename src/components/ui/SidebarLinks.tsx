@@ -35,7 +35,7 @@ export default function SidebarLinks({ profile }: SidebarLinksProps) {
 
   // Static Home List
   const navHome: NavItem[] = [
-    { label: 'Join the Coven', href: '/join', allowedRoles: ['initiate', 'supporter'] },
+    { label: 'Join the Coven', href: '/join', allowedRoles: ['initiate'] },
     { label: 'Feed', href: '/' },
     { label: 'Profile', href: "/u/" + (profile?.handle || 'profile') },
     { label: 'Settings', href: '/settings' },
@@ -64,7 +64,7 @@ export default function SidebarLinks({ profile }: SidebarLinksProps) {
         { label: 'Grand Grimoire', href: '/grand-grimoire'},
         { label: 'All Crystals', href: '/crystals' },
         { label: 'All Herbs', href: '/herbs' },
-        { label: 'All Runes', href: '/runes' },
+        { label: 'All Deities', href: '/deities' },
         { label: 'Tarot Meanings', href: '/tarot-cards' }
       ]
     },

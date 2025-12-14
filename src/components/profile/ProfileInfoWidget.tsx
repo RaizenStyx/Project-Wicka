@@ -113,7 +113,7 @@ export default function ProfileInfoWidget({ profile, isOwner }: { profile: Profi
                     {isOwner && (
                         <button 
                             onClick={() => setIsEditing(true)}
-                            className="absolute -top-2 -right-2 p-2 text-slate-600 hover:text-purple-400 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                            className="absolute -top-2 -right-2 p-2 text-slate-600 hover:text-purple-400 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200"
                             title="Edit Bio"
                         >
                             <Pencil className="w-3 h-3" />
@@ -140,7 +140,7 @@ export default function ProfileInfoWidget({ profile, isOwner }: { profile: Profi
                         rel="noopener noreferrer"
                         className="text-purple-400 hover:underline truncate max-w-[120px]"
                         >
-                        Link
+                        {profile.website.startsWith('http') ? profile.website : `https://${profile.website}`}
                         </a>
                     ) : (
                         <span className="text-slate-600">-</span>

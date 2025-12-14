@@ -2,7 +2,7 @@ import { getCommunitySpells } from '@/app/actions/spell-actions'
 import SpellCard from '@/components/spellbook/SpellCard'
 import { Search, BookOpen } from 'lucide-react' 
 
-export default async function CommunityLibraryPage() {
+export default async function GrandGrimoirePage() {
   const spells = await getCommunitySpells()
 
   return (
