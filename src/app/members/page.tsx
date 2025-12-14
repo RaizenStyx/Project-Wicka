@@ -44,7 +44,16 @@ export default async function MembersPage() {
             <div className="mb-6">
               <h3 className="text-lg font-bold text-slate-100 font-serif tracking-wide">
                 {member.username || 'Unknown Soul'}
+                {member.subtitle && (
+                  <>
+                    -&nbsp; 
+                    <span className="text-purple-400 text-sm font-bold uppercase tracking-wider border border-purple-500/30 bg-purple-500/10 px-2 py-0.5 rounded">
+                      {member.subtitle}
+                    </span>
+                  </>
+                )}
               </h3>
+                
               <p className="text-xs text-slate-400 mt-1 flex items-center gap-1">
                 @{member.handle}
                 {/* Optional Role Badge */}

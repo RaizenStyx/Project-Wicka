@@ -72,8 +72,6 @@ export default async function ProfilePage({
   const isSupporter = ['supporter', 'admin', 'verified', 'Goddess', 'Princess'].includes(profile.role);
 
   const showBackButton = from === 'members';
-
-  const date = new Date(profile.created_at).toLocaleDateString();
   
   return (
     <div className="min-h-screen bg-slate-950 text-slate-200 font-sans">
@@ -108,7 +106,9 @@ export default async function ProfilePage({
           
           {/* Action Buttons (Right) */}
             <div className="absolute -top-4 right-4 flex items-center gap-3">
-              <RoleBadge role={profile?.role || 'initiate'} />
+              <div className="hidden sm:block">
+                <RoleBadge role={profile?.role || 'initiate'} />
+              </div>
              {isOwner && (
               <>
              <form action={signOut}>
@@ -135,9 +135,14 @@ export default async function ProfilePage({
             
             {/* Text Info Section */}
             <div className="mb-1 flex flex-col">
-              
+              {/* Mobile Only Badge  (If screen is too small, badge goes above username) */}
+              <div className="sm:hidden w-min">
+                <RoleBadge role={profile?.role || 'initiate'} />
+              </div>
+
               {/* ROW 1: Identity (Username + Subtitle) */}
               <div className="flex items-baseline gap-3">
+                
                 <h1 className="text-3xl font-bold text-white flex items-center gap-2">
                   {profile.username}
                   {isSupporter && (

@@ -11,6 +11,7 @@ export type MemberProfile = {
   coven_name: string | null
   updated_at: string
   avatar_url: string | null 
+  subtitle: string
 }
 
 export async function getMembers(): Promise<MemberProfile[]> {
@@ -19,7 +20,7 @@ export async function getMembers(): Promise<MemberProfile[]> {
 
  const { data: profiles, error } = await supabase
     .from('profiles')
-    .select('id, username, handle, role, coven_name, updated_at, avatar_url') // Be specific with columns
+    .select('id, username, handle, role, coven_name, updated_at, avatar_url, subtitle') // Be specific with columns
     .order('updated_at', { ascending: false })
     .limit(50)
 

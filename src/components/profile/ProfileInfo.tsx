@@ -34,18 +34,26 @@ export default async function ProfileInfo() {
               fallback = {firstLetter || 'M'} 
               className = "border-slate-700 group-hover:border-purple-500 transition-colors" 
             /> 
-
-            <div>
-                <p className="font-medium text-slate-200 text-lg">Welcome, {profile?.username}
-                   {profile.subtitle && (
-                    <>
-                    - <span className="font-bold tracking-wider text-purple-400 uppercase border border-purple-500/20 bg-purple-500/10 px-2 py-0.5 rounded">{profile.subtitle}</span>
-                    </>
-                   )}
-                   </p>               
-                <p className="text-xs text-slate-500">You joined: {date}</p>
-            </div>
             
+            <div className="mb-1 flex flex-col">
+              {/* ROW 1: Identity (Username + Subtitle) */}
+              <div className="flex items-baseline gap-3">
+                <p className="font-medium text-slate-200 text-lg">Welcome, {profile?.username}</p>
+                {/* Subtitle - Styled as a sleek tag next to the name */}
+                {profile.subtitle && (
+                  <span className="hidden sm:block text-purple-400 text-sm font-bold uppercase tracking-wider border border-purple-500/30 bg-purple-500/10 px-2 py-0.5 rounded">
+                    {profile.subtitle}
+                  </span>
+                )}
+            </div>
+            {/* Mobile Only Subtitle (If screen is too small, subtitle drops below) */}
+              {profile.subtitle && (
+                  <p className="sm:hidden text-purple-400 text-xs font-bold uppercase tracking-wider mt-1">
+                    {profile.subtitle}
+                  </p>
+              )}
+            <p className="text-xs text-slate-500">You joined: {date}</p>
+            </div>
           </div>
           <RoleBadge role={profile.role || 'initiate'} />
         </div>
