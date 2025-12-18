@@ -11,7 +11,7 @@ const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-serif"
 
 export const metadata: Metadata = {
   title: "Nocta - Creators of Night",
-  description: "A mystical social platform for witches and wizards to share their spells and connect with fellow coven members.",
+  description: "A mystical social platform for witches and wizards to share their spells and connect with fellow coven members."
 };
 
 export default async function RootLayout({
