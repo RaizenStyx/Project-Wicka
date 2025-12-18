@@ -53,9 +53,8 @@ export default function SidebarLinks({ profile }: SidebarLinksProps) {
         { label: 'Daily Tarot', href: '/tarot-draw' },
         { label: 'Home Altar', href: '/altar' },
         { label: 'Spellbook', href: '/spellbook' },
-        { label: 'My Collection', href: '/my-collection', allowedRoles: ['guardian', 'supporter'] },
-        { label: 'Oracle AI', href: 'https://ai-oracle-eight.vercel.app/access', allowedRoles: ['supporter', 'admin'], isExternal: true },
-        { label: 'Zodiac placeholder?', href: '/' },
+        { label: 'Sanctuary', href: '/sanctuary', allowedRoles: ['guardian', 'supporter'] },
+        { label: 'Oracle AI', href: 'https://ai-oracle-eight.vercel.app/access', allowedRoles: ['supporter', 'admin'], isExternal: true }
       ]
     },
     KNOWLEDGE: {
@@ -66,7 +65,8 @@ export default function SidebarLinks({ profile }: SidebarLinksProps) {
         { label: 'All Crystals', href: '/crystals' },
         { label: 'All Herbs', href: '/herbs' },
         { label: 'All Deities', href: '/deities' },
-        { label: 'Tarot Meanings', href: '/tarot-cards' }
+        { label: 'Zodiac Signs', href: '/astrology' },
+        { label: 'Tarot Meanings', href: '/tarot-deck' }
       ]
     },
     COVENS: {

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Star, Sparkles } from 'lucide-react'
+import { Star, Sparkles, Image as ImageIcon } from 'lucide-react'
 import { Crystal } from '@/app/types/database'
 import { updateCrystalState } from '@/app/actions/crystal-actions'
 
@@ -17,33 +17,17 @@ interface CardProps {
 export default function CrystalCard({ crystal, isOwned, isWishlisted, onUpdate, onClick }: CardProps) {
   const [isLoading, setIsLoading] = useState(false)
 
-  // Helper to unify the update logic
   const handleUpdate = async (newState: { isOwned: boolean; isWishlisted: boolean }) => {
     if (isLoading) return
     setIsLoading(true)
-
-    // Optimistic UI update
     onUpdate(newState)
-
     try {
       await updateCrystalState(crystal.id, newState)
     } catch (error) {
       console.error('Failed to update crystal', error)
-      // Revert to old props on failure (requires parent to pass fresh props, or we just accept the optimistic UI might be wrong briefly)
-      // Ideally, onUpdate in parent handles the rollback, but for now we just catch the error.
     } finally {
       setIsLoading(false)
     }
-  }
-
-  const handleCollectionClick = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    handleUpdate({ isOwned: !isOwned, isWishlisted })
-  }
-
-  const handleWishlistClick = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    handleUpdate({ isOwned, isWishlisted: !isWishlisted })
   }
 
   return (
@@ -52,53 +36,71 @@ export default function CrystalCard({ crystal, isOwned, isWishlisted, onUpdate, 
       onClick={onClick}
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
-      className={`group/card relative flex flex-col cursor-pointer overflow-hidden rounded-xl border bg-slate-900 shadow-lg transition-all hover:-translate-y-1 hover:shadow-xl ${
-        isOwned 
-          ? 'border-purple-500/50 shadow-purple-900/20' 
-          : isWishlisted 
-            ? 'border-amber-500/30' 
-            : 'border-slate-800 hover:border-slate-700'
-      }`}
+      className="group/card relative flex flex-col cursor-pointer overflow-hidden rounded-xl bg-slate-900 shadow-lg transition-all hover:-translate-y-1 hover:shadow-xl"
+      // STYLE: The "U" shaped border logic
+      style={{
+        borderLeft: `2px solid ${crystal.color}`,
+        borderRight: `2px solid ${crystal.color}`,
+        borderBottom: `2px solid ${crystal.color}`,
+        borderTop: 'none' // No top border
+      }}
     >
-      {/* Decorative colored line */}
-      <div 
-        className="h-1 w-full" 
-        style={{ backgroundColor: crystal.color }} 
-      />
+      {/* 1. TOP BANNER IMAGE */}
+      <div className="h-32 w-full relative overflow-hidden bg-slate-950">
+        {crystal.image_url ? (
+            <img 
+                src={crystal.image_url} 
+                alt={crystal.name} 
+                className="w-full h-full object-cover opacity-90 group-hover/card:scale-105 transition-transform duration-500" 
+            />
+        ) : (
+            // Fallback if image fails or missing
+            <div className="w-full h-full flex items-center justify-center bg-slate-900">
+                <ImageIcon className="w-8 h-8 text-slate-700" />
+            </div>
+        )}
+        
+        {/* Overlay gradient so text/icons pop if they overlap */}
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent opacity-60" />
 
-      <div className="flex flex-1 flex-col p-5">
-        <div className="mb-2 flex items-start justify-between">
+        {/* Wishlist Star - Absolute positioned on the image now */}
+        <button
+            onClick={(e) => {
+                e.stopPropagation()
+                handleUpdate({ isOwned, isWishlisted: !isWishlisted })
+            }}
+            disabled={isLoading}
+            className={`absolute top-2 right-2 rounded-full p-2 transition-colors backdrop-blur-md ${
+               isWishlisted 
+                 ? 'text-amber-400 bg-black/40' 
+                 : 'text-slate-300 hover:text-white bg-black/20 hover:bg-black/40'
+            }`}
+        >
+             <Star className={`w-4 h-4 ${isWishlisted ? 'fill-amber-400' : ''}`} />
+        </button>
+      </div>
+
+      {/* 2. CARD CONTENT */}
+      <div className="flex flex-1 flex-col p-5 pt-4">
+        <div className="mb-2">
           <h3 className="font-serif text-xl font-medium text-slate-100 group-hover/card:text-purple-300 transition-colors">
             {crystal.name}
           </h3>
-          
-          {/* Wishlist Star Button */}
-          <button
-            onClick={handleWishlistClick}
-            disabled={isLoading}
-            className={`rounded-full p-1.5 transition-colors z-20 cursor-pointer ${
-               isWishlisted 
-                 ? 'text-amber-400 bg-amber-400/10' 
-                 : 'text-slate-600 hover:text-amber-200 hover:bg-slate-800'
-            }`}
-          >
-             <Star className={`w-4 h-4 ${isWishlisted ? 'fill-amber-400' : ''}`} />
-          </button>
-        </div>
-        
-        <div className="mb-4">
-           <span className="rounded-full bg-slate-800 px-2 py-0.5 text-xs font-medium text-slate-400">
-             {crystal.element}
-           </span>
+          <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">
+            {crystal.element}
+          </span>
         </div>
 
-        <p className="mb-6 flex-1 text-sm leading-relaxed text-slate-400 line-clamp-3">
+        <p className="mb-6 flex-1 text-sm leading-relaxed text-slate-400 line-clamp-2">
           {crystal.meaning}
         </p>
 
-        {/* The Action Button */}
+        {/* Action Button */}
         <button
-          onClick={handleCollectionClick}
+          onClick={(e) => {
+            e.stopPropagation()
+            handleUpdate({ isOwned: !isOwned, isWishlisted })
+          }}
           disabled={isLoading}
           className={`group/btn relative z-10 flex w-full items-center justify-center gap-2 rounded-lg border py-2 text-sm font-medium transition-all cursor-pointer ${
             isOwned
@@ -107,31 +109,12 @@ export default function CrystalCard({ crystal, isOwned, isWishlisted, onUpdate, 
           }`}
         >
           {isOwned ? (
-            <>
-              <motion.span
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                className="text-lg"
-              >
-                ✨
-              </motion.span>
-              In Collection
-            </>
+            <> <Sparkles className="w-4 h-4" /> In Collection </>
           ) : (
-            <>
-              <span>+</span> Add to Collection
-            </>
+            <> <span>+</span> Add to Collection </>
           )}
         </button>
       </div>
-      
-      {/* Dynamic Glow Effect when collected */}
-      {isOwned && (
-        <div 
-          className="pointer-events-none absolute inset-0 opacity-5" 
-          style={{ backgroundColor: crystal.color }}
-        />
-      )}
     </motion.div>
   )
 }

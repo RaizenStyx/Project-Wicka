@@ -747,3 +747,345 @@ where p.id = a.id;
 ALTER TABLE public.profiles 
 ADD COLUMN subtitle TEXT DEFAULT '' NOT NULL;
 ADD COLUMN bio TEXT DEFAULT '' NOT NULL;
+
+
+create type element_type as enum ('Fire', 'Earth', 'Air', 'Water');
+create type modality_type as enum ('Cardinal', 'Fixed', 'Mutable');
+
+create table public.zodiac_signs (
+  id uuid not null default gen_random_uuid (),
+  created_at timestamptz not null default now(),
+  name text not null unique,          -- e.g., "Aries"
+  symbol text not null,               -- e.g., "♈" or an icon path
+  element element_type not null,      -- Enum constraint
+  modality modality_type not null,    -- Enum constraint
+  ruling_planet text not null,        -- e.g., "Mars"
+  description text not null,          -- Short summary
+  keywords text[] not null,           -- Array of tags: ['Courageous', 'Impulsive']
+  date_display text not null,         -- Display string: "March 21 - April 19"
+  start_month int not null,           -- 3
+  start_day int not null,             -- 21
+  end_month int not null,             -- 4
+  end_day int not null,               -- 19
+  image_url text,                     -- Path to storage bucket
+  constraint zodiac_signs_pkey primary key (id)
+);
+
+-- Enable Row Level Security (Public Read, Admin Write)
+alter table public.zodiac_signs enable row level security;
+
+create policy "Enable read access for all users" 
+on public.zodiac_signs for select 
+using (true);
+
+-- 1. CLEANUP (Optional: Only run if you want to reset the table)
+-- truncate table public.zodiac_signs restart identity;
+
+-- 2. INSERT ALL 12 SIGNS
+insert into public.zodiac_signs 
+(name, element, modality, ruling_planet, start_month, start_day, end_month, end_day, symbol, description, keywords, date_display)
+values 
+(
+  'Aries', 'Fire', 'Cardinal', 'Mars', 
+  3, 21, 4, 19, 
+  '♈', 
+  'The bold pioneer of the zodiac. Aries energy is assertive, courageous, and direct. They blaze trails where others fear to tread.', 
+  ARRAY['Courageous', 'Impulsive', 'Confident', 'Passionate'], 
+  'March 21 - April 19'
+),
+(
+  'Taurus', 'Earth', 'Fixed', 'Venus', 
+  4, 20, 5, 20, 
+  '♉', 
+  'The grounded builder. Taurus values stability, beauty, and sensory pleasures. They are the anchor of the zodiac.', 
+  ARRAY['Reliable', 'Patient', 'Devoted', 'Sensual'], 
+  'April 20 - May 20'
+),
+(
+  'Gemini', 'Air', 'Mutable', 'Mercury', 
+  5, 21, 6, 20, 
+  '♊', 
+  'The cosmic messenger. Gemini is curious, adaptable, and quick-witted. They thrive on information and connection.', 
+  ARRAY['Adaptable', 'Curious', 'Witty', 'Social'], 
+  'May 21 - June 20'
+),
+(
+  'Cancer', 'Water', 'Cardinal', 'Moon', 
+  6, 21, 7, 22, 
+  '♋', 
+  'The intuitive protector. Cancer rules the emotional realm and the home. They deeply cherish family and emotional bonds.', 
+  ARRAY['Intuitive', 'Protective', 'Sentimental', 'Nurturing'], 
+  'June 21 - July 22'
+),
+(
+  'Leo', 'Fire', 'Fixed', 'Sun', 
+  7, 23, 8, 22, 
+  '♌', 
+  'The radiant king. Leo shines with creativity, passion, and leadership. They bring warmth and drama to the world.', 
+  ARRAY['Charismatic', 'Generous', 'Creative', 'Proud'], 
+  'July 23 - August 22'
+),
+(
+  'Virgo', 'Earth', 'Mutable', 'Mercury', 
+  8, 23, 9, 22, 
+  '♍', 
+  'The diligent perfectionist. Virgo seeks to improve the world through service, analysis, and practical skill.', 
+  ARRAY['Analytical', 'Hardworking', 'Practical', 'Loyal'], 
+  'August 23 - September 22'
+),
+(
+  'Libra', 'Air', 'Cardinal', 'Venus', 
+  9, 23, 10, 22, 
+  '♎', 
+  'The harmonizer. Libra seeks balance, justice, and beauty in all things. They are the masters of diplomacy.', 
+  ARRAY['Diplomatic', 'Gracious', 'Fair-minded', 'Social'], 
+  'September 23 - October 22'
+),
+(
+  'Scorpio', 'Water', 'Fixed', 'Pluto', 
+  10, 23, 11, 21, 
+  '♏', 
+  'The alchemist. Scorpio dives deep into the mysteries of life, transformation, and power. They are intense and magnetic.', 
+  ARRAY['Passionate', 'Resourceful', 'Brave', 'Mysterious'], 
+  'October 23 - November 21'
+),
+(
+  'Sagittarius', 'Fire', 'Mutable', 'Jupiter', 
+  11, 22, 12, 21, 
+  '♐', 
+  'The seeker. Sagittarius is on a quest for truth, adventure, and wisdom. They are the optimists of the zodiac.', 
+  ARRAY['Optimistic', 'Adventurous', 'Philosophical', 'Honest'], 
+  'November 22 - December 21'
+),
+(
+  'Capricorn', 'Earth', 'Cardinal', 'Saturn', 
+  12, 22, 1, 19, 
+  '♑', 
+  'The strategist. Capricorn climbs the mountain of success with discipline, patience, and ambition.', 
+  ARRAY['Disciplined', 'Responsible', 'Ambitious', 'Patient'], 
+  'December 22 - January 19'
+),
+(
+  'Aquarius', 'Air', 'Fixed', 'Uranus', 
+  1, 20, 2, 18, 
+  '♒', 
+  'The visionary. Aquarius marches to the beat of their own drum, focused on innovation, humanity, and the future.', 
+  ARRAY['Original', 'Independent', 'Humanitarian', 'Intellectual'], 
+  'January 20 - February 18'
+),
+(
+  'Pisces', 'Water', 'Mutable', 'Neptune', 
+  2, 19, 3, 20, 
+  '♓', 
+  'The dreamer. Pisces swims in the waters of imagination, empathy, and spirituality. They are the mystics.', 
+  ARRAY['Compassionate', 'Artistic', 'Intuitive', 'Gentle'], 
+  'February 19 - March 20'
+);
+
+
+
+-- 1. Add columns to the PUBLIC 'crystals' table
+alter table public.crystals 
+add column if not exists image_url text, -- The standard "Stock" image
+add column if not exists color_category text; -- For the dropdown filter (e.g. 'Purple')
+
+-- 2. Ensure the USER collection has their own image column
+-- (We might have added this earlier, but this ensures it exists)
+alter table public.user_crystal_collection
+add column if not exists user_image_url text;
+
+-- 3. SEED DATA: Update existing crystals with Categories and Unsplash Images
+-- I have mapped these to real, high-quality public images.
+
+-- Purple / Amethyst
+update public.crystals set 
+  color_category = 'Purple' 
+where name = 'Amethyst';
+
+-- Pink / Rose Quartz
+update public.crystals set 
+  color_category = 'Pink'
+where name = 'Rose Quartz';
+
+-- Clear / Clear Quartz
+update public.crystals set 
+  color_category = 'White' 
+where name = 'Clear Quartz';
+
+-- Black / Black Tourmaline
+update public.crystals set 
+  color_category = 'Black'
+where name = 'Black Tourmaline';
+
+-- Yellow / Citrine
+update public.crystals set 
+  color_category = 'Yellow' 
+where name = 'Citrine';
+
+-- White / Selenite
+update public.crystals set 
+  color_category = 'White' 
+where name = 'Selenite';
+
+-- Blue / Lapis Lazuli
+update public.crystals set 
+  color_category = 'Blue' 
+where name = 'Lapis Lazuli';
+
+-- Red / Carnelian
+update public.crystals set 
+  color_category = 'Red' 
+where name = 'Carnelian';
+
+-- Brown / Tiger's Eye
+update public.crystals set 
+  color_category = 'Brown' 
+where name = 'Tiger''s Eye';
+
+-- White / Moonstone
+update public.crystals set 
+  color_category = 'White'
+where name = 'Moonstone';
+
+-- Grey / Hematite
+update public.crystals set 
+  color_category = 'Grey'
+where name = 'Hematite';
+
+-- Green / Malachite
+update public.crystals set 
+  color_category = 'Green' 
+where name = 'Malachite';
+
+-- Blue / Labradorite
+update public.crystals set 
+  color_category = 'Blue' 
+where name = 'Labradorite';
+
+-- Purple / Fluorite
+update public.crystals set 
+  color_category = 'Purple'
+where name = 'Fluorite';
+
+-- Black / Obsidian
+update public.crystals set 
+  color_category = 'Black' 
+where name = 'Obsidian';
+
+
+-- Update crystals with dynamic placeholder images using their hex codes
+-- Format: https://placehold.co/600x400/[HEX]/FFFFFF/png?text=[NAME]
+
+update public.crystals set image_url = 'https://placehold.co/600x400/9966CC/FFFFFF/png?text=Amethyst' where name = 'Amethyst';
+update public.crystals set image_url = 'https://placehold.co/600x400/F7C6C7/555555/png?text=Rose+Quartz' where name = 'Rose Quartz';
+update public.crystals set image_url = 'https://placehold.co/600x400/E6E6E6/333333/png?text=Clear+Quartz' where name = 'Clear Quartz';
+update public.crystals set image_url = 'https://placehold.co/600x400/1C1C1C/FFFFFF/png?text=Black+Tourmaline' where name = 'Black Tourmaline';
+update public.crystals set image_url = 'https://placehold.co/600x400/E4D00A/333333/png?text=Citrine' where name = 'Citrine';
+update public.crystals set image_url = 'https://placehold.co/600x400/FFFFFF/333333/png?text=Selenite' where name = 'Selenite';
+update public.crystals set image_url = 'https://placehold.co/600x400/26619C/FFFFFF/png?text=Lapis+Lazuli' where name = 'Lapis Lazuli';
+update public.crystals set image_url = 'https://placehold.co/600x400/B31B1B/FFFFFF/png?text=Carnelian' where name = 'Carnelian';
+update public.crystals set image_url = 'https://placehold.co/600x400/E08D3C/FFFFFF/png?text=Tigers+Eye' where name = 'Tiger''s Eye';
+update public.crystals set image_url = 'https://placehold.co/600x400/F5F5DC/333333/png?text=Moonstone' where name = 'Moonstone';
+update public.crystals set image_url = 'https://placehold.co/600x400/708090/FFFFFF/png?text=Hematite' where name = 'Hematite';
+update public.crystals set image_url = 'https://placehold.co/600x400/0BDA51/FFFFFF/png?text=Malachite' where name = 'Malachite';
+update public.crystals set image_url = 'https://placehold.co/600x400/607C8E/FFFFFF/png?text=Labradorite' where name = 'Labradorite';
+update public.crystals set image_url = 'https://placehold.co/600x400/A020F0/FFFFFF/png?text=Fluorite' where name = 'Fluorite';
+update public.crystals set image_url = 'https://placehold.co/600x400/1C1C1C/FFFFFF/png?text=Obsidian' where name = 'Obsidian';
+
+-- 1. Add the new columns
+ALTER TABLE crystals 
+ADD COLUMN zodiac TEXT,
+ADD COLUMN chakra TEXT;
+
+-- 2. Populate data for common crystals (Case insensitive matching)
+UPDATE crystals SET zodiac = 'Pisces, Aquarius', chakra = 'Third Eye, Crown' WHERE name ILIKE 'Amethyst';
+UPDATE crystals SET zodiac = 'Taurus, Libra', chakra = 'Heart' WHERE name ILIKE 'Rose Quartz';
+UPDATE crystals SET zodiac = 'Leo, Sagittarius', chakra = 'Solar Plexus' WHERE name ILIKE 'Citrine';
+UPDATE crystals SET zodiac = 'Scorpio, Capricorn', chakra = 'Root' WHERE name ILIKE 'Obsidian';
+UPDATE crystals SET zodiac = 'Aries, Leo', chakra = 'Root' WHERE name ILIKE 'Carnelian';
+UPDATE crystals SET zodiac = 'Gemini, Virgo', chakra = 'Throat' WHERE name ILIKE 'Blue Lace Agate';
+UPDATE crystals SET zodiac = 'Cancer, Libra', chakra = 'Sacral' WHERE name ILIKE 'Moonstone';
+UPDATE crystals SET zodiac = 'Virgo, Capricorn', chakra = 'Heart' WHERE name ILIKE 'Green Aventurine';
+UPDATE crystals SET zodiac = 'Sagittarius, Virgo', chakra = 'Throat, Third Eye' WHERE name ILIKE 'Lapis Lazuli';
+UPDATE crystals SET zodiac = 'Leo, Scorpio', chakra = 'Solar Plexus, Sacral' WHERE name ILIKE 'Tiger''s Eye';
+UPDATE crystals SET zodiac = 'Gemini, Libra', chakra = 'All Chakras' WHERE name ILIKE 'Clear Quartz';
+UPDATE crystals SET zodiac = 'Scorpio, Capricorn', chakra = 'Root' WHERE name ILIKE 'Smoky Quartz';
+UPDATE crystals SET zodiac = 'Aries, Pisces', chakra = 'Root, Heart' WHERE name ILIKE 'Bloodstone';
+UPDATE crystals SET zodiac = 'Taurus, Gemini', chakra = 'Heart, Throat' WHERE name ILIKE 'Chrysocolla';
+UPDATE crystals SET zodiac = 'Leo, Libra', chakra = 'Heart' WHERE name ILIKE 'Rhodochrosite';
+-- 1. Hematite: Grounding and mental clarity
+UPDATE crystals 
+SET zodiac = 'Aries, Aquarius', chakra = 'Root' 
+WHERE name ILIKE 'Hematite';
+
+-- 2. Selenite: Clarity and higher consciousness (Strongly linked to the Moon/Cancer)
+UPDATE crystals 
+SET zodiac = 'Cancer, Taurus', chakra = 'Crown, Third Eye' 
+WHERE name ILIKE 'Selenite';
+
+-- 3. Fluorite: Focus and order (Often linked to Capricorn for structure)
+UPDATE crystals 
+SET zodiac = 'Capricorn, Pisces', chakra = 'Heart, Throat, Third Eye' 
+WHERE name ILIKE 'Fluorite';
+
+-- 4. Black Tourmaline: The ultimate protection stone
+UPDATE crystals 
+SET zodiac = 'Capricorn, Libra', chakra = 'Root' 
+WHERE name ILIKE 'Black Tourmaline';
+
+-- 5. Malachite: Transformation and heart healing
+UPDATE crystals 
+SET zodiac = 'Scorpio, Capricorn', chakra = 'Heart, Solar Plexus' 
+WHERE name ILIKE 'Malachite';
+
+-- 6. Labradorite: Magic and intuition
+UPDATE crystals 
+SET zodiac = 'Leo, Scorpio, Sagittarius', chakra = 'Third Eye, Crown' 
+WHERE name ILIKE 'Labradorite';
+
+
+-- 1. Create the bucket (or update it to be PRIVATE if it already exists)
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('user_uploads', 'user_uploads', false)
+ON CONFLICT (id) DO UPDATE SET public = false;
+
+-- 2. Clear out any old policies for this bucket to avoid conflicts
+DROP POLICY IF EXISTS "Users can upload their own images" ON storage.objects;
+DROP POLICY IF EXISTS "Anyone can view images" ON storage.objects;
+DROP POLICY IF EXISTS "Only owner can view images" ON storage.objects;
+
+-- 3. Create the UPLOAD Policy (Authenticated users can upload their own files)
+CREATE POLICY "Users can upload their own images" ON storage.objects
+FOR INSERT TO authenticated
+WITH CHECK (bucket_id = 'user_uploads' AND auth.uid() = owner);
+
+-- 4. Create the VIEW Policy (STRICT PRIVACY: Only the owner can view)
+CREATE POLICY "Only owner can view images" ON storage.objects
+FOR SELECT TO authenticated
+USING (bucket_id = 'user_uploads' AND auth.uid() = owner);
+
+
+
+-- 1. FIX PERMISSIONS (The most likely culprit)
+alter table public.tarot_cards enable row level security;
+
+-- Create a policy to let ANYONE read the cards
+create policy "Public read access" 
+on public.tarot_cards for select 
+using (true);
+
+-- 2. CHECK SCHEMA
+-- This won't delete your data, but ensures the columns used for sorting exist.
+-- If your columns are named differently (e.g., 'rank' instead of 'number'), 
+-- you need to rename them or update the code to match your DB.
+
+-- Example of renaming if you had 'type' instead of 'arcana':
+-- alter table public.tarot_cards rename column type to arcana;
+
+-- Add slug column if it doesn't exist
+alter table public.tarot_cards add column if not exists slug text;
+
+-- Auto-generate slugs from names (e.g. "Ace of Cups" -> "ace-of-cups")
+update public.tarot_cards 
+set slug = lower(replace(name, ' ', '-'))
+where slug is null;

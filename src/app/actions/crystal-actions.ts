@@ -3,6 +3,13 @@
 import { createClient } from '../utils/supabase/server'
 import { revalidatePath } from 'next/cache'
 
+// Define the shape of our user state including the new image
+export type UserCrystalState = {
+  isOwned: boolean;
+  isWishlisted: boolean;
+  userImage?: string | null; // Added this
+}
+
 export async function getCrystalsData() {
   const supabase = await createClient()
 
@@ -11,18 +18,19 @@ export async function getCrystalsData() {
     .select('*')
     .order('name')
 
-  // Fetch only the flags we need
+  // Fetch flags AND the new user_image_url
   const { data: collection } = await supabase
     .from('user_crystal_collection')
-    .select('crystal_id, is_owned, is_wishlisted')
+    .select('crystal_id, is_owned, is_wishlisted, user_image_url')
 
-  // Map: CrystalID -> { isOwned, isWishlisted }
-  const userStateMap: Record<string, { isOwned: boolean; isWishlisted: boolean }> = {}
+  // Map: CrystalID -> State
+  const userStateMap: Record<string, UserCrystalState> = {}
   
   collection?.forEach((item) => {
     userStateMap[item.crystal_id] = { 
       isOwned: item.is_owned, 
-      isWishlisted: item.is_wishlisted 
+      isWishlisted: item.is_wishlisted,
+      userImage: item.user_image_url // Map the new column
     }
   })
 
@@ -34,14 +42,14 @@ export async function updateCrystalState(crystalId: string, newState: { isOwned:
   const user = (await supabase.auth.getUser()).data.user
   if (!user) throw new Error('Unauthorized')
 
-  // 1. If both are false, we delete the row (clean up)
+  // If both false, delete row
   if (!newState.isOwned && !newState.isWishlisted) {
     await supabase
       .from('user_crystal_collection')
       .delete()
       .match({ user_id: user.id, crystal_id: crystalId })
   } else {
-    // 2. Otherwise, we upsert the new flags
+    // Upsert
     await supabase
       .from('user_crystal_collection')
       .upsert({ 
@@ -53,4 +61,18 @@ export async function updateCrystalState(crystalId: string, newState: { isOwned:
   }
 
   revalidatePath('/crystals')
+}
+
+// FUNCTION: Saves the image URL to the database
+export async function saveUserCrystalImage(crystalId: string, filePath: string) {
+    const supabase = await createClient()
+    const user = (await supabase.auth.getUser()).data.user
+    if (!user) throw new Error('Unauthorized')
+  
+    await supabase
+      .from('user_crystal_collection')
+      .update({ user_image_url: filePath })
+      .match({ user_id: user.id, crystal_id: crystalId })
+  
+    revalidatePath('/crystals')
 }

@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Plus, ChevronLeft, Gem, Star } from 'lucide-react'
 import { Crystal } from '@/app/types/database'
+import SecureImage from '../features/SecureImage'
 
 interface CollectionItem {
   id: string
@@ -94,8 +95,8 @@ export default function CrystalWidgetClient({ collection }: WidgetClientProps) {
                         title={item.crystals.name}
                     >
                         {item.user_image_url ? (
-                        <img
-                            src={item.user_image_url}
+                        <SecureImage
+                            path={item.user_image_url}
                             alt={item.crystals.name}
                             className="h-full w-full object-cover"
                         />
@@ -165,12 +166,25 @@ export default function CrystalWidgetClient({ collection }: WidgetClientProps) {
 
                 {/* Content Area */}
                 <div className="flex flex-1 flex-col">
-                    {/* Placeholder for Image logic */}
-                     <div className="mb-3 rounded bg-slate-900/50 p-4 text-center text-[10px] text-slate-500 border border-slate-800 border-dashed">
-                        {selectedItem.is_owned 
-                           ? "Your personal crystal photo will appear here." 
-                           : "Add to collection to upload photo."}
-                     </div>
+                    {/* UPDATE: Image Display Logic */}
+                    <div className="mb-3 w-full h-32 rounded overflow-hidden border border-slate-800 bg-slate-900 relative">
+                        {selectedItem.user_image_url ? (
+                            <SecureImage 
+                                path={selectedItem.user_image_url} 
+                                alt={selectedItem.crystals.name} 
+                                className="w-full h-full object-cover" 
+                            />
+                        ) : (
+                            // Fallback if no image uploaded
+                            <div className="w-full h-full flex items-center justify-center bg-slate-900/50 text-center p-4">
+                                <p className="text-[10px] text-slate-500">
+                                    {selectedItem.is_owned 
+                                       ? "No personal photo uploaded." 
+                                       : "Add to collection to upload photo."}
+                                </p>
+                            </div>
+                        )}
+                    </div>
 
                     {/* Mini Stats */}
                     <div className="mb-3 grid grid-cols-2 gap-2 text-[10px]">
