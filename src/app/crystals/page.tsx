@@ -1,5 +1,6 @@
 import { getCrystalsData } from '@/app/actions/crystal-actions'
 import CrystalDashboard from '@/components/crystals/CrystalDashboard'
+import CrystalClientWrapper from '@/components/shared/CrystalClientWrapper';
 export const dynamic = 'force-dynamic' 
 
 export const metadata = {
@@ -18,10 +19,16 @@ export default async function AllCrystalsPage() {
           <p className="text-slate-400">Explore the properties of the earth.</p>
         </header>
 
-        {/* Pass initial data to the client component */}        
-        <CrystalDashboard 
+        {/* Old */}        
+        {/* <CrystalDashboard 
             initialCrystals={crystals || []} 
             initialStateMap={userStateMap} 
+        /> */}
+        
+        {/* New */}
+        <CrystalClientWrapper 
+           crystals={crystals} 
+           initialUserState={userStateMap}
         />
         
       </div>

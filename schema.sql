@@ -1375,3 +1375,78 @@ WHERE name = 'Scorpio';
 -- Removed normal text column and replaced with ID to other data set for planets
 ALTER TABLE public.zodiac_signs 
 DROP COLUMN ruling_planet;
+
+
+
+
+-- 1. Drop the old/messy policies on user_candles
+DROP POLICY IF EXISTS "Users can update/delete their own candles" ON user_candles;
+DROP POLICY IF EXISTS "Users can add to their own candles" ON user_candles;
+DROP POLICY IF EXISTS "Users can view their own candles" ON user_candles;
+
+-- 2. Create standard policies (Mirroring user_crystal_collection)
+
+-- SELECT
+CREATE POLICY "Users can view their own candles"
+ON user_candles FOR SELECT
+USING ( auth.uid() = user_id );
+
+-- INSERT
+CREATE POLICY "Users can add to their own candles"
+ON user_candles FOR INSERT
+WITH CHECK ( auth.uid() = user_id );
+
+-- UPDATE
+CREATE POLICY "Users can update their own candles"
+ON user_candles FOR UPDATE
+USING ( auth.uid() = user_id )
+WITH CHECK ( auth.uid() = user_id );
+
+-- DELETE
+CREATE POLICY "Users can remove from their own candles"
+ON user_candles FOR DELETE
+USING ( auth.uid() = user_id );
+
+
+
+
+-- 1. Add Unique Constraint for Candles
+ALTER TABLE user_candles 
+ADD CONSTRAINT user_candles_unique_pair UNIQUE (user_id, candle_id);
+
+-- 2. Add Unique Constraint for Herbs
+-- (Assuming your column is named 'herb_id')
+ALTER TABLE user_herbs 
+ADD CONSTRAINT user_herbs_unique_pair UNIQUE (user_id, herb_id);
+
+-- 3. Add Unique Constraint for Deities
+-- (Assuming your column is named 'deity_id')
+ALTER TABLE user_deities 
+ADD CONSTRAINT user_deities_unique_pair UNIQUE (user_id, deity_id);
+
+
+
+
+-- === HERBS: Reset & Standardize ===
+DROP POLICY IF EXISTS "Users can remove from their own herbs" ON user_herbs;
+DROP POLICY IF EXISTS "Users can add to their own herbs" ON user_herbs;
+DROP POLICY IF EXISTS "Users can view their own herbs" ON user_herbs;
+DROP POLICY IF EXISTS "Users can update their own herbs" ON user_herbs;
+
+CREATE POLICY "Users can view their own herbs" ON user_herbs FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can add to their own herbs" ON user_herbs FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update their own herbs" ON user_herbs FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can remove from their own herbs" ON user_herbs FOR DELETE USING (auth.uid() = user_id);
+
+-- === DEITIES: Reset & Standardize ===
+DROP POLICY IF EXISTS "Users can remove from their own deities" ON user_deities;
+DROP POLICY IF EXISTS "Users can add to their own deities" ON user_deities;
+DROP POLICY IF EXISTS "Users can view their own deities" ON user_deities;
+DROP POLICY IF EXISTS "Users can update their own deities" ON user_deities;
+
+CREATE POLICY "Users can view their own deities" ON user_deities FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can add to their own deities" ON user_deities FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update their own deities" ON user_deities FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can remove from their own deities" ON user_deities FOR DELETE USING (auth.uid() = user_id);
+
+ALTER TABLE user_crystal_collection RENAME TO user_crystals;

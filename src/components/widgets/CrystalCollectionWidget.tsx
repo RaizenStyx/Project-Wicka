@@ -30,7 +30,7 @@ export default async function CrystalCollectionWidget() {
 
   // 1. Fetch Raw Data
   const { data: rawCollection } = await supabase
-    .from('user_crystal_collection')
+    .from('user_crystals')
     .select(`
       id,
       user_image_url,

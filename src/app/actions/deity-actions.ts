@@ -2,7 +2,7 @@
 
 import { createClient } from '../utils/supabase/server'
 import { revalidatePath } from 'next/cache'
-import { UserCollectionState } from './herb-actions' // Reuse the type if you want, or redefine
+import { UserCollectionState } from './sanctuary-usercollectionstate'
 
 export async function getDeitiesData() {
   const supabase = await createClient()

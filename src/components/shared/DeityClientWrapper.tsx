@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import GrimoireDashboard from '../ui/GrimoireDashboard'
 import GrimoireModal from '../ui/GrimoireModal'
-import { UserCollectionState } from '@/app/actions/herb-actions'
+import { UserCollectionState } from '@/app/actions/sanctuary-usercollectionstate'
 import { updateDeityState } from '@/app/actions/deity-actions'
 
 interface Props {
@@ -13,24 +13,34 @@ interface Props {
 }
 
 export default function DeityClientWrapper({ deities, pantheons, initialUserState }: Props) {
-  const [selectedDeity, setSelectedDeity] = useState<any | null>(null)
+  const [selectedItem, setSelectedItem] = useState<any | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [userState, setUserState] = useState(initialUserState)
 
   useEffect(() => { setUserState(initialUserState) }, [initialUserState])
 
-  const handleItemClick = (item: any) => {
-    setSelectedDeity(item)
-    setIsModalOpen(true)
-  }
-
-  const handleToggleOwned = async (id: string) => {
-    const current = userState[id] || { isOwned: false, isWishlisted: false }
-    const newState = { ...current, isOwned: !current.isOwned }
-    
-    setUserState(prev => ({ ...prev, [id]: newState }))
-    await updateDeityState(id, newState)
-  }
+  // LOGIC: Toggle Ownership
+    const handleToggleOwned = async (id: string) => {
+      const current = userState[id] || { isOwned: false, isWishlisted: false }
+      const newState = { ...current, isOwned: !current.isOwned }
+      
+      setUserState(prev => ({ ...prev, [id]: newState }))
+      await updateDeityState(id, newState) 
+    }
+  
+    // LOGIC: Toggle Wishlist
+    const handleToggleWishlist = async (id: string) => {
+      const current = userState[id] || { isOwned: false, isWishlisted: false }
+      const newState = { ...current, isWishlisted: !current.isWishlisted }
+      
+      setUserState(prev => ({ ...prev, [id]: newState }))
+      await updateDeityState(id, newState) 
+    }
+  
+    // Get state for the currently open modal item
+    const selectedItemState = selectedItem 
+      ? (userState[selectedItem.id] || { isOwned: false, isWishlisted: false })
+      : { isOwned: false, isWishlisted: false }
 
   return (
     <>
@@ -39,18 +49,25 @@ export default function DeityClientWrapper({ deities, pantheons, initialUserStat
         description="Gods and Goddesses of the ancient world."
         items={deities}
         filterCategories={pantheons}
+
         filterKey="pantheon"
         mode="modal"
         
-        onItemClick={handleItemClick}
         userState={userState}
-        onToggleItem={handleToggleOwned}
+        onToggleOwned={handleToggleOwned}
+        onToggleWishlist={handleToggleWishlist}
+        onItemClick={(item) => { setSelectedItem(item); setIsModalOpen(true); }}
       />
 
       <GrimoireModal 
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        item={selectedDeity}
+        item={selectedItem}
+        // Pass the live state to the modal
+        isOwned={selectedItemState.isOwned}
+        isWishlisted={selectedItemState.isWishlisted}
+        onToggleOwned={() => selectedItem && handleToggleOwned(selectedItem.id)}
+        onToggleWishlist={() => selectedItem && handleToggleWishlist(selectedItem.id)}
       />
     </>
   )

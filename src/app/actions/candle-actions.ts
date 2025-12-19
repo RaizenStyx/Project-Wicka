@@ -2,13 +2,7 @@
 
 import { createClient } from '../utils/supabase/server'
 import { revalidatePath } from 'next/cache'
-
-// We can reuse the type, but defining it here ensures safety
-export type UserCollectionState = {
-  isOwned: boolean;
-  isWishlisted: boolean;
-  userImage?: string | null;
-}
+import { UserCollectionState } from './sanctuary-usercollectionstate'
 
 export async function getCandlesData() {
   const supabase = await createClient()
@@ -47,12 +41,13 @@ export async function updateCandleState(candleId: string, newState: { isOwned: b
   if (!user) throw new Error('Unauthorized')
 
   if (!newState.isOwned && !newState.isWishlisted) {
-    await supabase
+    const {error} = await supabase
       .from('user_candles')
       .delete()
       .match({ user_id: user.id, candle_id: candleId })
+      if (error) throw error;
   } else {
-    await supabase
+    const {error} = await supabase
       .from('user_candles')
       .upsert({ 
         user_id: user.id, 
@@ -60,6 +55,7 @@ export async function updateCandleState(candleId: string, newState: { isOwned: b
         quantity: newState.isOwned ? 1 : 0,
         is_wishlisted: newState.isWishlisted
       }, { onConflict: 'user_id, candle_id' } as any)
+      if (error) throw error;
   }
 
   revalidatePath('/candles')

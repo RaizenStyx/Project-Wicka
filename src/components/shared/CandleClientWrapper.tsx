@@ -3,16 +3,16 @@
 import { useState, useEffect } from 'react'
 import GrimoireDashboard from '@/components/ui/GrimoireDashboard'
 import GrimoireModal from '@/components/ui/GrimoireModal'
-import { updateCandleState, UserCollectionState } from '@/app/actions/candle-actions'
+import { updateCandleState } from '@/app/actions/candle-actions'
+import { UserCollectionState } from '@/app/actions/sanctuary-usercollectionstate'
 
 interface Props {
   candles: any[]
-  hex: string[]
   initialUserState: Record<string, UserCollectionState>
 }
 
 export default function CandleClientWrapper({ candles, initialUserState }: Props) {
-  const [selectedCandle, setSelectedCandle] = useState<any | null>(null)
+  const [selectedItem, setSelectedItem] = useState<any | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [userState, setUserState] = useState(initialUserState)
 
@@ -23,50 +23,80 @@ export default function CandleClientWrapper({ candles, initialUserState }: Props
   const allAssociations = candles.flatMap(c => c.associations || [])
   const uniqueIntents = Array.from(new Set(allAssociations)).sort() as string[]
 
-  const handleItemClick = (item: any) => {
-    // DATA MAPPING:
-    // The Modal expects 'magical_uses' for tags, but DB has 'associations'.
-    // We create a modified object to pass to the modal so it renders correctly.
-    const mappedForModal = {
-      ...item,
-      magical_uses: item.associations // Trick the modal into displaying these as tags
-    }
-    setSelectedCandle(mappedForModal)
-    setIsModalOpen(true)
-  }
-
+// LOGIC: Toggle Ownership
   const handleToggleOwned = async (id: string) => {
     const current = userState[id] || { isOwned: false, isWishlisted: false }
     const newState = { ...current, isOwned: !current.isOwned }
+    
+    // 1. Optimistic Update
     setUserState(prev => ({ ...prev, [id]: newState }))
-    await updateCandleState(id, newState)
+
+    try {
+        // 2. Server Action
+        await updateCandleState(id, newState) 
+    } catch (error) {
+        // 3. Revert on Error
+        console.error("Candle update failed:", error)
+        setUserState(prev => ({ ...prev, [id]: current }))
+        alert("Could not update sanctuary. Check your permissions.")
+    }
   }
+
+  // LOGIC: Toggle Wishlist
+  const handleToggleWishlist = async (id: string) => {
+    const current = userState[id] || { isOwned: false, isWishlisted: false }
+    const newState = { ...current, isWishlisted: !current.isWishlisted }
+    
+    // 1. Optimistic Update
+    setUserState(prev => ({ ...prev, [id]: newState }))
+
+    try {
+        // 2. Server Action
+        await updateCandleState(id, newState) 
+    } catch (error) {
+        // 3. Revert on Error
+        console.error("Candle update failed:", error)
+        setUserState(prev => ({ ...prev, [id]: current }))
+        alert("Could not update wishlist. Check your permissions.")
+    }
+  }
+
+  // Get state for the currently open modal item
+  const selectedItemState = selectedItem 
+    ? (userState[selectedItem.id] || { isOwned: false, isWishlisted: false })
+    : { isOwned: false, isWishlisted: false }
 
   return (
     <>
       <GrimoireDashboard
         title="Candle Magick"
         description="Ignite your intentions with color correspondence."
-        // We pass the hex_code as 'color' so the cards get the correct border
-        items={candles.map(c => ({...c, color: c.hex_code}))}
+        items={candles.map(c => ({
+            ...c, 
+            name: c.color,       // Card needs 'name' to display title
+            color: c.hex_code    // Card needs 'color' for the border
+        }))}
         
         // Filter by Intent (Associations)
         filterCategories={uniqueIntents}
-        filterKey="associations" // The Dashboard handles array checking automatically if we built it right
-        // Note: If your Dashboard filter logic expects exact string match, we might need to tweak it.
-        // For now, let's assume FilterKey works for 'contains' or exact match. 
-        // If the dashboard doesn't filter arrays, let me know and we can tweak GrimoireDashboard.
-        
+        filterKey="associations" 
+
         mode="modal"
-        onItemClick={handleItemClick}
         userState={userState}
-        onToggleItem={handleToggleOwned}
+        onToggleOwned={handleToggleOwned}
+        onToggleWishlist={handleToggleWishlist}
+        onItemClick={(item) => { setSelectedItem(item); setIsModalOpen(true); }}
       />
 
       <GrimoireModal 
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        item={selectedCandle}
+        item={selectedItem}
+        // Pass the live state to the modal
+        isOwned={selectedItemState.isOwned}
+        isWishlisted={selectedItemState.isWishlisted}
+        onToggleOwned={() => selectedItem && handleToggleOwned(selectedItem.id)}
+        onToggleWishlist={() => selectedItem && handleToggleWishlist(selectedItem.id)}
       />
     </>
   )
