@@ -4,6 +4,11 @@ import { MessageCircle, Shield, House, Cannabis, Cat } from 'lucide-react'
 import RoleBadge from '@/components/ui/RoleBadge'
 import Avatar from '@/components/ui/Avatar'
 
+export const metadata = {
+  title: 'Members | Nocta',
+  description: 'Explore all the current members!',
+};
+
 export default async function MembersPage() {
   const members = await getMembers()
 

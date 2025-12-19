@@ -1,6 +1,6 @@
 import PostCard from "../components/ui/PostCard";
 import ProfileInfo from "@/components/profile/ProfileInfo";
-import ProfileWidget from "@/components/ui/FeedProfileWidget";
+import FeedProfileWidget from "@/components/ui/FeedProfileWidget";
 import { createClient } from "./utils/supabase/server";
 import { redirect } from 'next/navigation'
 import WelcomeBanner from "@/components/ui/WelcomeBanner";
@@ -11,18 +11,37 @@ export default async function Home() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) redirect('/login')
     
-    const { data: profile } = await supabase
+    const { data: profile, error } = await supabase
     .from('profiles')
-    .select('*')
+    .select(`
+      *,
+      zodiac_signs (
+        name,
+        planets (
+          name
+        )
+      )
+    `)
     .eq('id', user.id)
     .single()
+    if (error) console.error("Profile Fetch Error:", error);
+    // EXTRACTION LOGIC
+    // We handle the case where zodiac_signs might be an array OR an object
+    // @ts-ignore
+    const zodiacData = Array.isArray(profile?.zodiac_signs) ? profile.zodiac_signs[0] : profile?.zodiac_signs;
+    
+    // @ts-ignore
+    const planetData = Array.isArray(zodiacData?.planets) ? zodiacData.planets[0] : zodiacData?.planets;
+
+    const zodiacName = zodiacData?.name;
+    const planetName = planetData?.name;
     
     // Fetch Posts (and join with the Profiles table to get the username/avatar!)
     const { data: posts } = await supabase
     .from('posts')
     .select(`
       *,
-      profiles ( username, role, avatar_url, handle, subtitle ),
+      profiles ( username, role, avatar_url, handle, subtitle),
       likes (user_id),
       comments ( id )
     `)
@@ -35,14 +54,20 @@ export default async function Home() {
         
         {/* Center: The Social Feed */}
         <div className="space-y-6">
+
+          <WelcomeBanner 
+            username={profile?.username}
+            role={profile?.role}
+            sign={zodiacName}
+            planet={planetName}
+          />
           
           {/* Post Input Box Component */}
           {/* LOGIC: Only show Create Form if NOT an initiate */}
-          <WelcomeBanner />
           <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 shadow-lg">
           <ProfileInfo />
           {profile?.role !== 'initiate' && (
-            <ProfileWidget />
+            <FeedProfileWidget />
           )}
           </div>
 

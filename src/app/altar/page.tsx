@@ -2,6 +2,11 @@ import { getAltarItems, lightCandle } from '@/app/actions/altar-actions'
 import AltarCandle from '@/components/altar/AltarCandle'
 import { Sparkles } from 'lucide-react'
 
+export const metadata = {
+  title: 'Altar | Nocta',
+  description: 'Come here to place collectable items on your Nocta home altar!',
+};
+
 export default async function AltarPage() {
   const items = await getAltarItems()
   

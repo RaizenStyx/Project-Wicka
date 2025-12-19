@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import { createClient } from "./utils/supabase/server";
 import Shell from "@/components/layout/Shell";
@@ -9,9 +9,30 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-serif" });
 
+export const viewport: Viewport = {
+  themeColor: '#4B0082', 
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
+
 export const metadata: Metadata = {
   title: "Nocta - Creators of Night",
-  description: "A mystical social platform for witches and wizards to share their spells and connect with fellow coven members."
+  description: "A mystical social platform for witches and wizards to share their spells and connect with fellow coven members.",
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'Nocta - Creators of Night',
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  icons: {
+    icon: '/icon.png',
+    apple: '/icon.png',
+  }
 };
 
 export default async function RootLayout({

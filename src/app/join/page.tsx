@@ -1,6 +1,11 @@
 import React from 'react';
 import { Scroll, Video, Shield, CheckCircle2, Lock } from 'lucide-react';
 
+export const metadata = {
+  title: 'Join | Nocta',
+  description: 'Learn how to join the platform and become a guardian!',
+};
+
 export default function JoinPage() {
     const perks = [
         "Cast Spells (Create Posts)",

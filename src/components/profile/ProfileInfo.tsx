@@ -58,7 +58,6 @@ export default async function ProfileInfo() {
               {profile.subtitle && (
                   <p className="sm:hidden text-purple-400 text-xs font-bold uppercase tracking-wider">
                     {profile.subtitle}
-                    {/* <RoleBadge role={profile.role || 'initiate'} /> */}
                   </p>
               )}
             

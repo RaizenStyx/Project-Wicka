@@ -1,10 +1,25 @@
-import Construction from '@/components/ui/Construction';
+import { getDeitiesData } from '@/app/actions/deity-actions'
+import DeityClientWrapper from '@/components/shared/DeityClientWrapper'
 
-export default function DeityPage() {
+export const metadata = {
+  title: 'Deities | Nocta',
+  description: 'Explore how each deity relates to modern magic!',
+};
+
+export default async function DeitiesPage() {
+  const { deities, userStateMap } = await getDeitiesData()
+
+  const uniquePantheons = Array.from(new Set(deities.map((d: any) => d.pantheon).filter(Boolean))) as string[]
+
   return (
-    <Construction 
-      title="Deity Page" 
-      description="Searchable knowledge base and comprehensive details about various deities." 
-    />
-  );
+    <main className="min-h-screen bg-slate-950 px-4 py-8 text-slate-200">
+      <div className="mx-auto max-w-6xl">
+        <DeityClientWrapper 
+           deities={deities} 
+           pantheons={uniquePantheons.sort()}
+           initialUserState={userStateMap}
+        />
+      </div>
+    </main>
+  )
 }

@@ -6,8 +6,6 @@ import { Metadata } from 'next';
 
 // 1. Generate all 12 static paths at build time
 export async function generateStaticParams() {
-
-
     const supabase = createServerClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -50,7 +48,12 @@ export default async function ZodiacDetailPage({ params }: { params: Promise<{ s
   // We use ilike for case-insensitive matching just to be safe.
   const { data: sign, error } = await supabase
     .from('zodiac_signs')
-    .select('*')
+    .select(`
+      *,
+      planets (
+        name
+      )
+    `)
     .ilike('name', slug)
     .single();
 
@@ -104,7 +107,11 @@ export default async function ZodiacDetailPage({ params }: { params: Promise<{ s
         <div className="mb-16 grid gap-6 sm:grid-cols-3">
           <StatCard title="Element" value={sign.element} colorClass={themeColor} />
           <StatCard title="Modality" value={sign.modality} colorClass="text-purple-300 bg-purple-900/10 border-purple-500/20" />
-          <StatCard title="Ruling Planet" value={sign.ruling_planet} colorClass="text-amber-200 bg-amber-900/10 border-amber-500/20" />
+          <StatCard 
+            title="Ruling Planet" 
+            value={Array.isArray(sign.planets) ? sign.planets[0]?.name : sign.planets?.name} 
+            colorClass="text-amber-200 bg-amber-900/10 border-amber-500/20" 
+            />
         </div>
 
         {/* Deep Dive Section */}
@@ -120,10 +127,11 @@ export default async function ZodiacDetailPage({ params }: { params: Promise<{ s
                    for where you might want to add a 'long_description' column later 
                    for a full 500-word essay on the sign.
                 */}
-                As a {sign.modality} {sign.element} sign, {sign.name} embodies the energy of {sign.ruling_planet}. 
-                This combination creates a unique force in the zodiac, driving them to express themselves through 
-                {sign.keywords.slice(0, 2).join(' and ')} actions.
+                As a {sign.modality} {sign.element} sign, {sign.name} embodies the energy of {Array.isArray(sign.planets) ? sign.planets[0]?.name : sign.planets?.name}. 
+                This combination creates a unique force in the zodiac, driving them to express themselves 
+                through {sign.keywords.slice(0, 2).join(' and ')} actions.
               </p>
+              <p><strong>(This area will turn into a longer type of description for each sign.)</strong></p>
             </div>
 
             {/* Keywords */}

@@ -2,6 +2,11 @@ import { getCrystalsData } from '@/app/actions/crystal-actions'
 import CrystalDashboard from '@/components/crystals/CrystalDashboard'
 export const dynamic = 'force-dynamic' 
 
+export const metadata = {
+  title: 'Crystals | Nocta',
+  description: 'Explore crystals and learn about each one!',
+};
+
 export default async function AllCrystalsPage() {
   const { crystals, userStateMap } = await getCrystalsData()
 

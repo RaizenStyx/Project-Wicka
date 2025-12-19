@@ -44,6 +44,7 @@ export default function CrystalDashboard({ initialCrystals, initialStateMap }: D
 
   const filteredCrystals = initialCrystals.filter((crystal) => {
     const term = search.toLowerCase()
+    console.log("Crystal Name:" + crystal);
     
     const matchesSearch = 
         crystal.name.toLowerCase().includes(term) || 

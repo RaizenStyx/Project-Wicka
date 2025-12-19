@@ -65,7 +65,7 @@ export default async function ProfileWidget() {
         <WidgetFrame title={
                 <div className="flex items-center gap-2">
                     Identity
-                    <div className='text-amber-300 animate-pulse'>
+                    <div className='animate-pulse'>
                         <RoleBadge role={profile.role || 'initiate'} />
                     </div>
                 </div>

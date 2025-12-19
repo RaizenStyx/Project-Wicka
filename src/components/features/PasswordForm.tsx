@@ -1,7 +1,8 @@
 'use client'
 
 import { updatePassword, sendResetEmail } from '@/app/actions/auth-actions'
-import { useActionState } from 'react' 
+import { useActionState } from 'react'
+import { Sparkles } from 'lucide-react' 
 
 
 const initialState = {
@@ -14,10 +15,18 @@ export default function PasswordForm() {
     return (
  
     <div className="mt-12 pt-8 border-t border-slate-800">
-      <h2 className="text-xl font-serif text-slate-300 mb-6">Security</h2>
+      <h2 className="text-xl font-serif text-slate-300 mb-6">Security Changes</h2>
       
       <form action={pwdAction} className="bg-slate-900/30 p-8 rounded-xl border border-slate-800/50">
-        
+        <div className="mb-6 flex items-start justify-between">
+        <div>
+          <h3 className="font-serif text-xl font-medium text-slate-100">Secure Alignment</h3>
+          <p className="text-sm text-slate-400">For now, to change your password, just type your new password twice.</p>
+        </div>
+        <div className="rounded-full bg-purple-900/20 p-2 text-purple-400">
+           <Sparkles className="h-5 w-5" />
+        </div>
+      </div>
         {pwdState?.success && <p className="text-green-400 text-sm mb-4">{pwdState.success}</p>}
         {pwdState?.error && <p className="text-red-400 text-sm mb-4">{pwdState.error}</p>}
 
@@ -66,6 +75,7 @@ export default function PasswordForm() {
           <div>
               <h3 className="text-slate-300 font-medium">Forgot your password?</h3>
               <p className="text-xs text-slate-500 mt-1">
+                This will be a magic link to reset your password, once the functionality is implemented. 
                   {/* We will send a secure link to <span className="text-purple-400">{initialData.email}</span> to reset it. */}
               </p>
           </div>

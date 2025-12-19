@@ -1,6 +1,11 @@
 import { createClient } from '@/app/utils/supabase/server'
 import SanctuaryTabs from '@/components/sanctuary/SanctuaryTabs'
 
+export const metadata = {
+  title: 'Sanctuary | Nocta',
+  description: 'Explore things you have added to your collection!',
+};
+
 export default async function SanctuaryPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()

@@ -1,0 +1,26 @@
+{
+  "name": "Nocta - Creators of Night",
+  "short_name": "Nocta",
+  "description": "Connect with your coven. A witchy social community.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1a1a1a",
+  "theme_color": "#4B0082",
+  "icons": [
+    {
+      "src": "/icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  "categories": ["social", "lifestyle", "spiritual"],
+  "shortcuts": [
+    {
+      "name": "Members",
+      "url": "/members",
+      "icons": [{ "src": "/icon.png", "sizes": "512x512" }]
+    }
+  ]
+}

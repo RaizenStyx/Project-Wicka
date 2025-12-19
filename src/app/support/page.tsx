@@ -1,6 +1,11 @@
 import React from 'react';
 import { Sparkles, Crown, Gem, Zap } from 'lucide-react';
 
+export const metadata = {
+  title: 'Support | Nocta',
+  description: 'Learn how to support the platform and become a supporter!',
+};
+
 export default function SupportPage() {
     return (
         <div className="min-h-screen bg-slate-950 text-slate-200 py-16 px-4">

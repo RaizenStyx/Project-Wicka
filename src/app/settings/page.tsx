@@ -3,6 +3,12 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import ProfileForm from './ProfileForm' 
 import PasswordForm from '@/components/features/PasswordForm'
+import BirthDateForm from '@/components/profile/BirthDateForm'
+
+export const metadata = {
+  title: 'Settings | Nocta',
+  description: 'Change your settings within Nocta.',
+};
 
 export default async function SettingsPage() {
   const supabase = await createClient();
@@ -35,7 +41,8 @@ export default async function SettingsPage() {
         <Link href={`/u/${profile?.handle || 'handle'}`} className="text-sm text-purple-400 hover:underline mb-6 inline-block">
           &larr; View Public Profile
         </Link>
-        {/* Render the Client Component */}
+        {/* Render the Client Components */}
+        <BirthDateForm />
         <ProfileForm initialData={initialData} />
         <PasswordForm />
         

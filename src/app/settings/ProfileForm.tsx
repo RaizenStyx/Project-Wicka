@@ -2,6 +2,7 @@
 
 import { useActionState } from 'react' 
 import { updateProfile } from './actions'
+import { Sparkles } from 'lucide-react'
 
 // Define what props this form expects to receive
 interface ProfileFormProps {
@@ -26,6 +27,16 @@ export default function ProfileForm({ initialData }: ProfileFormProps) {
 
   return (
     <form action={formAction} className="space-y-6 bg-slate-900/50 p-8 rounded-xl border border-slate-800">
+
+      <div className="mb-6 flex items-start justify-between">
+        <div>
+          <h3 className="font-serif text-xl font-medium text-slate-100">Energy Alignment</h3>
+          <p className="text-sm text-slate-400">Change up your information.</p>
+        </div>
+        <div className="rounded-full bg-purple-900/20 p-2 text-purple-400">
+           <Sparkles className="h-5 w-5" />
+        </div>
+      </div>
       
       {/* Show Success or Error Messages */}
       {state?.success && (

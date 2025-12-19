@@ -1,16 +1,18 @@
 import clsx from "clsx";
-import { Sparkles, Cannabis, Cat, Shield, ChevronLeft, Check } from 'lucide-react'
+import { Sparkles, Cannabis, Cat, Shield, Omega } from 'lucide-react'
 
 export default function RoleBadge({ role }: { role: string }) {
     // Customize colors based on role
-    const isSupporter = role === 'supporter' || role === 'admin';
+    const isSupporter = role === 'supporter';
     const isVerified = role === 'guardian';
     const isWife = role === 'Goddess';
     const isDaughter = role === 'Princess';
+    const isAdmin = role === 'Creator'  || role === 'admin';
     return (
         <span className={clsx(
           "text-[10px] uppercase font-bold px-2 py-1 rounded-full border flex items-center gap-1",
             isSupporter ? "bg-amber-900/20 text-amber-200 border-amber-800" :
+            isAdmin ? "bg-teal-900/20 text-black-200 border-white-800" :
             isWife ? "bg-purple-500/20 text-purple-200 border-purple-500" :
             isDaughter ? "bg-pink-500/20 text-pink-200 border-pink-500" :
             isVerified ? "bg-purple-900/20 text-purple-200 border-purple-800" :
@@ -20,6 +22,7 @@ export default function RoleBadge({ role }: { role: string }) {
             {isSupporter && <Sparkles className="w-3 h-3" />}
             {isWife && <Cannabis className="w-3 h-3" />}
             {isDaughter && <Cat className="w-3 h-3" />}
+            {isAdmin && <Omega className="w-3 h-3" />}
             {role || 'Initiate'}
         </span>
     )

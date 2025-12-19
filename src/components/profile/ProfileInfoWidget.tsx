@@ -6,13 +6,23 @@ import { Pencil, Save, X, Sparkles, Loader2 } from 'lucide-react'
 import { clsx } from 'clsx'
 
 interface Profile {
-    id: string
-    username: string
-    bio: string | null
-    moon_phase: string | null
-    website: string | null
-    created_at: string
-    // Add other fields you need
+  id: string
+  username: string
+  bio: string | null
+  moon_phase: string | null
+  website: string | null
+  created_at: string
+  
+  // Update: Nested Object, not a string
+  zodiac_signs: {
+    name: string
+    symbol: string
+    // Optional: Add planets if you are fetching the ruling planet info too
+    planets?: {
+      name: string
+      symbol: string
+    } | null
+  } | null
 }
 
 export default function ProfileInfoWidget({ profile, isOwner }: { profile: Profile, isOwner: boolean }) {
@@ -128,6 +138,28 @@ export default function ProfileInfoWidget({ profile, isOwner }: { profile: Profi
         {activeTab === 'stats' && (
            <div className="space-y-4 animate-in fade-in duration-300">
                 <div className="space-y-3 text-sm">
+
+                    {profile?.zodiac_signs && (
+                    <div className="flex justify-between border-b border-slate-800 pb-2">
+                    <span className="text-slate-500">Zodiac</span>
+                    <span className="text-teal-300">
+                    {profile.zodiac_signs.symbol}
+                    {profile.zodiac_signs.name}
+                    </span>
+                    </div>
+                    )}
+                    {profile?.zodiac_signs?.planets && (
+                    <div className="flex justify-between border-b border-slate-800 pb-2">
+                    <span className="text-slate-500">Ruling Planet</span>
+                    <span className="text-purple-300">
+                        {profile.zodiac_signs.planets.symbol}&nbsp;
+                        {profile.zodiac_signs.planets.name}
+                        </span>
+                    </div>
+                    )}
+                    
+
+                    {/* Check if zodiac data exists before rendering */}
                     <div className="flex justify-between border-b border-slate-800 pb-2">
                     <span className="text-slate-500">Affinity</span>
                     <span className="text-purple-300">{profile.moon_phase || 'Unknown'}</span>

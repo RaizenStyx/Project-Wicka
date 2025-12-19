@@ -1,6 +1,11 @@
 import { getDailySpread } from "@/app/actions/tarot-actions";
 import DailySpreadInteractive from "@/components/features/DailySpreadInteractive";
 
+export const metadata = {
+  title: 'Tarot Spreads | Nocta',
+  description: 'Use the platforms tarot cards to perform certain spreads!',
+};
+
 export default async function TarotDraw() {
   // Fetch data on the server
   const result = await getDailySpread();

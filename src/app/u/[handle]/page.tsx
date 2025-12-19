@@ -9,6 +9,17 @@ import ProfileHeader from '@/components/profile/ProfileHeader'
 import PostCard from '@/components/ui/PostCard'
 import SpellCard from '@/components/spellbook/SpellCard'
 import Link from 'next/link'
+import { Metadata } from 'next'
+
+// 3. Metadata
+export async function generateMetadata({ params }: { params: Promise<{ handle: string }> }): Promise<Metadata> {
+  const { handle } = await params;
+  const title = handle.split('-').slice(0, -1).map(word => word.charAt(0).toUpperCase() + word.slice(1));
+  return {
+    title: `${title} | Public Profile`,
+    description: `Discover the information of ${title}.`,
+  };
+}
 
 export default async function ProfilePage({ 
   params, 
@@ -40,7 +51,17 @@ export default async function ProfilePage({
   // 3. Fetch the TARGET Profile (Based on the Handle in the URL)
   const { data: profile } = await supabase
     .from('profiles')
-    .select('*')
+    .select(`
+      *,
+      zodiac_signs (
+        name,
+        symbol,
+        planets (
+        name,
+        symbol
+        )
+      )
+    `)
     .eq('handle', handle) 
     .single()
 

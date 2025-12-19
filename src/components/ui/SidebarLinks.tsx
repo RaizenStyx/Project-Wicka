@@ -39,8 +39,8 @@ export default function SidebarLinks({ profile }: SidebarLinksProps) {
     { label: 'Feed', href: '/' },
     { label: 'Profile', href: "/u/" + (profile?.handle || 'profile') },
     { label: 'Settings', href: '/settings' },
-    { label: 'Chat', href: '/chat', allowedRoles: ['guardian', 'supporter'] },
-    { label: 'Members', href: '/members', allowedRoles: ['guardian', 'supporter'] },
+    { label: 'Chat', href: '/chat', allowedRoles: ['guardian', 'supporter', 'Goddess', 'Princess', 'Creator', 'admin'] },
+    { label: 'Members', href: '/members', allowedRoles: ['guardian', 'supporter', 'Goddess', 'Princess', 'Creator', 'admin'] },
     { label: 'Support', href: '/support'}
   ];
 
@@ -50,21 +50,22 @@ export default function SidebarLinks({ profile }: SidebarLinksProps) {
       title: 'Spirit Tools',
       icon: Sparkles, 
       items: [
+        { label: 'Spellbook', href: '/spellbook' },
+        { label: 'Sanctuary', href: '/sanctuary', allowedRoles: ['guardian', 'supporter', 'Goddess', 'Princess', 'Creator', 'admin'] },
+        { label: 'Grand Grimoire', href: '/grand-grimoire', allowedRoles: ['guardian', 'supporter', 'Goddess', 'Princess', 'Creator', 'admin']},
         { label: 'Daily Tarot', href: '/tarot-draw' },
         { label: 'Home Altar', href: '/altar' },
-        { label: 'Spellbook', href: '/spellbook' },
-        { label: 'Sanctuary', href: '/sanctuary', allowedRoles: ['guardian', 'supporter'] },
-        { label: 'Oracle AI', href: 'https://ai-oracle-eight.vercel.app/access', allowedRoles: ['supporter', 'admin'], isExternal: true }
+        { label: 'Oracle AI', href: 'https://ai-oracle-eight.vercel.app/access', allowedRoles: ['supporter', 'Goddess', 'Princess', 'Creator', 'admin'], isExternal: true }
       ]
     },
     KNOWLEDGE: {
       title: 'Knowledge',
       icon: Search,
       items: [
-        { label: 'Grand Grimoire', href: '/grand-grimoire'},
-        { label: 'All Crystals', href: '/crystals' },
-        { label: 'All Herbs', href: '/herbs' },
-        { label: 'All Deities', href: '/deities' },
+        { label: 'Crystals', href: '/crystals' },
+        { label: 'Candles', href: '/candles' },
+        { label: 'Herbs', href: '/herbs' },
+        { label: 'Deities', href: '/deities' },
         { label: 'Zodiac Signs', href: '/astrology' },
         { label: 'Tarot Meanings', href: '/tarot-deck' }
       ]

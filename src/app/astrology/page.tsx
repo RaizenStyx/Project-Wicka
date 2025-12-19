@@ -3,9 +3,7 @@ import ZodiacCard from '@/components/astrology/ZodiacCard';
 import { ZodiacSign } from '../types/database';
 
 
-/* TIP ON METADATA 
--- Use this to fill out metadata for all pages eventually.
-*/
+/* METADATA */
 export const metadata = {
   title: 'Astrology | Nocta',
   description: 'Explore the 12 Zodiac signs and their cosmic meanings.',

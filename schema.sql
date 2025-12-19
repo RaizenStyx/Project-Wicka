@@ -1089,3 +1089,289 @@ alter table public.tarot_cards add column if not exists slug text;
 update public.tarot_cards 
 set slug = lower(replace(name, ' ', '-'))
 where slug is null;
+
+
+
+
+-- 1. KNOWLEDGE BASE TABLES
+create table public.herbs (
+  id uuid not null default gen_random_uuid (),
+  name text not null unique,
+  latin_name text,
+  element text, -- Fire, Water, Air, Earth
+  magical_uses text[], -- ['Protection', 'Luck']
+  medical_uses text,
+  description text,
+  image_url text,
+  constraint herbs_pkey primary key (id)
+);
+
+create table public.deities (
+  id uuid not null default gen_random_uuid (),
+  name text not null unique,
+  pantheon text, -- e.g., 'Greek', 'Norse', 'Egyptian'
+  domain text[], -- ['Underworld', 'Magic', 'Crossroads']
+  symbols text[],
+  description text,
+  image_url text,
+  constraint deities_pkey primary key (id)
+);
+
+create table public.candle_magic (
+  id uuid not null default gen_random_uuid (),
+  color text not null unique, -- 'Red', 'White', etc.
+  hex_code text, -- For UI rendering: '#FF0000'
+  associations text[], -- ['Passion', 'Strength']
+  -- RELATIONSHIP: Links to the Zodiac ID
+  zodiac_id uuid references public.zodiac_signs(id) on delete set null,
+  description text,
+  constraint candle_magic_pkey primary key (id)
+);
+
+-- 2. USER COLLECTION (SANCTUARY) TABLES
+-- This tracks which items the specific user "owns" in their virtual inventory
+create table public.user_herbs (
+  id uuid not null default gen_random_uuid (),
+  user_id uuid references auth.users(id) on delete cascade,
+  herb_id uuid references public.herbs(id) on delete cascade,
+  quantity int default 1,
+  notes text,
+  created_at timestamptz default now(),
+  constraint user_herbs_pkey primary key (id)
+);
+
+create table public.user_deities (
+  id uuid not null default gen_random_uuid (),
+  user_id uuid references auth.users(id) on delete cascade,
+  deity_id uuid references public.deities(id) on delete cascade,
+  is_patron boolean default false, -- Special flag for their main deity
+  created_at timestamptz default now(),
+  constraint user_deities_pkey primary key (id)
+);
+
+create table public.user_candles (
+  id uuid not null default gen_random_uuid (),
+  user_id uuid references auth.users(id) on delete cascade,
+  candle_id uuid references public.candle_magic(id) on delete cascade,
+  quantity int default 1,
+  created_at timestamptz default now(),
+  constraint user_candles_pkey primary key (id)
+);
+
+-- 3. ENABLE RLS
+alter table public.herbs enable row level security;
+alter table public.deities enable row level security;
+alter table public.candle_magic enable row level security;
+alter table public.user_herbs enable row level security;
+alter table public.user_deities enable row level security;
+alter table public.user_candles enable row level security;
+
+-- (Remember to add SELECT policies for Public info and ALL policies for User collections)
+
+-- Seed Herbs
+insert into public.herbs (name, element, magical_uses, medical_uses)
+values 
+('Lavender', 'Air', ARRAY['Peace', 'Sleep', 'Purification'], 'Anxiety and insomnia'),
+('Rosemary', 'Fire', ARRAY['Memory', 'Protection', 'Healing'], 'Improved concentration');
+
+-- Seed Deities
+insert into public.deities (name, pantheon, domain, symbols)
+values 
+('Hecate', 'Greek', ARRAY['Magic', 'Crossroads', 'Ghosts'], ARRAY['Keys', 'Torches', 'Dogs']),
+('Odin', 'Norse', ARRAY['Wisdom', 'War', 'Runes'], ARRAY['Ravens', 'Valknut', 'Spear']);
+
+-- Seed Candles (Connecting to Zodiac)
+-- Note: You'll need to check your zodiac_signs table for the actual IDs
+insert into public.candle_magic (color, hex_code, associations, zodiac_id)
+values 
+('Red', '#ef4444', ARRAY['Passion', 'Action', 'Vitality'], (select id from zodiac_signs where name = 'Aries')),
+('Blue', '#3b82f6', ARRAY['Communication', 'Truth', 'Peace'], (select id from zodiac_signs where name = 'Pisces'));
+
+-- 1. Create the Planets Table
+create table public.planets (
+  id uuid not null default gen_random_uuid (),
+  name text not null unique,          -- e.g., 'Mars'
+  symbol text not null,               -- e.g., '♂'
+  ruling_element text,                -- e.g., 'Fire'
+  keywords text[],                    -- ['Action', 'Energy', 'Drive']
+  description text,
+  day_of_week text,                   -- e.g., 'Tuesday'
+  image_url text,
+  constraint planets_pkey primary key (id)
+);
+
+-- 2. Add Foreign Keys to existing tables to "Link" them
+-- Link Zodiac to Planet (One Planet rules many Signs)
+alter table public.zodiac_signs 
+add column if not exists ruling_planet_id uuid references public.planets(id);
+
+-- Link Candle Magic to Planet (One Planet rules many Colors)
+alter table public.candle_magic 
+add column if not exists planetary_id uuid references public.planets(id);
+
+-- 3. Enable RLS
+alter table public.planets enable row level security;
+create policy "Public read access" on public.planets for select using (true);
+
+
+
+-- Insert the 7 Traditional Planets
+insert into public.planets (name, symbol, ruling_element, day_of_week, keywords, description)
+values 
+('Sun', '☉', 'Fire', 'Sunday', ARRAY['Self', 'Vitality', 'Spirit'], 'The center of our solar system, representing the core identity.'),
+('Moon', '☾', 'Water', 'Monday', ARRAY['Emotions', 'Intuition', 'Unconscious'], 'The luminary of the night, governing our inner world.'),
+('Mars', '♂', 'Fire', 'Tuesday', ARRAY['Action', 'Courage', 'Desire'], 'The red planet of drive and physical energy.'),
+('Mercury', '☿', 'Air', 'Wednesday', ARRAY['Communication', 'Intellect', 'Travel'], 'The messenger, governing how we think and speak.'),
+('Jupiter', '♃', 'Fire', 'Thursday', ARRAY['Expansion', 'Luck', 'Wisdom'], 'The planet of growth and opportunity.'),
+('Venus', '♀', 'Earth', 'Friday', ARRAY['Love', 'Beauty', 'Harmony'], 'The planet of attraction and relationship.'),
+('Saturn', '♄', 'Earth', 'Saturday', ARRAY['Structure', 'Discipline', 'Karma'], 'The taskmaster, governing limits and time.');
+
+-- Link your existing Zodiac Signs to these new Planet IDs automatically!
+update public.zodiac_signs set ruling_planet_id = (select id from planets where name = 'Mars') where name = 'Aries';
+update public.zodiac_signs set ruling_planet_id = (select id from planets where name = 'Venus') where name = 'Taurus' or name = 'Libra';
+update public.zodiac_signs set ruling_planet_id = (select id from planets where name = 'Mercury') where name = 'Gemini' or name = 'Virgo';
+update public.zodiac_signs set ruling_planet_id = (select id from planets where name = 'Moon') where name = 'Cancer';
+update public.zodiac_signs set ruling_planet_id = (select id from planets where name = 'Sun') where name = 'Leo';
+update public.zodiac_signs set ruling_planet_id = (select id from planets where name = 'Jupiter') where name = 'Sagittarius';
+update public.zodiac_signs set ruling_planet_id = (select id from planets where name = 'Saturn') where name = 'Capricorn';
+
+
+-- Policies for 'herbs'
+create policy "Allow public read access for herbs" 
+on public.herbs for select using (true);
+
+-- Policies for 'deities'
+create policy "Allow public read access for deities" 
+on public.deities for select using (true);
+
+-- Policies for 'candle_magic'
+create policy "Allow public read access for candles" 
+on public.candle_magic for select using (true);
+
+-- Policies for 'planets'
+create policy "Allow public read access for planets" 
+on public.planets for select using (true);
+
+
+-- USER HERBS
+create policy "Users can view their own herbs"
+on public.user_herbs for select
+using (auth.uid() = user_id);
+
+create policy "Users can add to their own herbs"
+on public.user_herbs for insert
+with check (auth.uid() = user_id);
+
+create policy "Users can update their own herbs"
+on public.user_herbs for update
+using (auth.uid() = user_id);
+
+create policy "Users can remove from their own herbs"
+on public.user_herbs for delete
+using (auth.uid() = user_id);
+
+
+-- USER DEITIES
+create policy "Users can view their own deities"
+on public.user_deities for select
+using (auth.uid() = user_id);
+
+create policy "Users can add to their own deities"
+on public.user_deities for insert
+with check (auth.uid() = user_id);
+
+create policy "Users can remove from their own deities"
+on public.user_deities for delete
+using (auth.uid() = user_id);
+
+
+-- USER CANDLES
+create policy "Users can view their own candles"
+on public.user_candles for select
+using (auth.uid() = user_id);
+
+create policy "Users can add to their own candles"
+on public.user_candles for insert
+with check (auth.uid() = user_id);
+
+create policy "Users can update/delete their own candles"
+on public.user_candles for all
+using (auth.uid() = user_id);
+
+-- 1. Add the columns
+ALTER TABLE public.profiles
+ADD COLUMN IF NOT EXISTS birth_date date,
+ADD COLUMN IF NOT EXISTS zodiac_id uuid REFERENCES public.zodiac_signs(id);
+
+-- 2. Performance (Optional but recommended): Index the zodiac_id for faster lookups
+CREATE INDEX IF NOT EXISTS profiles_zodiac_id_idx ON public.profiles(zodiac_id);
+
+
+-- UPDATE USER_HERBS
+ALTER TABLE public.user_herbs
+ADD COLUMN IF NOT EXISTS is_owned boolean default false,
+ADD COLUMN IF NOT EXISTS is_wishlisted boolean default false,
+ADD COLUMN IF NOT EXISTS user_image_url text;
+
+-- UPDATE USER_DEITIES
+ALTER TABLE public.user_deities
+ADD COLUMN IF NOT EXISTS is_owned boolean default false,
+ADD COLUMN IF NOT EXISTS is_wishlisted boolean default false,
+ADD COLUMN IF NOT EXISTS user_image_url text;
+
+-- UPDATE USER_CANDLES
+ALTER TABLE public.user_candles
+ADD COLUMN IF NOT EXISTS is_owned boolean default false,
+ADD COLUMN IF NOT EXISTS is_wishlisted boolean default false,
+ADD COLUMN IF NOT EXISTS user_image_url text;
+
+-- (Optional) If you want to strictly match crystals, ensure you have is_owned boolean logic
+-- Your existing tables imply "presence of row = owned", which works fine with the actions below.
+
+INSERT INTO public.planets (name, symbol, ruling_element, keywords, description, day_of_week)
+VALUES 
+(
+  'Uranus', 
+  '♅', 
+  'Air', 
+  ARRAY['Change', 'Revolution', 'Innovation', 'Freedom'], 
+  'The awakener. It breaks structures to create space for the new, governing sudden changes and rebellion.',
+  NULL
+),
+(
+  'Neptune', 
+  '♆', 
+  'Water', 
+  ARRAY['Dreams', 'Intuition', 'Illusion', 'Spirituality'], 
+  'The planet of inspiration and psychic receptivity. It dissolves boundaries between the self and the divine.',
+  NULL
+),
+(
+  'Pluto', 
+  '♇', 
+  'Water', -- Linked to Scorpio (Water)
+  ARRAY['Transformation', 'Power', 'Rebirth', 'Shadow'], 
+  'The planet of profound alchemy. It governs the cycle of death and rebirth, excavating what is hidden.',
+  NULL
+);
+
+
+
+-- Link Aquarius to Uranus
+UPDATE public.zodiac_signs 
+SET ruling_planet_id = (SELECT id FROM public.planets WHERE name = 'Uranus') 
+WHERE name = 'Aquarius';
+
+-- Link Pisces to Neptune
+UPDATE public.zodiac_signs 
+SET ruling_planet_id = (SELECT id FROM public.planets WHERE name = 'Neptune') 
+WHERE name = 'Pisces';
+
+-- Link Scorpio to Pluto
+UPDATE public.zodiac_signs 
+SET ruling_planet_id = (SELECT id FROM public.planets WHERE name = 'Pluto') 
+WHERE name = 'Scorpio';
+
+-- Removed normal text column and replaced with ID to other data set for planets
+ALTER TABLE public.zodiac_signs 
+DROP COLUMN ruling_planet;

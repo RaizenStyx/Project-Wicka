@@ -4,6 +4,11 @@ import { createClient } from '../utils/supabase/server'
 import SpellForm from '@/components/spellbook/SpellForm' 
 import SpellCard from '@/components/spellbook/SpellCard' 
 
+export const metadata = {
+  title: 'SpellBook | Nocta',
+  description: 'Craft spells for private use, post on your profile, or publish for everyone to see!',
+};
+
 export default async function SpellbookPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
