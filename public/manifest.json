@@ -1,5 +1,5 @@
 {
-  "name": "Nocta - Creators of Night",
+  "name": "Nocta",
   "short_name": "Nocta",
   "description": "Connect with your coven. A witchy social community.",
   "start_url": "/",
@@ -15,12 +15,5 @@
       "purpose": "maskable any"
     }
   ],
-  "categories": ["social", "lifestyle", "spiritual"],
-  "shortcuts": [
-    {
-      "name": "Members",
-      "url": "/members",
-      "icons": [{ "src": "/icon.png", "sizes": "512x512" }]
-    }
-  ]
+  "categories": ["social", "lifestyle", "spiritual"]
 }
