@@ -16,14 +16,14 @@ export async function getDeitiesData() {
 
   const { data: collection } = await supabase
     .from('user_deities')
-    .select('deity_id, is_wishlisted, user_image_url, is_patron')
+    .select('deity_id, is_patron, is_owned, is_wishlisted, user_image_url')
 
   const userStateMap: Record<string, UserCollectionState & { isPatron?: boolean }> = {}
   
   collection?.forEach((item) => {
     userStateMap[item.deity_id] = { 
-      isOwned: true, 
-      isWishlisted: item.is_wishlisted || false,
+      isOwned: item.is_owned, 
+      isWishlisted: item.is_wishlisted,
       userImage: item.user_image_url,
       isPatron: item.is_patron
     }
@@ -38,19 +38,22 @@ export async function updateDeityState(deityId: string, newState: { isOwned: boo
   if (!user) throw new Error('Unauthorized')
 
   if (!newState.isOwned && !newState.isWishlisted) {
-    await supabase
+    const {error} = await supabase
       .from('user_deities')
       .delete()
       .match({ user_id: user.id, deity_id: deityId })
+      if (error) throw error;
   } else {
-    await supabase
+    const {error} = await supabase
       .from('user_deities')
       .upsert({ 
         user_id: user.id, 
         deity_id: deityId, 
+        is_owned: newState.isOwned,
         is_wishlisted: newState.isWishlisted,
         // We ensure a row exists. 'is_patron' would be handled by a separate toggle if you wanted.
       }, { onConflict: 'user_id, deity_id' } as any)
+      if (error) throw error;
   }
 
   revalidatePath('/deities')

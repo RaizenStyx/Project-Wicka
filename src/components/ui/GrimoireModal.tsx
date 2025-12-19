@@ -59,7 +59,7 @@ export default function GrimoireModal({
               ) : (
                 <div className="flex h-full items-center justify-center"><ImageIcon className="h-12 w-12 text-slate-700" /></div>
               )}
-              <button onClick={onClose} className="absolute right-4 top-4 rounded-full bg-black/50 p-2 text-white hover:bg-black/70"><X className="h-5 w-5" /></button>
+              <button onClick={onClose} className="absolute right-4 top-4 rounded-full bg-black/50 p-2 text-white hover:bg-black/70 cursor-pointer"><X className="h-5 w-5" /></button>
               
               <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-slate-950 to-transparent p-6 pt-12">
                 <h2 className="font-serif text-3xl text-white">{item.name}</h2>
@@ -87,7 +87,7 @@ export default function GrimoireModal({
                 {/* 1. Sanctuary Button */}
                 <button 
                   onClick={onToggleOwned}
-                  className={`flex flex-1 items-center justify-center gap-2 rounded-lg py-3 font-medium transition-colors ${
+                  className={`flex flex-1 items-center justify-center gap-2 rounded-lg py-3 font-medium transition-colors cursor-pointer ${
                     isOwned 
                     ? 'bg-purple-900/50 text-purple-200 hover:bg-purple-900/70' 
                     : 'bg-slate-100 text-slate-900 hover:bg-white'
@@ -99,7 +99,7 @@ export default function GrimoireModal({
                 {/* 2. Wishlist Button */}
                 <button 
                   onClick={onToggleWishlist}
-                  className={`flex items-center justify-center rounded-lg border px-4 transition-colors ${
+                  className={`flex items-center justify-center rounded-lg border px-4 transition-colors cursor-pointer ${
                     isWishlisted 
                     ? 'border-amber-500/50 bg-amber-500/10 text-amber-400' 
                     : 'border-slate-700 text-slate-400 hover:border-slate-500 hover:text-white'

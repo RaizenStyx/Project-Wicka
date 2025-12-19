@@ -43,7 +43,8 @@ export default async function CrystalCollectionWidget() {
     .limit(50); 
 
   // 2. Transform Data to fix the "Array vs Object" type mismatch
-  const formattedCollection = (rawCollection || []).map((item: any) => ({
+  const formattedCollection = (rawCollection || [])
+  .map((item: any) => ({
     id: item.id,
     user_image_url: item.user_image_url,
     is_owned: item.is_owned,

@@ -7,6 +7,7 @@ import { updateCrystalState } from '@/app/actions/crystal-actions'
 import { updateHerbState } from '@/app/actions/herb-actions'
 import { updateDeityState } from '@/app/actions/deity-actions'
 import { updateCandleState } from '@/app/actions/candle-actions'
+import { Sparkles, Star } from 'lucide-react'
 
 interface Props {
   crystals: any[]; crystalState: any;
@@ -102,10 +103,15 @@ export default function SanctuaryTabs({
   // --- DATA PREP ---
   // Get items, filter only owned ones, and map if necessary
   let displayedItems = context?.items.filter((item: any) => context.state[item.id]?.isOwned) || []
+  let wishlistItems = context?.items.filter((item: any) => context.state[item.id]?.isWishlisted) || []
   
   // Candle Fix for display
   if (activeTab === 'candles') {
     displayedItems = displayedItems.map((c: any) => ({ ...c, name: c.color, color: c.hex_code }))
+  }
+
+  if (activeTab === 'candles') {
+    wishlistItems = wishlistItems.map((c: any) => ({ ...c, name: c.color, color: c.hex_code }))
   }
 
   const handleItemClick = (item: any) => {
@@ -129,7 +135,7 @@ export default function SanctuaryTabs({
           <button
             key={tab}
             onClick={() => setActiveTab(tab as Tab)}
-            className={`px-6 py-3 text-sm font-medium uppercase tracking-widest transition-colors border-b-2 ${
+            className={`px-6 py-3 text-sm font-medium uppercase tracking-widest transition-colors border-b-2 cursor-pointer ${
               activeTab === tab 
                 ? 'border-purple-500 text-purple-200' 
                 : 'border-transparent text-slate-500 hover:text-slate-300'
@@ -140,13 +146,22 @@ export default function SanctuaryTabs({
         ))}
       </div>
 
-      {/* CONTENT AREA */}
+        {/* === OWNED SECTION === */}
       <div className="min-h-[400px]">
+        Between these two titles, which one is better? Icon and title or title and description
+        <div className="relative flex items-center py-8">
+        <div className="flex-grow border-t border-slate-800"></div>
+        <span className="mx-4 flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-purple-300">
+            <Sparkles className="h-4 w-4" /> 
+            Sanctuary Collection
+        </span>
+        <div className="flex-grow border-t border-slate-800"></div>
+        </div>
          <GrimoireDashboard 
             // Key forces re-render when tab changes so search/filters reset
             key={activeTab} 
-            title="" 
-            description=""
+            title="Sanctuary Collection" 
+            description="Your collected items and such and a longer description can be placed here."
             items={displayedItems}
             filterCategories={context?.filters || []}
             filterKey={context?.filterKey || ''}
@@ -166,6 +181,36 @@ export default function SanctuaryTabs({
             </div>
         )}
       </div>
+
+      {/* === WISHLIST SECTION === */}
+{wishlistItems.length > 0 && (
+    <>
+      <div className="min-h-[400px]">
+        <div className="relative flex items-center py-8 mt-8">
+        <div className="flex-grow border-t border-slate-800"></div>
+        <span className="mx-4 flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-amber-400">
+            <Star className="h-18 w-18" />             
+        </span>
+        <div className="flex-grow border-t border-slate-800"></div>
+        </div>
+         <GrimoireDashboard 
+            key={activeTab} 
+            title="Manifestation List" 
+            description="Your wishlisted items and such and a longer description can be placed here. (Or what about something like this for the title?)"
+            items={wishlistItems}
+            filterCategories={context?.filters || []}
+            filterKey={context?.filterKey || ''}
+            mode="modal"
+            onItemClick={handleItemClick}
+            
+            // Pass the Correct Props
+            userState={context?.state}
+            onToggleOwned={handleToggleOwned}
+            onToggleWishlist={handleToggleWishlist}
+          />
+      </div>
+    </>
+    )}
 
       {/* MODAL */}
       <GrimoireModal 

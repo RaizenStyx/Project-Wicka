@@ -18,17 +18,15 @@ export async function getHerbsData() {
   // 2. Fetch User's Collection
   const { data: collection } = await supabase
     .from('user_herbs')
-    .select('herb_id, is_wishlisted, user_image_url') 
-    // Note: If a row exists, we assume isOwned = true roughly, 
-    // but typically we check if the row exists at all for "ownership"
+    .select('herb_id, is_owned, is_wishlisted, user_image_url') 
 
   // 3. Map it for the Client
   const userStateMap: Record<string, UserCollectionState> = {}
   
   collection?.forEach((item) => {
     userStateMap[item.herb_id] = { 
-      isOwned: true, // If the row exists, they have some relationship to it
-      isWishlisted: item.is_wishlisted || false,
+      isOwned: item.is_owned,
+      isWishlisted: item.is_wishlisted,
       userImage: item.user_image_url
     }
   })
@@ -54,8 +52,7 @@ export async function updateHerbState(herbId: string, newState: { isOwned: boole
       .upsert({ 
         user_id: user.id, 
         herb_id: herbId,
-        // If they click "Add to Collection", we assume quantity 1 for now
-        quantity: newState.isOwned ? 1 : 0, 
+        is_owned: newState.isOwned, 
         is_wishlisted: newState.isWishlisted
       }, { onConflict: 'user_id, herb_id' } as any) // Type cast if TS complains about composite key syntax
   }

@@ -22,8 +22,7 @@ interface DashboardProps {
   filterCategories: string[] 
   filterKey: string 
   
-  mode: 'modal' | 'link'
-  basePath?: string 
+  mode: 'modal' | 'link' 
   
   // Handlers & State
   userState: Record<string, { isOwned: boolean; isWishlisted: boolean }>
@@ -34,9 +33,9 @@ interface DashboardProps {
 
 export default function GrimoireDashboard({ 
   title, description, items, 
-  filterCategories, filterKey,
-  mode, basePath, onItemClick,
-  userState, onToggleOwned, 
+  filterCategories, filterKey, 
+  mode, userState, 
+  onItemClick, onToggleOwned, 
   onToggleWishlist, 
 }: DashboardProps) {
   
@@ -90,7 +89,7 @@ export default function GrimoireDashboard({
           <div className="flex gap-2 overflow-x-auto no-scrollbar">
             <button
               onClick={() => setActiveFilter('All')}
-              className={`whitespace-nowrap rounded-full px-4 py-1.5 text-xs font-bold transition-all border ${
+              className={`whitespace-nowrap rounded-full px-4 py-1.5 text-xs font-bold transition-all border cursor-pointer ${
                 activeFilter === 'All' ? 'bg-purple-600 border-purple-500 text-white' : 'bg-slate-900 border-slate-700 text-slate-400'
               }`}
             >
@@ -100,7 +99,7 @@ export default function GrimoireDashboard({
               <button
                 key={cat}
                 onClick={() => setActiveFilter(cat)}
-                className={`whitespace-nowrap rounded-full px-4 py-1.5 text-xs font-bold transition-all border ${
+                className={`whitespace-nowrap rounded-full px-4 py-1.5 text-xs font-bold transition-all border cursor-pointer ${
                   activeFilter === cat ? 'bg-purple-600 border-purple-500 text-white' : 'bg-slate-900 border-slate-700 text-slate-400'
                 }`}
               >

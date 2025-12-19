@@ -19,15 +19,15 @@ export async function getCandlesData() {
   // 2. Fetch User's Collection
   const { data: collection } = await supabase
     .from('user_candles')
-    .select('candle_id, is_wishlisted, user_image_url')
+    .select('candle_id, is_owned, is_wishlisted, user_image_url')
 
   // 3. Map User State
   const userStateMap: Record<string, UserCollectionState> = {}
   
   collection?.forEach((item) => {
     userStateMap[item.candle_id] = { 
-      isOwned: true,
-      isWishlisted: item.is_wishlisted || false,
+      isOwned: item.is_owned,
+      isWishlisted: item.is_wishlisted,
       userImage: item.user_image_url
     }
   })
@@ -52,7 +52,7 @@ export async function updateCandleState(candleId: string, newState: { isOwned: b
       .upsert({ 
         user_id: user.id, 
         candle_id: candleId,
-        quantity: newState.isOwned ? 1 : 0,
+        is_owned: newState.isOwned,
         is_wishlisted: newState.isWishlisted
       }, { onConflict: 'user_id, candle_id' } as any)
       if (error) throw error;
