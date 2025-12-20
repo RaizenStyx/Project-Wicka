@@ -5,6 +5,7 @@ import { Lock, Globe, Moon, Pencil, Save, X, Flame, Eye, Scroll } from 'lucide-r
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { clsx } from 'clsx'
+import { usePathname } from 'next/navigation'
 import { ExtendedSpell } from '@/app/types/database'
 import SmartIngredientSelector from './SmartIngredientSelector'
 import IngredientBadgeList from './IngredientBadgeList'
@@ -22,6 +23,19 @@ export default function SpellCard({
   showAuthor = false, 
   userRole = spell.profiles?.role || 'initiate' 
 }: SpellCardProps) {
+
+  // 2. GET CURRENT PATH
+  const pathname = usePathname()
+  
+  // 3. LOGIC HELPERS
+  // Are we in the public library?
+  const isGrandGrimoire = pathname?.includes('/grand-grimoire')
+  
+  // Should we show the Public Badge? (Yes, unless we are in the Grimoire)
+  const showPublicBadge = spell.is_published && !isGrandGrimoire
+  
+  // Should we stack them? (Only if we are showing BOTH badges)
+  const shouldStack = showPublicBadge && spell.is_ritual
   
   const [isBurning, setIsBurning] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
@@ -196,20 +210,36 @@ export default function SpellCard({
         animate={isBurning ? { opacity: 0, scale: 0.9, y: -50, filter: "brightness(0) blur(4px)", transition: { duration: 0.8 } } : { opacity: 1, scale: 1, y: 0, filter: "brightness(1) blur(0px)" }}
         className={clsx("bg-slate-900 border border-slate-800 rounded-xl p-6 relative group transition-all duration-300", !isBurning && "hover:border-purple-500/30 hover:shadow-lg hover:shadow-purple-900/10")}
     >
-        {/* Badges (Public/Private/Ritual) */}
-        <div className="absolute top-6 right-6 flex gap-2">
+        {/* --- BADGE CONTAINER UPDATE --- */}
+        <div className={clsx(
+            "absolute top-6 right-6 flex",
+            // If stacking, align right and use column. Otherwise, row center.
+            shouldStack ? "flex-col items-end gap-1" : "flex-row items-center gap-2"
+        )}>
+           
+           {/* PUBLIC BADGE (Conditionally Rendered) */}
+           {showPublicBadge && (
+               <span className="flex items-center gap-1 text-[10px] text-purple-300 border border-purple-900 bg-purple-900/40 px-2 py-0.5 rounded-full uppercase tracking-wider font-bold shadow-sm shadow-purple-900/50">
+                  <Globe className="w-3 h-3" /> Public
+               </span>
+           )}
+
+           {/* RITUAL BADGE (Always shows if it is a ritual) */}
            {spell.is_ritual && (
                <span className="flex items-center gap-1 text-[10px] text-amber-300 border border-amber-900 bg-amber-900/20 px-2 py-0.5 rounded-full uppercase tracking-wider font-bold shadow-sm">
                   <Scroll className="w-3 h-3" /> Ritual
                </span>
            )}
-           {spell.is_published && (
-               <span className="flex items-center gap-1 text-[10px] text-purple-300 border border-purple-900 bg-purple-900/40 px-2 py-0.5 rounded-full uppercase tracking-wider font-bold shadow-sm shadow-purple-900/50">
-                  <Globe className="w-3 h-3" /> Public
-               </span>
+
+           {/* PRIVATE / PROFILE ICONS (These act as the "Not Public" state) */}
+           {/* If it's NOT published, we show these. Since they are small icons, 
+               they will sit side-by-side with the Ritual badge due to our ternary logic above. */}
+           {!spell.is_published && (
+               <>
+                   {spell.is_private && <Lock className="w-4 h-4 text-slate-600" />}
+                   {!spell.is_private && <Eye className="w-4 h-4 text-slate-500" />}
+               </>
            )}
-           {spell.is_private && <Lock className="w-4 h-4 text-slate-600" />}
-           {!spell.is_private && !spell.is_published && <Eye className="w-4 h-4 text-slate-500" />}
         </div>
 
         {/* Author */}
