@@ -50,16 +50,16 @@ export default function SidebarLinks({ profile }: SidebarLinksProps) {
       title: 'Spirit Tools',
       icon: Sparkles, 
       items: [
-        { label: 'Spellbook', href: '/spellbook' },
-        { label: 'Sanctuary', href: '/sanctuary', allowedRoles: ['guardian', 'supporter', 'Goddess', 'Princess', 'Creator', 'admin'] },
         { label: 'Grand Grimoire', href: '/grand-grimoire', allowedRoles: ['guardian', 'supporter', 'Goddess', 'Princess', 'Creator', 'admin']},
-        { label: 'Daily Tarot', href: '/tarot-draw' },
+        { label: 'Spellbook', href: '/spellbook' },
+        { label: 'Sanctuary', href: '/sanctuary'},
+        { label: 'Daily Tarot', href: '/tarot-draw', allowedRoles: ['guardian', 'supporter', 'Goddess', 'Princess', 'Creator', 'admin'] },
         { label: 'Home Altar', href: '/altar' },
         { label: 'Oracle AI', href: 'https://ai-oracle-eight.vercel.app/access', allowedRoles: ['supporter', 'Goddess', 'Princess', 'Creator', 'admin'], isExternal: true }
       ]
     },
     KNOWLEDGE: {
-      title: 'Knowledge',
+      title: 'Arcanum',
       icon: Search,
       items: [
         { label: 'Crystals', href: '/crystals' },

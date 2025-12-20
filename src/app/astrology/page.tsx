@@ -16,8 +16,7 @@ export default async function AstrologyPage() {
   const { data: signs, error } = await supabase
     .from('zodiac_signs')
     .select('*')
-    .order('start_month', { ascending: true })
-    .order('start_day', { ascending: true });
+    .order('sort_order', { ascending: true });
 
   if (error) {
     console.error('Error fetching zodiacs:', error);

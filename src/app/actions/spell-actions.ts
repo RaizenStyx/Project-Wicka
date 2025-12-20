@@ -2,19 +2,6 @@
 
 import { createClient } from '../utils/supabase/server'
 import { revalidatePath } from 'next/cache'
-import { redirect } from 'next/navigation'
-
-export type Spell = {
-  id: string
-  title: string
-  intent: string | null
-  ingredients: string | null
-  moon_phase: string | null
-  content: string | null
-  is_private: boolean
-  is_published: boolean
-  created_at: string
-}
 
 export async function getSpells() {
   const supabase = await createClient();
@@ -60,6 +47,10 @@ export async function createSpell(formData: FormData) {
   const content = formData.get('content') as string
   const is_private = formData.get('is_private') === 'on'
   const is_published = formData.get('is_published') === 'on'
+  const linkedCrystals = JSON.parse(formData.get('linked_crystals') as string || '[]');
+  const linkedHerbs = JSON.parse(formData.get('linked_herbs') as string || '[]');
+  const linkedCandles = JSON.parse(formData.get('linked_candles') as string || '[]');
+  const isRitual = formData.get('is_ritual') === 'true';
 
   // 2. The Check: If they are an initiate, they cannot publish
   if (is_published && profile?.role === 'initiate') {
@@ -69,6 +60,16 @@ export async function createSpell(formData: FormData) {
   // Logic check: You can't publish a private spell
   if (is_private && is_published) {
      return { error: "You cannot publish a private spell to the community." }
+  }
+
+  // --- NEW SERVER VALIDATION ---
+  if (isRitual) {
+    const hasEarth = linkedCrystals.length > 0 || linkedHerbs.length > 0;
+    const hasFire = linkedCandles.length > 0;
+    
+    if (!hasEarth || !hasFire) {
+      return { error: "Incomplete Ritual: You must provide Earth (Crystal/Herb) and Fire (Candle) components." };
+    }
   }
 
   const { error } = await supabase
@@ -81,7 +82,12 @@ export async function createSpell(formData: FormData) {
       ingredients,
       content,
       is_private,
-      is_published
+      is_published,
+      // NEW FIELDS
+      is_ritual: isRitual,
+      linked_crystals: linkedCrystals,
+      linked_herbs: linkedHerbs,
+      linked_candles: linkedCandles
     })
 
   if (error) {
@@ -124,10 +130,24 @@ export async function updateSpell(id: string, formData: FormData) {
   const content = formData.get('content') as string
   const is_private = formData.get('is_private') === 'on'
   const is_published = formData.get('is_published') === 'on'
+  const linkedCrystals = JSON.parse(formData.get('linked_crystals') as string || '[]');
+  const linkedHerbs = JSON.parse(formData.get('linked_herbs') as string || '[]');
+  const linkedCandles = JSON.parse(formData.get('linked_candles') as string || '[]');
+  const isRitual = formData.get('is_ritual') === 'true';
 
   // Logic check: You can't publish a private spell
   if (is_private && is_published) {
      return { error: "You cannot publish a private spell to the community." }
+  }
+
+  // --- NEW SERVER VALIDATION ---
+  if (isRitual) {
+    const hasEarth = linkedCrystals.length > 0 || linkedHerbs.length > 0;
+    const hasFire = linkedCandles.length > 0;
+    
+    if (!hasEarth || !hasFire) {
+      return { error: "Incomplete Ritual: You must provide Earth (Crystal/Herb) and Fire (Candle) components." };
+    }
   }
 
   const { error } = await supabase
@@ -139,7 +159,12 @@ export async function updateSpell(id: string, formData: FormData) {
       ingredients,
       content,
       is_private,
-      is_published
+      is_published,
+      // NEW FIELDS
+      is_ritual: isRitual,
+      linked_crystals: linkedCrystals,
+      linked_herbs: linkedHerbs,
+      linked_candles: linkedCandles
     })
     .eq('id', id)
     .eq('user_id', user.id) // Double security: Only update if they own it

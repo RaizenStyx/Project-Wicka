@@ -10,9 +10,9 @@ export async function getCandlesData() {
   // 1. Fetch Public Candles
   // We explicitly fetch hex_code to use for the border color
   const { data: candles, error } = await supabase
-    .from('candle_magic')
+    .from('candles')
     .select('*')
-    .order('color')
+    .order('name')
 
   if (error) console.error('Error fetching candles:', error)
 

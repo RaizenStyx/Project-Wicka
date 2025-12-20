@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { Plus, X, Sparkles, Scroll, Lock, Eye, Globe } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { clsx } from 'clsx'
+import SmartIngredientSelector from './SmartIngredientSelector'
 
 export default function SpellForm({ userRole }: {userRole: string}) {
   const [isOpen, setIsOpen] = useState(false)
@@ -14,15 +15,36 @@ export default function SpellForm({ userRole }: {userRole: string}) {
   // Options: 'private' | 'profile' | 'community'
   const [visibility, setVisibility] = useState('private')
 
+  const [isRitual, setIsRitual] = useState(false)
+  const [selectedCrystals, setSelectedCrystals] = useState<string[]>([])
+  const [selectedHerbs, setSelectedHerbs] = useState<string[]>([])
+  const [selectedCandles, setSelectedCandles] = useState<string[]>([])
+
   const handleSubmit = async (formData: FormData) => {
+    // --- NEW VALIDATION CHECK ---
+    if (isRitual) {
+      const hasEarth = selectedCrystals.length > 0 || selectedHerbs.length > 0;
+      const hasFire = selectedCandles.length > 0;
+
+      if (!hasEarth || !hasFire) {
+        alert("A Ritual requires active components to be performed.\n\nPlease link at least:\n- One Earth Element (Crystal or Herb)\n- One Fire Element (Candle)");
+        return; // Stop the function here
+      }
+    }
     setLoading(true)
     
-    // Map the single visibility state to the two database booleans
+    // 1. Handle Visibility (Existing Logic)
     const isPrivate = visibility === 'private'
     const isPublished = visibility === 'community'
-
     formData.set('is_private', isPrivate ? 'on' : 'off')
     formData.set('is_published', isPublished ? 'on' : 'off')
+
+    // 2. INJECT NEW DATA INTO FORMDATA
+    // We stringify the arrays so they can pass through FormData easily
+    formData.set('is_ritual', isRitual ? 'true' : 'false')
+    formData.set('linked_crystals', JSON.stringify(selectedCrystals))
+    formData.set('linked_herbs', JSON.stringify(selectedHerbs))
+    formData.set('linked_candles', JSON.stringify(selectedCandles))
 
     const result = await createSpell(formData)
     
@@ -32,7 +54,12 @@ export default function SpellForm({ userRole }: {userRole: string}) {
         alert(result.error)
     } else {
         setIsOpen(false)
-        setVisibility('private') // Reset to default
+        // Reset Form State
+        setVisibility('private') 
+        setIsRitual(false)
+        setSelectedCrystals([])
+        setSelectedHerbs([])
+        setSelectedCandles([])
     }
   }
 
@@ -74,6 +101,7 @@ export default function SpellForm({ userRole }: {userRole: string}) {
 
               <form action={handleSubmit} className="space-y-5">
                 
+                {/* --- TITLE & METADATA --- */}
                 <div>
                   <label className="block text-[10px] uppercase tracking-widest text-slate-500 mb-1 font-bold">Title</label>
                   <input name="title" required type="text" placeholder="e.g. Protection Jar" className="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-slate-200 focus:border-purple-500 focus:outline-none placeholder:text-slate-700" />
@@ -95,20 +123,59 @@ export default function SpellForm({ userRole }: {userRole: string}) {
                   </div>
                 </div>
 
-                {/* Ingredients */}
-                <div>
-                  <label className="block text-[10px] uppercase tracking-widest text-slate-500 mb-1 font-bold">Ingredients</label>
-                  <input name="ingredients" type="text" placeholder="e.g. Salt, Black Candle, Obsidian" className="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-slate-200 focus:border-purple-500 focus:outline-none placeholder:text-slate-700" />
+                {/* --- NEW RITUAL TOGGLE --- */}
+                <div className="p-4 bg-slate-950/50 border border-slate-800 rounded-lg flex items-center gap-3">
+                    <input 
+                        type="checkbox" 
+                        id="isRitual"
+                        checked={isRitual}
+                        onChange={(e) => setIsRitual(e.target.checked)}
+                        className="w-4 h-4 text-purple-600 rounded focus:ring-purple-500 bg-slate-800 border-slate-600 cursor-pointer"
+                    />
+                    <div>
+                        <label htmlFor="isRitual" className="text-sm font-bold text-slate-300 cursor-pointer">Mark as Ritual</label>
+                        <p className="text-xs text-slate-500">Rituals can be performed on the interactive Altar (Coming Soon).</p>
+                    </div>
                 </div>
 
-                {/* Content */}
+                {/* --- SMART SELECTORS --- */}
+                {/* We render these visually, but pass data via state in handleSubmit */}
+                <div className="space-y-2 border-l-2 border-slate-800 pl-4">
+                    <SmartIngredientSelector 
+                        tableName="crystals"
+                        label="Link Crystals (Earth/North)"
+                        selectedIds={selectedCrystals}
+                        onSelectionChange={setSelectedCrystals}
+                    />
+                    <SmartIngredientSelector 
+                        tableName="herbs"
+                        label="Link Herbs (Earth/North)"
+                        selectedIds={selectedHerbs}
+                        onSelectionChange={setSelectedHerbs}
+                    />
+                    <SmartIngredientSelector 
+                        tableName="candles"
+                        label="Link Candles (Fire/South)"
+                        selectedIds={selectedCandles}
+                        onSelectionChange={setSelectedCandles}
+                    />
+                </div>
+
+
+                {/* --- CUSTOM INGREDIENTS (Legacy Text) --- */}
+                <div>
+                  <label className="block text-[10px] uppercase tracking-widest text-slate-500 mb-1 font-bold">Other Ingredients / Notes</label>
+                  <input name="ingredients" type="text" placeholder="e.g. Personal items, specific oils..." className="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-slate-200 focus:border-purple-500 focus:outline-none placeholder:text-slate-700" />
+                </div>
+
+                {/* --- CONTENT --- */}
                 <div>
                   <label className="block text-[10px] uppercase tracking-widest text-slate-500 mb-1 font-bold">Ritual / Steps</label>
                   <textarea name="content" rows={5} required placeholder="Describe the ritual..." className="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-slate-200 focus:border-purple-500 focus:outline-none resize-none placeholder:text-slate-700 font-serif" />
                 </div>
 
 
-                {/* NEW VISIBILITY SELECTOR */}
+                {/* --- VISIBILITY SELECTOR --- */}
                 <div>
                    <label className="block text-[10px] uppercase tracking-widest text-slate-500 mb-2 font-bold">Visibility Level</label>
                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -121,9 +188,9 @@ export default function SpellForm({ userRole }: {userRole: string}) {
                             visibility === 'private' ? "bg-slate-800 border-purple-500 text-white" : "bg-slate-950 border-slate-800 text-slate-500 hover:border-slate-700"
                         )}
                       >
-                         <Lock className="w-5 h-5" />
-                         <span className="text-xs font-bold">Private</span>
-                         <span className="text-[10px] text-center opacity-70">Only visible to you</span>
+                          <Lock className="w-5 h-5" />
+                          <span className="text-xs font-bold">Private</span>
+                          <span className="text-[10px] text-center opacity-70">Only visible to you</span>
                       </div>
 
                       {/* Option 2: Profile Only */}
@@ -134,9 +201,9 @@ export default function SpellForm({ userRole }: {userRole: string}) {
                             visibility === 'profile' ? "bg-slate-800 border-purple-500 text-white" : "bg-slate-950 border-slate-800 text-slate-500 hover:border-slate-700"
                         )}
                       >
-                         <Eye className="w-5 h-5" />
-                         <span className="text-xs font-bold">Public (Profile)</span>
-                         <span className="text-[10px] text-center opacity-70">Visible on your profile</span>
+                          <Eye className="w-5 h-5" />
+                          <span className="text-xs font-bold">Public (Profile)</span>
+                          <span className="text-[10px] text-center opacity-70">Visible on your profile</span>
                       </div>
 
                       {/* Option 3: Community */}
@@ -155,13 +222,13 @@ export default function SpellForm({ userRole }: {userRole: string}) {
                             // Disable logic
                             canPublish ? "cursor-pointer hover:border-slate-700" : "opacity-50 cursor-not-allowed"
                         )}
-                    >
-                        <Globe className="w-5 h-5" />
-                        <span className="text-xs font-bold">Community</span>
-                        <span className="text-[10px] text-center opacity-70">
-                            {canPublish ? "Publish to Library" : "Locked (Initiate)"}
-                        </span>
-                    </div>
+                      >
+                          <Globe className="w-5 h-5" />
+                          <span className="text-xs font-bold">Community</span>
+                          <span className="text-[10px] text-center opacity-70">
+                              {canPublish ? "Publish to Library" : "Locked (Initiate)"}
+                          </span>
+                      </div>
 
                    </div>
                 </div>
@@ -179,8 +246,3 @@ export default function SpellForm({ userRole }: {userRole: string}) {
     </div>
   )
 }
-
-
-                
-
-    

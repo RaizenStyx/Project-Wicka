@@ -106,13 +106,10 @@ export default function SanctuaryTabs({
   let wishlistItems = context?.items.filter((item: any) => context.state[item.id]?.isWishlisted) || []
   
   // Candle Fix for display
-  if (activeTab === 'candles') {
-    displayedItems = displayedItems.map((c: any) => ({ ...c, name: c.color, color: c.hex_code }))
-  }
-
-  if (activeTab === 'candles') {
-    wishlistItems = wishlistItems.map((c: any) => ({ ...c, name: c.color, color: c.hex_code }))
-  }
+//   if (activeTab === 'candles') {
+//     displayedItems = displayedItems.map((c: any) => ({ ...c, name: c.color, color: c.hex_code }))
+//     wishlistItems = wishlistItems.map((c: any) => ({ ...c, name: c.color, color: c.hex_code }))
+//   }
 
   const handleItemClick = (item: any) => {
     if (activeTab === 'candles') {
@@ -148,12 +145,10 @@ export default function SanctuaryTabs({
 
         {/* === OWNED SECTION === */}
       <div className="min-h-[400px]">
-        Between these two titles, which one is better? Icon and title or title and description
         <div className="relative flex items-center py-8">
         <div className="flex-grow border-t border-slate-800"></div>
         <span className="mx-4 flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-purple-300">
-            <Sparkles className="h-4 w-4" /> 
-            Sanctuary Collection
+            <Sparkles className="h-18 w-18" /> 
         </span>
         <div className="flex-grow border-t border-slate-800"></div>
         </div>
@@ -183,34 +178,34 @@ export default function SanctuaryTabs({
       </div>
 
       {/* === WISHLIST SECTION === */}
-{wishlistItems.length > 0 && (
-    <>
-      <div className="min-h-[400px]">
-        <div className="relative flex items-center py-8 mt-8">
-        <div className="flex-grow border-t border-slate-800"></div>
-        <span className="mx-4 flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-amber-400">
-            <Star className="h-18 w-18" />             
-        </span>
-        <div className="flex-grow border-t border-slate-800"></div>
-        </div>
-         <GrimoireDashboard 
-            key={activeTab} 
-            title="Manifestation List" 
-            description="Your wishlisted items and such and a longer description can be placed here. (Or what about something like this for the title?)"
-            items={wishlistItems}
-            filterCategories={context?.filters || []}
-            filterKey={context?.filterKey || ''}
-            mode="modal"
-            onItemClick={handleItemClick}
-            
-            // Pass the Correct Props
-            userState={context?.state}
-            onToggleOwned={handleToggleOwned}
-            onToggleWishlist={handleToggleWishlist}
-          />
-      </div>
-    </>
-    )}
+        {wishlistItems.length > 0 && (
+            <>
+            <div className="min-h-[400px]">
+                <div className="relative flex items-center py-8 mt-8">
+                <div className="flex-grow border-t border-slate-800"></div>
+                <span className="mx-4 flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-amber-400">
+                    <Star className="h-18 w-18" />             
+                </span>
+                <div className="flex-grow border-t border-slate-800"></div>
+                </div>
+                <GrimoireDashboard 
+                    key={activeTab} 
+                    title="Manifestation List" 
+                    description="Your wishlisted items and such and a longer description can be placed here."
+                    items={wishlistItems}
+                    filterCategories={context?.filters || []}
+                    filterKey={context?.filterKey || ''}
+                    mode="modal"
+                    onItemClick={handleItemClick}
+                    
+                    // Pass the Correct Props
+                    userState={context?.state}
+                    onToggleOwned={handleToggleOwned}
+                    onToggleWishlist={handleToggleWishlist}
+                />
+            </div>
+            </>
+            )}
 
       {/* MODAL */}
       <GrimoireModal 

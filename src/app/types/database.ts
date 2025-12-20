@@ -56,6 +56,7 @@ export interface ZodiacSign {
   end_month: number;
   end_day: number;
   image_url?: string;
+  body_part: string[];
 }
 
 export interface TarotCard {
@@ -72,4 +73,44 @@ export interface TarotCard {
   element: string | null;
   astrology: string | null;
   numerical_keyword: string | null;
+}
+
+export interface Spell {
+  id: string;
+  user_id: string;
+  title: string;
+  intent: string | null;
+  ingredients: string | null; 
+  content: string | null;     
+  moon_phase: string | null;
+  
+  // The New "Smart" Fields
+  is_ritual: boolean;
+  linked_crystals: string[]; // Array of UUIDs
+  linked_herbs: string[];    // Array of UUIDs
+  linked_deities: string[];  // Array of UUIDs
+  linked_candles: string[];  // Array of UUIDs
+  
+  // Metadata
+  is_private: boolean;
+  is_published: boolean;
+  created_at: string;
+}
+
+// 2. The Extended Interface (For when you join with the User Profile)
+// We use this in the Feed/Card views
+export interface ExtendedSpell extends Spell {
+  profiles?: {
+    username: string;
+    handle: string;
+    role: string;
+    avatar_url?: string; // Helpful if you add avatars later
+  } | null;
+}
+
+// 3. A helper for the Ingredients we fetch from the DB
+export interface DatabaseItem {
+  id: string;
+  name: string;
+  image_url?: string; // Optional if you have images
 }

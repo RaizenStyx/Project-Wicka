@@ -72,7 +72,7 @@ export default function GrimoireDashboard({
       )}
 
       {/* CONTROLS */}
-      <div className="sticky top-4 z-20 flex flex-col gap-4 rounded-xl border border-white/10 bg-black/80 p-4 backdrop-blur-md md:flex-row md:items-center">
+      <div className="sticky top-20 z-20 flex flex-col gap-4 rounded-xl border border-white/10 bg-black/80 p-4 backdrop-blur-md md:flex-row md:items-center">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
           <input

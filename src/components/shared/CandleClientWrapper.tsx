@@ -73,9 +73,9 @@ export default function CandleClientWrapper({ candles, initialUserState }: Props
         description="Ignite your intentions with color correspondence."
         items={candles.map(c => ({
             ...c, 
-            name: c.color,       // Card needs 'name' to display title
-            color: c.hex_code    // Card needs 'color' for the border
+            color: c.hex_code 
         }))}
+        // ----------------
         
         // Filter by Intent (Associations)
         filterCategories={uniqueIntents}

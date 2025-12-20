@@ -14,17 +14,13 @@ export default async function AllCrystalsPage() {
   return (
     <main className="min-h-screen bg-slate-950 px-4 py-8 text-slate-200">
       <div className="mx-auto max-w-6xl">
-        <header className="mb-8">
-          <h1 className="font-serif text-3xl text-purple-200">Crystal Database</h1>
-          <p className="text-slate-400">Explore the properties of the earth.</p>
-        </header>
 
         {/* Old */}        
         {/* <CrystalDashboard 
             initialCrystals={crystals || []} 
             initialStateMap={userStateMap} 
         /> */}
-        
+
         {/* New */}
         <CrystalClientWrapper 
            crystals={crystals} 

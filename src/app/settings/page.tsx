@@ -42,7 +42,16 @@ export default async function SettingsPage() {
           &larr; View Public Profile
         </Link>
         {/* Render the Client Components */}
-        <BirthDateForm />
+        {profile.birth_date ? (
+          <div className="bg-gradient-to-r from-purple-900 to-purple-800 border-l-4 border-purple-400 p-6 rounded-lg mb-8">
+            <h3 className="text-lg font-semibold text-purple-200 mb-2">✓ Birth Date Registered</h3>
+            <p className="text-purple-100 mb-3">Your birth date has been securely recorded in your grimoire.</p>
+            <p className="text-sm text-purple-300">To modify your birth date, please <Link href="mailto:me@calexreed.dev" className="text-purple-200 hover:text-purple-100 underline">reach out to the creator</Link>.</p>
+          </div>
+        ) : (
+          <BirthDateForm />
+        )}
+        
         <ProfileForm initialData={initialData} />
         <PasswordForm />
         

@@ -80,7 +80,7 @@ export default function AltarCandle({ item }: { item: AltarItemProps }) {
       <div className="w-24 h-4 bg-stone-800 rounded-full mt-[-2px] shadow-xl border-t border-stone-700 z-0" />
 
       {/* --- CONTROLS (Hover) --- */}
-      <div className="absolute -bottom-12 opacity-0 group-hover:opacity-100 transition-opacity">
+      <div className="absolute -bottom-12 md:opacity-0 group-hover:opacity-100 sm:opacity-100 transition-opacity">
          {isBurnedOut ? (
            <button onClick={handleLight} disabled={loading} className="px-3 py-1 bg-slate-800 text-slate-200 text-xs rounded border border-slate-600 hover:bg-slate-700">
              {loading ? 'Lighting...' : 'Replace Candle'}

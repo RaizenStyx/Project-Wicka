@@ -1450,3 +1450,55 @@ CREATE POLICY "Users can update their own deities" ON user_deities FOR UPDATE US
 CREATE POLICY "Users can remove from their own deities" ON user_deities FOR DELETE USING (auth.uid() = user_id);
 
 ALTER TABLE user_crystal_collection RENAME TO user_crystals;
+
+
+-- 1. Add the new columns
+alter table public.zodiac_signs 
+add column if not exists body_part text,
+add column if not exists sort_order int;
+
+-- 2. Update all 12 signs with Body Parts and the correct Astrological Sort Order
+update public.zodiac_signs set sort_order = 1, body_part = 'Head, face, brain, eyes' where name = 'Aries';
+update public.zodiac_signs set sort_order = 2, body_part = 'Throat, neck, thyroid gland, vocal tract' where name = 'Taurus';
+update public.zodiac_signs set sort_order = 3, body_part = 'Shoulders, arms, hands, lungs' where name = 'Gemini';
+update public.zodiac_signs set sort_order = 4, body_part = 'Chest, breasts, stomach' where name = 'Cancer';
+update public.zodiac_signs set sort_order = 5, body_part = 'Upper back, spine, heart' where name = 'Leo';
+update public.zodiac_signs set sort_order = 6, body_part = 'Abdomen, intestines, liver, pancreas' where name = 'Virgo';
+update public.zodiac_signs set sort_order = 7, body_part = 'Lower back, kidneys, adrenals' where name = 'Libra';
+update public.zodiac_signs set sort_order = 8, body_part = 'Reproductive system, sexual organs, excretory system' where name = 'Scorpio';
+update public.zodiac_signs set sort_order = 9, body_part = 'Hips, thighs, liver, sciatic nerve' where name = 'Sagittarius';
+update public.zodiac_signs set sort_order = 10, body_part = 'Knees, joints, bones, teeth, skin' where name = 'Capricorn';
+update public.zodiac_signs set sort_order = 11, body_part = 'Calves, ankles, circulatory system' where name = 'Aquarius';
+update public.zodiac_signs set sort_order = 12, body_part = 'Feet, toes, lymphatic system, adipose tissue' where name = 'Pisces';
+
+-- This "casts" the existing text into an array by splitting at the comma
+alter table public.zodiac_signs 
+alter column body_part type text[] 
+using string_to_array(body_part, ', ')::text[];
+
+
+
+
+-- Add the "Smart Ingredient" arrays and the Ritual toggle
+ALTER TABLE spells
+ADD COLUMN linked_crystals uuid[] DEFAULT '{}',
+ADD COLUMN linked_herbs uuid[] DEFAULT '{}',
+ADD COLUMN linked_deities uuid[] DEFAULT '{}',
+ADD COLUMN linked_candles uuid[] DEFAULT '{}',
+ADD COLUMN is_ritual boolean DEFAULT false;
+
+-- Optional: Add a comment to the column so you remember what it does later
+COMMENT ON COLUMN spells.is_ritual IS 'If true, this entry is treated as a structured Ritual compatible with the Altar feature.';
+
+
+
+-- 1. Rename the table
+ALTER TABLE candle_magic RENAME TO candles;
+
+-- 2. Rename the column
+ALTER TABLE candles RENAME COLUMN color TO name;
+
+-- 3. (Optional but good for cleanliness) Rename the constraints/indexes to match
+-- This is just housekeeping so your database errors don't say "candle_magic" later
+ALTER TABLE candles RENAME CONSTRAINT candle_magic_pkey TO candles_pkey;
+ALTER TABLE candles RENAME CONSTRAINT candle_magic_color_key TO candles_name_key;

@@ -148,6 +148,22 @@ export default async function ZodiacDetailPage({ params }: { params: Promise<{ s
                 ))}
               </div>
             </div>
+            
+            {/* Body Parts */}
+            <div className="mt-10">
+              <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-gray-500">Anatomical Rulers</h3>
+              <div className="flex flex-wrap gap-3">
+                {sign.body_part.map((word: string) => (
+                  <span 
+                    key={word} 
+                    className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-gray-300 transition-colors hover:bg-white/10"
+                  >
+                    {word}
+                  </span>
+                ))}
+              </div>
+            </div>
+            
           </div>
 
           {/* Sidebar / Correspondences */}
