@@ -104,12 +104,6 @@ export default function SanctuaryTabs({
   // Get items, filter only owned ones, and map if necessary
   let displayedItems = context?.items.filter((item: any) => context.state[item.id]?.isOwned) || []
   let wishlistItems = context?.items.filter((item: any) => context.state[item.id]?.isWishlisted) || []
-  
-  // Candle Fix for display
-//   if (activeTab === 'candles') {
-//     displayedItems = displayedItems.map((c: any) => ({ ...c, name: c.color, color: c.hex_code }))
-//     wishlistItems = wishlistItems.map((c: any) => ({ ...c, name: c.color, color: c.hex_code }))
-//   }
 
   const handleItemClick = (item: any) => {
     if (activeTab === 'candles') {
@@ -126,22 +120,31 @@ export default function SanctuaryTabs({
 
   return (
     <div>
-      {/* TABS NAVIGATION */}
-      <div className="mb-8 flex justify-center border-b border-slate-800">
-        {['crystals', 'herbs', 'deities', 'candles'].map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab as Tab)}
-            className={`px-6 py-3 text-sm font-medium uppercase tracking-widest transition-colors border-b-2 cursor-pointer ${
-              activeTab === tab 
-                ? 'border-purple-500 text-purple-200' 
-                : 'border-transparent text-slate-500 hover:text-slate-300'
-            }`}
-          >
-            {tab}
-          </button>
-        ))}
-      </div>
+      {/* SCROLLABLE CATEGORY NAVIGATION */}
+        <div className="mb-8 relative group">
+        {/* The Scroll Container */}
+        <div className="flex overflow-x-auto gap-3 pb-4 no-scrollbar scroll-smooth">
+            {['crystals', 'herbs', 'deities', 'candles', 'runes', 'oils'].map((tab) => (
+            <button
+                key={tab}
+                onClick={() => setActiveTab(tab as Tab)}
+                className={`
+                flex-shrink-0 px-5 py-2.5 rounded-full text-sm font-bold uppercase tracking-wider transition-all border border-slate-700 cursor-pointer
+                ${
+                    activeTab === tab
+                    ? 'bg-purple-600 text-white border-purple-500 shadow-lg shadow-purple-900/40'
+                    : 'bg-slate-900/50 text-slate-400 hover:bg-slate-800 hover:text-slate-200'
+                }
+                `}
+            >
+                {tab}
+            </button>
+            ))}
+        </div>
+  
+    {/* Visual hint that there is more content (Fade on the right) */}
+    <div className="absolute right-0 top-0 bottom-4 w-12 bg-gradient-to-l from-slate-950 to-transparent pointer-events-none md:hidden" />
+    </div>
 
         {/* === OWNED SECTION === */}
       <div className="min-h-[400px]">

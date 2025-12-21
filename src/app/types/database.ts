@@ -75,42 +75,53 @@ export interface TarotCard {
   numerical_keyword: string | null;
 }
 
-export interface Spell {
+// 1. Helper for UI components (Dropdowns/Badges)
+export interface DatabaseItem {
   id: string;
-  user_id: string;
+  name: string;
+  image_url?: string;
+}
+
+// 2. Base Interface (Shared fields)
+export interface BaseRitualBlock {
+  id: string;
   title: string;
   intent: string | null;
-  ingredients: string | null; 
-  content: string | null;     
+  content: string | null;
   moon_phase: string | null;
   
-  // The New "Smart" Fields
+  // Smart Arrays
+  linked_crystals: string[];
+  linked_herbs: string[];
+  linked_candles: string[];
+  linked_deities: string[];
+}
+
+// 3. User Spells (Community Content)
+export interface Spell extends BaseRitualBlock {
+  user_id: string;
+  ingredients: string | null; // Legacy text field
   is_ritual: boolean;
-  linked_crystals: string[]; // Array of UUIDs
-  linked_herbs: string[];    // Array of UUIDs
-  linked_deities: string[];  // Array of UUIDs
-  linked_candles: string[];  // Array of UUIDs
-  
-  // Metadata
   is_private: boolean;
   is_published: boolean;
   created_at: string;
 }
 
-// 2. The Extended Interface (For when you join with the User Profile)
-// We use this in the Feed/Card views
+// 4. Extended Spell (With Profile info for Cards)
 export interface ExtendedSpell extends Spell {
   profiles?: {
     username: string;
     handle: string;
     role: string;
-    avatar_url?: string; // Helpful if you add avatars later
+    avatar_url?: string;
   } | null;
 }
 
-// 3. A helper for the Ingredients we fetch from the DB
-export interface DatabaseItem {
-  id: string;
-  name: string;
-  image_url?: string; // Optional if you have images
+// 5. Common Rituals (Curated Content)
+export interface CommonRitual extends BaseRitualBlock {
+  description: string | null;
+  difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
+  estimated_time: string | null;
+  image_url: string | null;
+  created_at: string;
 }

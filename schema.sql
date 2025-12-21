@@ -1502,3 +1502,104 @@ ALTER TABLE candles RENAME COLUMN color TO name;
 -- This is just housekeeping so your database errors don't say "candle_magic" later
 ALTER TABLE candles RENAME CONSTRAINT candle_magic_pkey TO candles_pkey;
 ALTER TABLE candles RENAME CONSTRAINT candle_magic_color_key TO candles_name_key;
+
+
+create table public.common_rituals (
+  id uuid not null default gen_random_uuid (),
+  title text not null,
+  intent text not null, -- e.g., "Banishing", "Abundance"
+  description text null, -- A short "hook" for the list view
+  content text not null, -- The full instructions
+  
+  -- Metadata
+  moon_phase text null,
+  difficulty text check (difficulty in ('Beginner', 'Intermediate', 'Advanced')) default 'Beginner',
+  estimated_time text null, -- e.g. "30 mins"
+  image_url text null, -- Optional: curated rituals look great with cover art
+  
+  -- The Smart Arrays (Exact match to Spells)
+  linked_crystals uuid[] default '{}',
+  linked_herbs uuid[] default '{}',
+  linked_candles uuid[] default '{}',
+  linked_deities uuid[] default '{}',
+  
+  created_at timestamp with time zone not null default timezone ('utc'::text, now()),
+  constraint common_rituals_pkey primary key (id)
+);
+
+-- RLS: Public Read, Admin Write
+alter table public.common_rituals enable row level security;
+
+-- Policy: Everyone can see them
+create policy "Rituals are viewable by everyone"
+  on public.common_rituals for select
+  using ( true );
+
+-- Policy: Only YOU (Service Role or specific ID) can insert/update
+-- For now, you can just edit these directly in the Supabase Dashboard Table Editor!
+
+
+
+
+
+-- Insert a new Common Ritual USE THIS TEMPLATE 
+INSERT INTO public.common_rituals (
+    title, 
+    intent, 
+    description, 
+    content, 
+    moon_phase, 
+    difficulty, 
+    estimated_time,
+    linked_crystals, -- Array of UUIDs
+    linked_herbs,    -- Array of UUIDs
+    linked_candles   -- Array of UUIDs
+) 
+VALUES (
+    'Full Moon Release',                  -- Title
+    'Banishing',                          -- Intent
+    'A simple ritual to let go of negativity and bad habits.', -- Short Description
+    'Light the candle and hold the obsidian. Visualize the negativity leaving your body...', -- Full Content
+    'Full Moon',                          -- Moon Phase
+    'Beginner',                           -- Difficulty (Beginner/Intermediate/Advanced)
+    '15 mins',                            -- Estimated Time
+    
+    -- The Smart Ingredients (Will need ids from item table itself)
+    ARRAY['f37f34c3-783b-4c2b-9432-383925575fec']::uuid[],  -- Crystals (Obsidian ID for this one)
+    ARRAY['55178086-e988-423f-bddb-c5531d9a490b']::uuid[],  -- Herbs (Rosemary ID for this one)
+    ARRAY['ae881491-45a2-45fa-8b13-6ea10994eece']::uuid[]   -- Candles (Blue Candle for this one)
+);
+
+
+
+-- ---------------------------------------------------------
+
+-- 2. CREATE NEW: The "Environment" Table
+create table public.altars (
+  user_id uuid references auth.users not null primary key,
+  background_id text default 'void',    -- e.g. 'forest', 'cave'
+  cloth_id text default 'wood_grain',   -- e.g. 'velvet_purple'
+  active_ritual_id uuid null,           -- If they are currently doing a ritual
+  created_at timestamp with time zone default now()
+);
+
+-- 3. SECURITY: RLS for Altars
+alter table public.altars enable row level security;
+
+create policy "Users manage own altar" on public.altars 
+  for all using (auth.uid() = user_id);
+
+-- ---------------------------------------------------------
+
+-- 4. UPDATE: Modify your existing 'altar_items' table 
+-- We add 'slot' to track North/South/East/West placement
+-- We add 'reference_id' to link back to the specific crystal/candle in the database
+ALTER TABLE public.altar_items 
+ADD COLUMN IF NOT EXISTS slot text null, 
+ADD COLUMN IF NOT EXISTS reference_id uuid null;
+
+-- This ensures that for a specific user, the 'slot' column must be unique.
+-- (NULL slots are still allowed to duplicate, which is good for free-placement items later)
+ALTER TABLE public.altar_items 
+ADD CONSTRAINT unique_user_slot 
+UNIQUE (user_id, slot);

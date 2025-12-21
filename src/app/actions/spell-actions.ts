@@ -2,6 +2,7 @@
 
 import { createClient } from '../utils/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { CommonRitual } from '../types/database';
 
 export async function getSpells() {
   const supabase = await createClient();
@@ -201,4 +202,20 @@ export async function getCommunitySpells() {
     .limit(50)
   
   return data || []
+}
+
+export async function getCommonRituals(): Promise<CommonRitual[]> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from('common_rituals')
+    .select('*')
+    .order('title', { ascending: true }); // Alphabetical usually better for reference lists
+
+  if (error) {
+    console.error('Error fetching common rituals:', error);
+    return [];
+  }
+
+  return data as CommonRitual[];
 }

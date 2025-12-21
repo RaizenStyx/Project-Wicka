@@ -17,6 +17,18 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/storage/v1/object/public/**', 
       },
+      {
+        protocol: 'https',
+        hostname: 'placehold.co', // Allow the placeholder site
+      },
+      {
+        protocol: 'https',
+        hostname: 'firebasestorage.googleapis.com', // You'll likely need this later for user uploads
+      },
+      {
+        protocol: 'https',
+        hostname: 'supa_project_id.supabase.co', 
+      }
     ],
   },
 };
