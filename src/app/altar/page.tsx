@@ -6,7 +6,7 @@ import AltarCrystal from '@/components/altar/AltarCrystal'
 import AltarItemWrapper from '@/components/altar/AltarItemWrapper'
 
 export const metadata = {
-  title: 'Altar | Nocta',
+  title: 'Altar | Nyxus',
   description: 'Your sacred digital space.',
 };
 

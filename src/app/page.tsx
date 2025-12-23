@@ -1,9 +1,30 @@
-import PostCard from "../components/ui/PostCard";
+import PostCard from "@/components/feed/PostCard";
 import ProfileInfo from "@/components/profile/ProfileInfo";
-import FeedProfileWidget from "@/components/ui/FeedProfileWidget";
+import FeedProfileWidget from "@/components/feed/FeedProfileWidget";
 import { createClient } from "./utils/supabase/server";
 import { redirect } from 'next/navigation'
 import WelcomeBanner from "@/components/ui/WelcomeBanner";
+
+// 1. Define the shape of the data we EXPECT from the query
+interface UserProfileData {
+  id: string;
+  username: string | null;
+  role: string | null;
+  zodiac_signs: {
+    name: string;
+    planets: {
+      name: string;
+    } | { name: string }[] | null;
+  } | { name: string; planets: any }[] | null;
+}
+
+// 2. Helper to safely extract single items from Supabase joins
+function unwrap<T>(data: T | T[] | null): T | null {
+  if (Array.isArray(data)) {
+    return data.length > 0 ? data[0] : null;
+  }
+  return data;
+}
 
 export default async function Home() {
 
@@ -11,7 +32,7 @@ export default async function Home() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) redirect('/login')
     
-    const { data: profile, error } = await supabase
+    const { data: rawProfile, error } = await supabase
     .from('profiles')
     .select(`
       *,
@@ -24,19 +45,18 @@ export default async function Home() {
     `)
     .eq('id', user.id)
     .single()
+
     if (error) console.error("Profile Fetch Error:", error);
-    // EXTRACTION LOGIC
-    // We handle the case where zodiac_signs might be an array OR an object
-    // @ts-ignore
-    const zodiacData = Array.isArray(profile?.zodiac_signs) ? profile.zodiac_signs[0] : profile?.zodiac_signs;
-    
-    // @ts-ignore
-    const planetData = Array.isArray(zodiacData?.planets) ? zodiacData.planets[0] : zodiacData?.planets;
+
+    // 3. Safe Extraction Logic (No @ts-ignore needed)
+    const profile = rawProfile as unknown as UserProfileData;
+    const zodiacData = unwrap(profile?.zodiac_signs);
+    const planetData = unwrap(zodiacData?.planets);
 
     const zodiacName = zodiacData?.name;
     const planetName = planetData?.name;
     
-    // Fetch Posts (and join with the Profiles table to get the username/avatar!)
+    // Fetch Posts
     const { data: posts } = await supabase
     .from('posts')
     .select(`
@@ -52,7 +72,6 @@ export default async function Home() {
 
       <main className="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 gap-8"> 
         
-        {/* Center: The Social Feed */}
         <div className="space-y-6">
 
           <WelcomeBanner 
@@ -62,17 +81,15 @@ export default async function Home() {
             planet={planetName}
           />
           
-          {/* Post Input Box Component */}
-          {/* LOGIC: Only show Create Form if NOT an initiate */}
           <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 shadow-lg">
-          <ProfileInfo />
-          {profile?.role !== 'initiate' && (
-            <FeedProfileWidget />
-          )}
+            <ProfileInfo />
+            {profile?.role !== 'initiate' && (
+              <FeedProfileWidget />
+            )}
           </div>
 
           {/* POSTS LOOP */}
-            {posts?.slice(0, 25).map((post) => (
+            {posts?.slice(0, 25).map((post: any) => (
               <PostCard 
                 key={post.id}
                 id={post.id} 
@@ -85,13 +102,12 @@ export default async function Home() {
                 avatar_url={post.profiles?.avatar_url || null}
                 timeAgo={new Date(post.created_at).toLocaleDateString()} 
                 content={post.content}
-                currentUserRole={profile?.role} 
+                currentUserRole={profile?.role || 'initiate'} 
                 image_url={post.image_url}
                 profileUserRole={post.profiles?.role || 'initiate'}
               />
             ))}
 
-          {/* Show a message if no posts exist */}
           {(!posts || posts.length === 0) && (
             <div className="text-center text-slate-600 py-10">
               The air is still. Be the first to cast an intention.

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/app/utils/supabase/client'
-import Avatar from './Avatar'
+import Avatar from '../ui/Avatar'
 import { Send, Loader2, Trash2 } from 'lucide-react'
 import { addComment, deleteComment } from '@/app/actions/social-actions'
 import { formatDistanceToNow } from 'date-fns' 

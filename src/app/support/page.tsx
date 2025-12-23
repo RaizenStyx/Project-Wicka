@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Sparkles, Crown, Gem, Zap, CreditCard, Copy, Check, ExternalLink, Heart } from 'lucide-react';
 
 // export const metadata = {
-//   title: 'Support | Nocta',
+//   title: 'Support | Nyxus',
 //   description: 'Learn how to support the platform and become a supporter!',
 // };
 
@@ -47,7 +47,7 @@ export default function SupportPage() {
                         Support the <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">Coven</span>
                     </h1>
                     <p className="text-xl text-slate-400 max-w-2xl mx-auto">
-                        NOCTA is independent and ad-free. Your support keeps the servers running and the magic flowing.
+                        NYXUS is independent and ad-free. Your support keeps the servers running and the magic flowing.
                     </p>
                 </div>
 

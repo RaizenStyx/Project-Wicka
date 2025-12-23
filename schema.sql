@@ -1603,3 +1603,810 @@ ADD COLUMN IF NOT EXISTS reference_id uuid null;
 ALTER TABLE public.altar_items 
 ADD CONSTRAINT unique_user_slot 
 UNIQUE (user_id, slot);
+
+
+
+
+
+
+
+
+
+
+
+-- More Database items (Crystals)
+INSERT INTO public.crystals (name, meaning, element, color, image_url, color_category, zodiac, chakra)
+VALUES
+  -- 1. Green Aventurine
+  ('Green Aventurine', 'The stone of opportunity. Thought to be the luckiest of all crystals, manifesting prosperity and wealth.', 'Earth', '#2E8B57', 'https://placehold.co/600x400/2E8B57/FFFFFF/png?text=Green+Aventurine', 'Green', 'Taurus, Virgo', 'Heart'),
+  
+  -- 2. Red Jasper
+  ('Red Jasper', 'A stone of endurance. Brings physical strength, energy, stamina, focus, and determination.', 'Fire', '#8B0000', 'https://placehold.co/600x400/8B0000/FFFFFF/png?text=Red+Jasper', 'Red', 'Aries, Scorpio', 'Root'),
+  
+  -- 3. Sodalite
+  ('Sodalite', 'Encourages rational thought, objectivity, truth, and intuition. Brings emotional balance.', 'Air', '#191970', 'https://placehold.co/600x400/191970/FFFFFF/png?text=Sodalite', 'Blue', 'Sagittarius', 'Throat, Third Eye'),
+  
+  -- 4. Smoky Quartz
+  ('Smoky Quartz', 'Disperses fear, lifts depression and negativity. Brings emotional calmness and relieves stress.', 'Earth', '#696969', 'https://placehold.co/600x400/696969/FFFFFF/png?text=Smoky+Quartz', 'Brown', 'Scorpio, Capricorn', 'Root'),
+  
+  -- 5. Aquamarine
+  ('Aquamarine', 'A stone of courage. Its calming energies reduce stress and quiet the mind.', 'Water', '#7FFFD4', 'https://placehold.co/600x400/7FFFD4/333333/png?text=Aquamarine', 'Blue', 'Pisces, Aquarius', 'Throat'),
+  
+  -- 6. Garnet
+  ('Garnet', 'Revitalizes, purifies, and balances energy, bringing serenity or passion as appropriate.', 'Fire', '#800000', 'https://placehold.co/600x400/800000/FFFFFF/png?text=Garnet', 'Red', 'Leo, Virgo, Capricorn', 'Root, Sacral'),
+  
+  -- 7. Turquoise
+  ('Turquoise', 'A purification stone. Dispels negative energy and can be worn to protect against outside influences.', 'Air', '#40E0D0', 'https://placehold.co/600x400/40E0D0/333333/png?text=Turquoise', 'Blue', 'Sagittarius, Pisces', 'Throat'),
+  
+  -- 8. Pyrite
+  ('Pyrite', 'A stone of intellect and protection. Enhances intelligence, mental stability, logic, analysis, and creativity.', 'Fire', '#D4AF37', 'https://placehold.co/600x400/D4AF37/333333/png?text=Pyrite', 'Gold', 'Leo', 'Solar Plexus'),
+  
+  -- 9. Amazonite
+  ('Amazonite', 'A soothing stone. Calms the brain and nervous system and aids in maintaining optimum health.', 'Water', '#00CED1', 'https://placehold.co/600x400/00CED1/333333/png?text=Amazonite', 'Green', 'Virgo', 'Heart, Throat'),
+  
+  -- 10. Rhodonite
+  ('Rhodonite', 'A stone of compassion. An emotional balancer that clears away emotional wounds and scars from the past.', 'Earth', '#E9967A', 'https://placehold.co/600x400/E9967A/333333/png?text=Rhodonite', 'Pink', 'Taurus', 'Heart'),
+  
+  -- 11. Sunstone
+  ('Sunstone', 'Instills good nature, heightens intuition and allows the real self to shine through happily.', 'Fire', '#FF8C00', 'https://placehold.co/600x400/FF8C00/FFFFFF/png?text=Sunstone', 'Orange', 'Leo, Libra', 'Sacral, Solar Plexus'),
+  
+  -- 12. Onyx
+  ('Onyx', 'Gives strength. It promotes vigor, steadfastness, and stamina. Imparts self-confidence.', 'Earth', '#000000', 'https://placehold.co/600x400/111111/FFFFFF/png?text=Onyx', 'Black', 'Leo, Capricorn', 'Root'),
+  
+  -- 13. Howlite
+  ('Howlite', 'A stone of patience and perspective. Aids in restful sleep and calms the overactive mind.', 'Air', '#FFFAF0', 'https://placehold.co/600x400/FFFAF0/333333/png?text=Howlite', 'White', 'Gemini', 'Crown'),
+  
+  -- 14. Kyanite
+  ('Kyanite', 'Excellent for attunement and meditation. It does not retain negative vibrations and never needs clearing.', 'Air', '#4169E1', 'https://placehold.co/600x400/4169E1/FFFFFF/png?text=Kyanite', 'Blue', 'Aries, Taurus, Libra', 'Throat, Third Eye'),
+  
+  -- 15. Peridot
+  ('Peridot', 'A powerful cleanser. Releases and neutralizes toxins on all levels. Alleviates jealousy and resentment.', 'Earth', '#9ACD32', 'https://placehold.co/600x400/9ACD32/333333/png?text=Peridot', 'Green', 'Leo, Virgo', 'Heart, Solar Plexus'),
+  
+  -- 16. Lepidolite
+  ('Lepidolite', 'A stone of transition. Assists in the release and reorganization of old behavioral and psychological patterns.', 'Water', '#D8BFD8', 'https://placehold.co/600x400/D8BFD8/333333/png?text=Lepidolite', 'Purple', 'Libra', 'Third Eye, Crown'),
+  
+  -- 17. Unakite
+  ('Unakite', 'Balances the emotional and spiritual bodies, and provides gentle release of energetic blockages.', 'Earth', '#556B2F', 'https://placehold.co/600x400/556B2F/FFFFFF/png?text=Unakite', 'Green', 'Scorpio', 'Heart'),
+  
+  -- 18. Dalmatian Jasper
+  ('Dalmatian Jasper', 'Reconnects us with our playful nature. It balances Yin and Yang and aligns the physical, emotional, and mental bodies.', 'Earth', '#F5DEB3', 'https://placehold.co/600x400/F5DEB3/333333/png?text=Dalmatian+Jasper', 'Cream', 'Gemini', 'Root, Sacral'),
+  
+  -- 19. Mookaite Jasper
+  ('Mookaite Jasper', 'Nurtures and supports during times of stress. Brings peace and a feeling of wholeness.', 'Earth', '#CD5C5C', 'https://placehold.co/600x400/CD5C5C/FFFFFF/png?text=Mookaite', 'Red', 'Leo', 'Root, Solar Plexus'),
+  
+  -- 20. Chrysocolla
+  ('Chrysocolla', 'Tranquil and sustaining. It draws off negative energy of all kinds and invokes great inner strength.', 'Water', '#008B8B', 'https://placehold.co/600x400/008B8B/FFFFFF/png?text=Chrysocolla', 'Blue', 'Taurus, Gemini, Virgo', 'Throat, Heart'),
+  
+  -- 21. Blue Lace Agate
+  ('Blue Lace Agate', 'A wonderful healing stone. Its soft energy cools and calms, bringing peace of mind.', 'Air', '#ADD8E6', 'https://placehold.co/600x400/ADD8E6/333333/png?text=Blue+Lace+Agate', 'Blue', 'Gemini, Pisces', 'Throat'),
+  
+  -- 22. Moss Agate
+  ('Moss Agate', 'A stone of new beginnings. Refreshes the soul and enables you to see beauty in all you behold.', 'Earth', '#228B22', 'https://placehold.co/600x400/228B22/FFFFFF/png?text=Moss+Agate', 'Green', 'Virgo', 'Heart'),
+  
+  -- 23. Angel Aura Quartz
+  ('Angel Aura Quartz', 'Radiates peace and positive energy. Excellent for accessing the angelic realm and spirit guides.', 'Spirit', '#F0FFFF', 'https://placehold.co/600x400/F0FFFF/333333/png?text=Angel+Aura', 'White', 'Aquarius', 'Crown'),
+  
+  -- 24. Orange Calcite
+  ('Orange Calcite', 'An energizing stone. Gets energy moving and encourages you to see the world from a fresh perspective.', 'Fire', '#FFA500', 'https://placehold.co/600x400/FFA500/333333/png?text=Orange+Calcite', 'Orange', 'Cancer, Leo', 'Sacral'),
+  
+  -- 25. Celestite
+  ('Celestite', 'Possesses a high vibration that takes you into infinite peace of the spiritual realms.', 'Air', '#B0E0E6', 'https://placehold.co/600x400/B0E0E6/333333/png?text=Celestite', 'Blue', 'Gemini, Libra', 'Throat, Third Eye'),
+  
+  -- 26. Blue Apatite
+  ('Blue Apatite', 'A stone of manifestation. Increases motivation and builds up energy reserves.', 'Air', '#00008B', 'https://placehold.co/600x400/00008B/FFFFFF/png?text=Blue+Apatite', 'Blue', 'Gemini', 'Throat'),
+  
+  -- 27. Jade', 
+  ('Jade', 'A symbol of serenity and purity. It signifies wisdom gathered in tranquility.', 'Earth', '#006400', 'https://placehold.co/600x400/006400/FFFFFF/png?text=Jade', 'Green', 'Aries, Taurus, Gemini, Libra', 'Heart'),
+  
+  -- 28. Bloodstone
+  ('Bloodstone', 'An excellent blood cleanser and a powerful healing stone. Heightens intuition and increases creativity.', 'Earth', '#013220', 'https://placehold.co/600x400/013220/FFFFFF/png?text=Bloodstone', 'Green', 'Aries, Pisces', 'Root'),
+  
+  -- 29. Larimar
+  ('Larimar', 'A spiritual stone that opens to new dimensions, stimulating the evolution of the Earth.', 'Water', '#40E0D0', 'https://placehold.co/600x400/40E0D0/333333/png?text=Larimar', 'Blue', 'Leo', 'Throat'),
+  
+  -- 30. Tiger Iron
+  ('Tiger Iron', 'Promotes vitality and helps in passing through change. A combination of Jasper, Hematite, and Tiger''s Eye.', 'Fire', '#8B4513', 'https://placehold.co/600x400/8B4513/FFFFFF/png?text=Tiger+Iron', 'Red', 'Leo', 'Root, Sacral, Solar Plexus'),
+  
+  -- 31. Shungite
+  ('Shungite', 'A rare, carbon-based stone from Russia known for shielding against EMFs and purifying water.', 'Earth', '#1C1C1C', 'https://placehold.co/600x400/1C1C1C/FFFFFF/png?text=Shungite', 'Black', 'Scorpio', 'Root'),
+  
+  -- 32. Snowflake Obsidian
+  ('Snowflake Obsidian', 'A stone of purity. It provides balance for body, mind, and spirit.', 'Earth', '#2F4F4F', 'https://placehold.co/600x400/2F4F4F/FFFFFF/png?text=Snowflake+Obsidian', 'Black', 'Virgo', 'Root'),
+  
+  -- 33. Rhodochrosite
+  ('Rhodochrosite', 'Represents selfless love and compassion. Expands consciousness and integrates spiritual with material energies.', 'Water', '#FF69B4', 'https://placehold.co/600x400/FF69B4/333333/png?text=Rhodochrosite', 'Pink', 'Leo, Scorpio', 'Heart'),
+  
+  -- 34. Bronzite
+  ('Bronzite', 'A protective warrior stone. Helpful in situations where you feel powerless or overwhelmed.', 'Earth', '#CD853F', 'https://placehold.co/600x400/CD853F/FFFFFF/png?text=Bronzite', 'Brown', 'Leo', 'Root'),
+  
+  -- 35. Kunzite
+  ('Kunzite', 'A spiritual stone with a high vibration. It awakens the heart center and unconditional love.', 'Water', '#E6E6FA', 'https://placehold.co/600x400/E6E6FA/333333/png?text=Kunzite', 'Pink', 'Scorpio, Taurus, Leo', 'Heart');
+
+  -- Optional: Update Rose Quartz to Water element
+UPDATE public.crystals 
+SET element = 'Water' 
+WHERE name = 'Rose Quartz';
+
+-- Optional: Update Obsidian to Earth element (or 'Earth/Fire' if you prefer)
+UPDATE public.crystals 
+SET element = 'Earth' 
+WHERE name = 'Obsidian';
+
+
+-- Candle update
+INSERT INTO public.candles (name, hex_code, associations, description, zodiac_id, planetary_id)
+VALUES
+  (
+    'Red', 
+    '#EF4444', 
+    ARRAY['Passion', 'Action', 'Vitality', 'Courage', 'Lust'], 
+    'A powerful source of fire energy. Use for fast action, overcoming obstacles, sexual potency, and igniting the will. Best used on Tuesdays.',
+    (SELECT id FROM public.zodiac_signs WHERE name = 'Aries' LIMIT 1),
+    (SELECT id FROM public.planets WHERE name = 'Mars' LIMIT 1)
+  ),
+  (
+    'Blue', 
+    '#3B82F6', 
+    ARRAY['Peace', 'Truth', 'Communication', 'Healing', 'Wisdom'], 
+    'Encourages tranquility and honest communication. Ideal for healing rifts, legal matters, and expanding the mind. Best used on Thursdays.',
+    (SELECT id FROM public.zodiac_signs WHERE name = 'Sagittarius' LIMIT 1),
+    (SELECT id FROM public.planets WHERE name = 'Jupiter' LIMIT 1)
+  ),
+  (
+    'Green', 
+    '#22C55E', 
+    ARRAY['Prosperity', 'Abundance', 'Growth', 'Fertility', 'Luck'], 
+    'The color of earth and material gain. Use to attract money, employment, or to assist in physical healing and fertility rituals. Best used on Fridays.',
+    (SELECT id FROM public.zodiac_signs WHERE name = 'Taurus' LIMIT 1),
+    (SELECT id FROM public.planets WHERE name = 'Venus' LIMIT 1)
+  ),
+  (
+    'Yellow', 
+    '#EAB308', 
+    ARRAY['Intellect', 'Focus', 'Clarity', 'Happiness', 'Learning'], 
+    'Stimulates the mind and clears mental fog. excellent for studying, persuasion, and breaking creative blocks. Best used on Wednesdays.',
+    (SELECT id FROM public.zodiac_signs WHERE name = 'Gemini' LIMIT 1),
+    (SELECT id FROM public.planets WHERE name = 'Mercury' LIMIT 1)
+  ),
+  (
+    'Purple', 
+    '#A855F7', 
+    ARRAY['Intuition', 'Psychic Power', 'Spirituality', 'Wisdom', 'Ambition'], 
+    'The color of the third eye and divine connection. Use for divination, astral travel, and influencing people in power. Best used on Thursdays.',
+    (SELECT id FROM public.zodiac_signs WHERE name = 'Pisces' LIMIT 1),
+    (SELECT id FROM public.planets WHERE name = 'Jupiter' LIMIT 1)
+  ),
+  (
+    'Orange', 
+    '#F97316', 
+    ARRAY['Creativity', 'Success', 'Energy', 'Attraction', 'Adaptability'], 
+    'Blends the intellect of yellow with the aggression of red. Use for career success, creative projects, and legal victories. Best used on Sundays.',
+    (SELECT id FROM public.zodiac_signs WHERE name = 'Leo' LIMIT 1),
+    (SELECT id FROM public.planets WHERE name = 'Sun' LIMIT 1)
+  ),
+  (
+    'Pink', 
+    '#EC4899', 
+    ARRAY['Love', 'Friendship', 'Harmony', 'Self-Care', 'Reconciliation'], 
+    'Soft and gentle energy for emotional healing. Use for romance, self-love, and mending broken friendships. Best used on Fridays.',
+    (SELECT id FROM public.zodiac_signs WHERE name = 'Libra' LIMIT 1),
+    (SELECT id FROM public.planets WHERE name = 'Venus' LIMIT 1)
+  ),
+  (
+    'Black', 
+    '#171717', 
+    ARRAY['Protection', 'Banishing', 'Binding', 'Safety', 'Absorption'], 
+    'Absorbs negative energy and breaks hexes. Use for protection, ending unhealthy situations, and deep grounding. Best used on Saturdays.',
+    (SELECT id FROM public.zodiac_signs WHERE name = 'Capricorn' LIMIT 1),
+    (SELECT id FROM public.planets WHERE name = 'Saturn' LIMIT 1)
+  ),
+  (
+    'White', 
+    '#F8FAFC', 
+    ARRAY['Purity', 'Cleansing', 'Truth', 'Peace', 'Spirituality'], 
+    'Contains all colors. Use for purification, new beginnings, and seeking truth. Can substitute any other candle color.',
+    (SELECT id FROM public.zodiac_signs WHERE name = 'Cancer' LIMIT 1),
+    (SELECT id FROM public.planets WHERE name = 'Moon' LIMIT 1)
+  ),
+  (
+    'Brown', 
+    '#78350F', 
+    ARRAY['Grounding', 'Stability', 'Animals', 'Home', 'Lost Objects'], 
+    'Earth energy for stability and balance. Use for court cases, animal magic, and grounding scattered energy. Best used on Saturdays.',
+    (SELECT id FROM public.zodiac_signs WHERE name = 'Virgo' LIMIT 1),
+    NULL -- Brown is often Earth itself, or Saturn/Moon
+  ),
+  (
+    'Gold', 
+    '#CA8A04', 
+    ARRAY['Wealth', 'Masculinity', 'Divinity', 'Optimism', 'Power'], 
+    'Solar energy representing the God. Use for great fortune, ambition, and confidence. Best used on Sundays.',
+    (SELECT id FROM public.zodiac_signs WHERE name = 'Leo' LIMIT 1),
+    (SELECT id FROM public.planets WHERE name = 'Sun' LIMIT 1)
+  ),
+  (
+    'Silver', 
+    '#94A3B8', 
+    ARRAY['Intuition', 'Femininity', 'Dreams', 'Psychic Ability', 'Goddess'], 
+    'Lunar energy representing the Goddess. Use for developing intuition, dream work, and removing negativity. Best used on Mondays.',
+    (SELECT id FROM public.zodiac_signs WHERE name = 'Cancer' LIMIT 1),
+    (SELECT id FROM public.planets WHERE name = 'Moon' LIMIT 1)
+  )
+ON CONFLICT (name) 
+DO UPDATE SET
+  hex_code = EXCLUDED.hex_code,
+  associations = EXCLUDED.associations,
+  description = EXCLUDED.description,
+  zodiac_id = EXCLUDED.zodiac_id,
+  planetary_id = EXCLUDED.planetary_id;
+
+  -- End candles
+
+
+  -- Herb update
+
+  INSERT INTO public.herbs (name, latin_name, element, magical_uses, medical_uses, description, image_url)
+VALUES
+  -- 1. Lavender (Update)
+  (
+    'Lavender', 
+    'Lavandula angustifolia', 
+    'Air', 
+    ARRAY['Peace', 'Sleep', 'Purification', 'Love', 'Clarity'], 
+    'Soothes anxiety, insomnia, and headaches. Antiseptic properties.', 
+    'A staple of the witch''s garden, lavender brings peace and calm to any home. It is often used in bath spells for purification.', 
+    'https://placehold.co/600x400/E6E6FA/333333/png?text=Lavender'
+  ),
+  -- 2. Rosemary (Update)
+  (
+    'Rosemary', 
+    'Salvia rosmarinus', 
+    'Fire', 
+    ARRAY['Memory', 'Protection', 'Purification', 'Mental Power'], 
+    'Improves concentration and aids digestion. Stimulates circulation.', 
+    'Known as the herb of remembrance. Ancient students wore garlands of rosemary to aid memory during exams.', 
+    'https://placehold.co/600x400/556B2F/FFFFFF/png?text=Rosemary'
+  ),
+  -- 3. Mugwort
+  (
+    'Mugwort', 
+    'Artemisia vulgaris', 
+    'Earth', 
+    ARRAY['Divination', 'Lucid Dreaming', 'Prophecy', 'Protection'], 
+    'Digestive stimulant and bitter tonic. traditionally used for menstrual issues.', 
+    'The quintessential witch''s herb. Burned before divination or placed under the pillow to enhance psychic dreams.', 
+    'https://placehold.co/600x400/2E8B57/FFFFFF/png?text=Mugwort'
+  ),
+  -- 4. Sage (White/Common)
+  (
+    'Sage', 
+    'Salvia officinalis', 
+    'Air', 
+    ARRAY['Cleansing', 'Wisdom', 'Immortality', 'Wishes'], 
+    'Soothes sore throats and reduces inflammation. Antibacterial.', 
+    'Used for centuries to clear negative energy. The saying goes, "Why should a man die who has sage in his garden?"', 
+    'https://placehold.co/600x400/98FB98/333333/png?text=Sage'
+  ),
+  -- 5. Cinnamon
+  (
+    'Cinnamon', 
+    'Cinnamomum verum', 
+    'Fire', 
+    ARRAY['Success', 'Healing', 'Power', 'Prosperity', 'Lust'], 
+    'Warming circulatory stimulant. Helps regulate blood sugar.', 
+    'A fiery spice that speeds up spells. Use in money sachets or burn to raise high spiritual vibrations.', 
+    'https://placehold.co/600x400/8B4513/FFFFFF/png?text=Cinnamon'
+  ),
+  -- 6. Peppermint
+  (
+    'Peppermint', 
+    'Mentha piperita', 
+    'Air', 
+    ARRAY['Healing', 'Purification', 'Sleep', 'Love'], 
+    'Relieves nausea, headaches, and digestive upsets.', 
+    'Raises the vibrations of an area. Fresh mint on the altar invites helpful spirits and energy.', 
+    'https://placehold.co/600x400/00FF7F/333333/png?text=Peppermint'
+  ),
+  -- 7. Basil
+  (
+    'Basil', 
+    'Ocimum basilicum', 
+    'Fire', 
+    ARRAY['Wealth', 'Love', 'Exorcism', 'Flying'], 
+    'Nervine tonic that eases stress headaches and settles the stomach.', 
+    'The "Royal Herb." Kept in the pocket, it brings wealth. Sprinkled around the home, it ensures fidelity.', 
+    'https://placehold.co/600x400/32CD32/FFFFFF/png?text=Basil'
+  ),
+  -- 8. Bay Leaf
+  (
+    'Bay Leaf', 
+    'Laurus nobilis', 
+    'Fire', 
+    ARRAY['Victory', 'Wishes', 'Healing', 'Strength'], 
+    'Aids digestion and respiratory issues.', 
+    'Write a wish on a bay leaf and burn it to manifest your desire. Associated with Apollo and triumph.', 
+    'https://placehold.co/600x400/556B2F/FFFFFF/png?text=Bay+Leaf'
+  ),
+  -- 9. Chamomile
+  (
+    'Chamomile', 
+    'Matricaria chamomilla', 
+    'Water', 
+    ARRAY['Money', 'Sleep', 'Peace', 'Love'], 
+    'Gentle sedative and digestive aid. Soothes skin irritations.', 
+    'Known as the "Plant Physician" because it heals plants placed near it. Hand washes attract gambling luck.', 
+    'https://placehold.co/600x400/FFD700/333333/png?text=Chamomile'
+  ),
+  -- 10. Rose
+  (
+    'Rose', 
+    'Rosa', 
+    'Water', 
+    ARRAY['Love', 'Psychic Powers', 'Healing', 'Luck', 'Protection'], 
+    'Anti-inflammatory and calming. Rose hips are high in Vitamin C.', 
+    'The ultimate flower of emotions. Petals are used in love mixtures and fast-luck spells.', 
+    'https://placehold.co/600x400/FF69B4/FFFFFF/png?text=Rose'
+  ),
+  -- 11. Frankincense
+  (
+    'Frankincense', 
+    'Boswellia sacra', 
+    'Fire', 
+    ARRAY['Spirituality', 'Exorcism', 'Purification', 'Protection'], 
+    'Anti-inflammatory and soothing for respiratory conditions.', 
+    'A high-frequency resin used to sanctify spaces and drive out negativity. It connects the physical to the divine.', 
+    'https://placehold.co/600x400/DAA520/333333/png?text=Frankincense'
+  ),
+  -- 12. Patchouli
+  (
+    'Patchouli', 
+    'Pogostemon cablin', 
+    'Earth', 
+    ARRAY['Money', 'Lust', 'Fertility', 'Graveyard Dust Substitute'], 
+    'Skin regeneration and antidepressant qualities.', 
+    'Smells of the earth itself. Used to attract money and sexual partners. Can substitute for "Graveyard Dust".', 
+    'https://placehold.co/600x400/8B4513/FFFFFF/png?text=Patchouli'
+  ),
+  -- 13. Yarrow
+  (
+    'Yarrow', 
+    'Achillea millefolium', 
+    'Water', 
+    ARRAY['Courage', 'Love', 'Psychic Abilities', 'Exorcism'], 
+    'Stops bleeding and reduces fever (diaphoretic).', 
+    'Used to handfast weddings and protect against negativity. Folklore says it ensures love for 7 years.', 
+    'https://placehold.co/600x400/F0E68C/333333/png?text=Yarrow'
+  ),
+  -- 14. Dandelion
+  (
+    'Dandelion', 
+    'Taraxacum officinale', 
+    'Air', 
+    ARRAY['Divination', 'Wishes', 'Calling Spirits'], 
+    'Diuretic and liver tonic. Rich in vitamins.', 
+    'Often overlooked as a weed, the dandelion aids in sending messages to spirits. Blow the seeds to carry a wish.', 
+    'https://placehold.co/600x400/FFD700/333333/png?text=Dandelion'
+  ),
+  -- 15. Thyme
+  (
+    'Thyme', 
+    'Thymus vulgaris', 
+    'Water', 
+    ARRAY['Health', 'Healing', 'Sleep', 'Psychic Powers', 'Courage'], 
+    'Strong antiseptic and expectorant for coughs.', 
+    'Burned to attract good health and repel melancholy. Greeks used it for courage before battle.', 
+    'https://placehold.co/600x400/228B22/FFFFFF/png?text=Thyme'
+  ),
+  -- 16. Dragon''s Blood
+  (
+    'Dragon''s Blood', 
+    'Dracaena cinnabari', 
+    'Fire', 
+    ARRAY['Potency', 'Protection', 'Love', 'Banishing'], 
+    'Used historically to stop bleeding and heal wounds.', 
+    'A red resin that adds power to any spell it is added to. Excellent for breaking curses.', 
+    'https://placehold.co/600x400/8B0000/FFFFFF/png?text=Dragons+Blood'
+  ),
+  -- 17. Valerian
+  (
+    'Valerian', 
+    'Valeriana officinalis', 
+    'Water', 
+    ARRAY['Sleep', 'Purification', 'Protection', 'Love'], 
+    'Powerful sedative for insomnia and anxiety.', 
+    'Known as "Graveyard Dust" in some traditions (distinct from patchouli). Used to reconcile warring couples.', 
+    'https://placehold.co/600x400/D8BFD8/333333/png?text=Valerian'
+  ),
+  -- 18. St. John''s Wort
+  (
+    'St. John''s Wort', 
+    'Hypericum perforatum', 
+    'Fire', 
+    ARRAY['Happiness', 'Protection', 'Strength', 'Divination'], 
+    'Well-known mood lifter and antiviral.', 
+    'Gathered on Midsummer. Worn to ward off fevers and evil spirits. It brings the power of the sun.', 
+    'https://placehold.co/600x400/FFFF00/333333/png?text=St+Johns+Wort'
+  ),
+  -- 19. Vervain
+  (
+    'Vervain', 
+    'Verbena officinalis', 
+    'Earth', 
+    ARRAY['Love', 'Protection', 'Purification', 'Peace', 'Youth'], 
+    'Nervine tonic, eases tension and stress.', 
+    'The "Enchanters Herb." Sacred to the Druids. Water sprinkled with vervain chases away nightmares.', 
+    'https://placehold.co/600x400/8A2BE2/FFFFFF/png?text=Vervain'
+  ),
+  -- 20. Lemon Balm
+  (
+    'Lemon Balm', 
+    'Melissa officinalis', 
+    'Water', 
+    ARRAY['Love', 'Success', 'Healing'], 
+    'Calms the nervous system and settles the stomach.', 
+    'Used in moon magic and to attract bees (which bring sweetness). Soothes emotional pain.', 
+    'https://placehold.co/600x400/ADFF2F/333333/png?text=Lemon+Balm'
+  ),
+  -- 21. Clove
+  (
+    'Clove', 
+    'Syzygium aromaticum', 
+    'Fire', 
+    ARRAY['Protection', 'Exorcism', 'Love', 'Money'], 
+    'Analgesic (especially for toothache) and antiseptic.', 
+    'Burned as incense to stop gossip and attract riches. Worn to attract the opposite sex.', 
+    'https://placehold.co/600x400/8B4513/FFFFFF/png?text=Clove'
+  ),
+  -- 22. Mandrake
+  (
+    'Mandrake', 
+    'Mandragora officinarum', 
+    'Fire', 
+    ARRAY['Protection', 'Fertility', 'Money', 'Love'], 
+    'Highly toxic/narcotic. Not for internal use.', 
+    'A legendary root often shaped like a human. Used to strengthen any magical working.', 
+    'https://placehold.co/600x400/DEB887/333333/png?text=Mandrake'
+  ),
+  -- 23. Nettle
+  (
+    'Nettle', 
+    'Urtica dioica', 
+    'Fire', 
+    ARRAY['Exorcism', 'Protection', 'Healing', 'Lust'], 
+    'Nutritive tonic, relieves allergies and arthritis.', 
+    'Sprinkled around the home to keep evil out. Used in purification baths to break hexes.', 
+    'https://placehold.co/600x400/006400/FFFFFF/png?text=Nettle'
+  ),
+  -- 24. Rue
+  (
+    'Rue', 
+    'Ruta graveolens', 
+    'Fire', 
+    ARRAY['Healing', 'Health', 'Mental Powers', 'Exorcism'], 
+    'Antispasmodic. Use with caution (can be toxic in large amounts).', 
+    'The "Herb of Grace." Dipped in holy water and used to sprinkle blessings. Guards against the evil eye.', 
+    'https://placehold.co/600x400/32CD32/FFFFFF/png?text=Rue'
+  ),
+  -- 25. Sandalwood
+  (
+    'Sandalwood', 
+    'Santalum album', 
+    'Water', 
+    ARRAY['Spirituality', 'Protection', 'Wishes', 'Healing'], 
+    'Antiseptic and calming for the mind.', 
+    'One of the most spiritual woods. The powder is burned to aid meditation and wish manifestation.', 
+    'https://placehold.co/600x400/DEB887/333333/png?text=Sandalwood'
+  ),
+  -- 26. Comfrey
+  (
+    'Comfrey', 
+    'Symphytum officinale', 
+    'Water', 
+    ARRAY['Safety during travel', 'Money'], 
+    'Heals wounds and bones (external use primarily).', 
+    'Worn or carried to ensure safety while traveling. Also tucked into luggage to prevent theft.', 
+    'https://placehold.co/600x400/228B22/FFFFFF/png?text=Comfrey'
+  ),
+  -- 27. Myrrh
+  (
+    'Myrrh', 
+    'Commiphora myrrha', 
+    'Water', 
+    ARRAY['Protection', 'Exorcism', 'Healing', 'Spirituality'], 
+    'Antiseptic for oral health and wounds.', 
+    'Enhances the power of other incenses. Connects deeply with the spiritual realms and the underworld.', 
+    'https://placehold.co/600x400/8B4513/FFFFFF/png?text=Myrrh'
+  ),
+  -- 28. Calendula
+  (
+    'Calendula', 
+    'Calendula officinalis', 
+    'Fire', 
+    ARRAY['Protection', 'Prophetic Dreams', 'Legal Matters'], 
+    'Soothes skin and promotes healing of tissues.', 
+    'Flowers strung over a door stop evil from entering. Placed under the bed for protection while sleeping.', 
+    'https://placehold.co/600x400/FFA500/333333/png?text=Calendula'
+  ),
+  -- 29. Elder
+  (
+    'Elder', 
+    'Sambucus nigra', 
+    'Water', 
+    ARRAY['Exorcism', 'Prosperity', 'Sleep', 'Protection'], 
+    'Elderberries boost immunity; flowers reduce fever.', 
+    'A sacred tree of the Goddess. It is said to be bad luck to cut one down without asking permission.', 
+    'https://placehold.co/600x400/4B0082/FFFFFF/png?text=Elder'
+  ),
+  -- 30. Wormwood
+  (
+    'Wormwood', 
+    'Artemisia absinthium', 
+    'Fire', 
+    ARRAY['Psychic Powers', 'Protection', 'Calling Spirits'], 
+    'Bitter digestive aid and antiparasitic.', 
+    'Burned to summon spirits. According to legend, it grew in the tracks of the serpent expelled from Eden.', 
+    'https://placehold.co/600x400/556B2F/FFFFFF/png?text=Wormwood'
+  )
+ON CONFLICT (name) 
+DO UPDATE SET
+  latin_name = EXCLUDED.latin_name,
+  element = EXCLUDED.element,
+  magical_uses = EXCLUDED.magical_uses,
+  medical_uses = EXCLUDED.medical_uses,
+  description = EXCLUDED.description,
+  image_url = EXCLUDED.image_url;
+
+  -- end herb update
+
+
+  -- Deity update
+  INSERT INTO public.deities (name, pantheon, domain, symbols, description, image_url)
+VALUES
+  -- 1. Hecate (Update)
+  (
+    'Hecate', 
+    'Greek', 
+    ARRAY['Magic', 'Crossroads', 'Ghosts', 'The Moon', 'Necromancy'], 
+    ARRAY['Keys', 'Torches', 'Dogs', 'Serpents', 'Strophalos'], 
+    'The Titan goddess of magic, witchcraft, the night, moon, ghosts, and necromancy. She holds the keys to the universe and guides souls through the crossroads.', 
+    'https://placehold.co/600x400/2F4F4F/FFFFFF/png?text=Hecate'
+  ),
+  -- 2. Odin (Update)
+  (
+    'Odin', 
+    'Norse', 
+    ARRAY['Wisdom', 'War', 'Death', 'Runes', 'Poetry'], 
+    ARRAY['Ravens (Huginn & Muninn)', 'Valknut', 'Spear (Gungnir)', 'Wolves'], 
+    'The Allfather. He sacrificed his eye for wisdom and hung from Yggdrasil to discover the Runes. A seeker of knowledge and patron of rulers and outlaws alike.', 
+    'https://placehold.co/600x400/4B0082/FFFFFF/png?text=Odin'
+  ),
+  -- 3. The Morrigan
+  (
+    'The Morrigan', 
+    'Celtic', 
+    ARRAY['War', 'Fate', 'Sovereignty', 'Death', 'Prophecy'], 
+    ARRAY['Crows', 'Ravens', 'Cattle', 'Sword'], 
+    'The Phantom Queen. A shapeshifting goddess of war and fate who often appears as a crow over the battlefield. She represents the sovereignty of the land.', 
+    'https://placehold.co/600x400/000000/FFFFFF/png?text=The+Morrigan'
+  ),
+  -- 4. Kali
+  (
+    'Kali', 
+    'Hindu', 
+    ARRAY['Destruction', 'Time', 'Change', 'Power', 'Liberation'], 
+    ARRAY['Skulls', 'Scimitar', 'Severed Head', 'Red Tongue'], 
+    'The Dark Mother. She destroys the ego and illusion (Maya) to liberate the soul. She is the ferocious form of the Divine Mother, representing the power of time.', 
+    'https://placehold.co/600x400/8B0000/FFFFFF/png?text=Kali'
+  ),
+  -- 5. Hermes
+  (
+    'Hermes', 
+    'Greek', 
+    ARRAY['Travel', 'Communication', 'Commerce', 'Thievery', 'Boundaries'], 
+    ARRAY['Caduceus', 'Winged Sandals', 'Tortoise', 'Rooster'], 
+    'The Messenger of the Gods. He moves freely between the mortal and divine worlds, guiding souls to the underworld and aiding travelers.', 
+    'https://placehold.co/600x400/FFD700/333333/png?text=Hermes'
+  ),
+  -- 6. Freya
+  (
+    'Freya', 
+    'Norse', 
+    ARRAY['Love', 'Beauty', 'War', 'Magic (Seidr)', 'Gold'], 
+    ARRAY['Cats', 'Falcon Feather Cloak', 'Brisingamen Necklace', 'Boar'], 
+    'The Vanir goddess of love and war. She rides a chariot pulled by cats and claims half of those slain in battle for her hall, Folkvangr.', 
+    'https://placehold.co/600x400/FF69B4/FFFFFF/png?text=Freya'
+  ),
+  -- 7. Anubis
+  (
+    'Anubis', 
+    'Egyptian', 
+    ARRAY['Death', 'Mummification', 'Afterlife', 'Lost Souls'], 
+    ARRAY['Jackal', 'Ankh', 'Flail', 'Scales'], 
+    'The guardian of the dead. He presides over the weighing of the heart ceremony, ensuring only the worthy enter the afterlife.', 
+    'https://placehold.co/600x400/000000/D4AF37/png?text=Anubis'
+  ),
+  -- 8. Brigid
+  (
+    'Brigid', 
+    'Celtic', 
+    ARRAY['Healing', 'Poetry', 'Smithcraft', 'Spring', 'Fire'], 
+    ARRAY['Brigids Cross', 'Sacred Wells', 'Fire', 'Anvil'], 
+    'A triple goddess of the flame. She governs the fire of inspiration, the fire of the hearth, and the fire of the forge.', 
+    'https://placehold.co/600x400/228B22/FFFFFF/png?text=Brigid'
+  ),
+  -- 9. Thoth
+  (
+    'Thoth', 
+    'Egyptian', 
+    ARRAY['Wisdom', 'Writing', 'Magic', 'Science', 'Judgment'], 
+    ARRAY['Ibis', 'Baboon', 'Scroll', 'Stylus'], 
+    'The scribe of the gods and master of magic. He is credited with inventing writing and maintaining the order of the universe.', 
+    'https://placehold.co/600x400/4169E1/FFFFFF/png?text=Thoth'
+  ),
+  -- 10. Artemis
+  (
+    'Artemis', 
+    'Greek', 
+    ARRAY['The Hunt', 'Wilderness', 'Moon', 'Archery', 'Protection of Girls'], 
+    ARRAY['Bow and Arrow', 'Deer', 'Cypress', 'Moon'], 
+    'The independent goddess of the hunt and wild nature. She protects the vulnerable and roams the forests with her band of nymphs.', 
+    'https://placehold.co/600x400/2E8B57/FFFFFF/png?text=Artemis'
+  ),
+  -- 11. Cernunnos
+  (
+    'Cernunnos', 
+    'Celtic', 
+    ARRAY['Nature', 'Wild Animals', 'Fertility', 'The Underworld', 'Wealth'], 
+    ARRAY['Antlers', 'Torc', 'Horned Snake', 'Stag'], 
+    'The Horned God. He is the lord of the forest and the animals, representing the cycle of life, death, and rebirth in nature.', 
+    'https://placehold.co/600x400/556B2F/FFFFFF/png?text=Cernunnos'
+  ),
+  -- 12. Isis
+  (
+    'Isis', 
+    'Egyptian', 
+    ARRAY['Magic', 'Motherhood', 'Healing', 'Rebirth'], 
+    ARRAY['Throne', 'Tyet (Knot of Isis)', 'Wings', 'Lotus'], 
+    'The Great of Magic. She resurrected her husband Osiris and is the archetypal mother figure, protector of the dead and goddess of magical healing.', 
+    'https://placehold.co/600x400/40E0D0/333333/png?text=Isis'
+  ),
+  -- 13. Thor
+  (
+    'Thor', 
+    'Norse', 
+    ARRAY['Thunder', 'Strength', 'Protection', 'Storms', 'Fertility'], 
+    ARRAY['Mjolnir (Hammer)', 'Goats', 'Oak Tree', 'Belt of Strength'], 
+    'The defender of Asgard and Midgard. Known for his immense strength and his hammer, Mjolnir, he protects humanity from chaos and giants.', 
+    'https://placehold.co/600x400/A52A2A/FFFFFF/png?text=Thor'
+  ),
+  -- 14. Aphrodite
+  (
+    'Aphrodite', 
+    'Greek', 
+    ARRAY['Love', 'Beauty', 'Passion', 'Desire', 'Procreation'], 
+    ARRAY['Dove', 'Sea Shell', 'Rose', 'Mirror', 'Swan'], 
+    'Born from the sea foam, she commands the hearts of gods and men alike. She governs all forms of love, pleasure, and beauty.', 
+    'https://placehold.co/600x400/FFB6C1/333333/png?text=Aphrodite'
+  ),
+  -- 15. Pan
+  (
+    'Pan', 
+    'Greek', 
+    ARRAY['Wild', 'Shepherds', 'Flocks', 'Rustic Music', 'Panic'], 
+    ARRAY['Pan Pipes', 'Goat Legs', 'Pine Tree'], 
+    'The wild, goat-footed god of shepherds and flocks. He dwells in the mountains and wilds, playing his pipes and inspiring sudden fear or "panic."', 
+    'https://placehold.co/600x400/8B4513/FFFFFF/png?text=Pan'
+  ),
+  -- 16. Ganesha
+  (
+    'Ganesha', 
+    'Hindu', 
+    ARRAY['New Beginnings', 'Remover of Obstacles', 'Wisdom', 'Intellect'], 
+    ARRAY['Elephant Head', 'Mouse', 'Lotus', 'Axe'], 
+    'The elephant-headed deity invoked at the start of any new venture. He clears the path of obstacles and grants wisdom to his devotees.', 
+    'https://placehold.co/600x400/FF8C00/333333/png?text=Ganesha'
+  ),
+  -- 17. Bastet
+  (
+    'Bastet', 
+    'Egyptian', 
+    ARRAY['Cats', 'Protection', 'Home', 'Joy', 'Dance'], 
+    ARRAY['Cat', 'Sistrum', 'Lioness'], 
+    'The protector of the home and pregnant women. Originally a fierce lioness warrior, she evolved into the cat goddess of joy and domestic safety.', 
+    'https://placehold.co/600x400/000000/FFFFFF/png?text=Bastet'
+  ),
+  -- 18. Hades
+  (
+    'Hades', 
+    'Greek', 
+    ARRAY['The Underworld', 'The Dead', 'Riches', 'Mining'], 
+    ARRAY['Cerberus', 'Helm of Darkness', 'Bident', 'Pomegranate'], 
+    'The stern ruler of the Underworld. Often misunderstood as evil, he is actually the just jailer of the dead and the lord of the earth''s hidden mineral wealth.', 
+    'https://placehold.co/600x400/1C1C1C/FFFFFF/png?text=Hades'
+  ),
+  -- 19. Lilith
+  (
+    'Lilith', 
+    'Mesopotamian', 
+    ARRAY['Independence', 'Night', 'Storms', 'Sensuality'], 
+    ARRAY['Owl', 'Serpent', 'Crescent Moon'], 
+    'A figure of ancient legend often reclaimed in modern witchcraft as a symbol of feminine independence, raw power, and the refusal to submit.', 
+    'https://placehold.co/600x400/800080/FFFFFF/png?text=Lilith'
+  ),
+  -- 20. Loki
+  (
+    'Loki', 
+    'Norse', 
+    ARRAY['Trickery', 'Change', 'Fire', 'Mischief', 'Chaos'], 
+    ARRAY['Snake', 'Mistletoe', 'Net', 'Fish'], 
+    'The catalyst of the gods. A trickster who brings about necessary change, though often through chaos and betrayal. Blood-brother to Odin.', 
+    'https://placehold.co/600x400/228B22/000000/png?text=Loki'
+  )
+ON CONFLICT (name) 
+DO UPDATE SET
+  pantheon = EXCLUDED.pantheon,
+  domain = EXCLUDED.domain,
+  symbols = EXCLUDED.symbols,
+  description = EXCLUDED.description,
+  image_url = EXCLUDED.image_url;
+
+  INSERT INTO public.deities (name, pantheon, domain, symbols, description, image_url)
+VALUES
+  -- 1. Nyx 
+  (
+    'Nyx', 
+    'Greek', 
+    ARRAY['The Night', 'Dreams', 'Shadows', 'Mystery', 'Destiny'], 
+    ARRAY['Veil of Stars', 'Crescent Moon', 'Black Wings', 'Owl'], 
+    'The primordial goddess of the night, born of Chaos. A figure of such exceptional power and beauty that she is feared by Zeus himself. She is the mother of Hypnos (Sleep) and Thanatos (Death).', 
+    'https://placehold.co/600x400/0F172A/FFFFFF/png?text=Nyx'
+  ),
+  
+  -- 2. Persephone
+  (
+    'Persephone', 
+    'Greek', 
+    ARRAY['Spring', 'Queen of the Underworld', 'Vegetation', 'Rebirth'], 
+    ARRAY['Pomegranate', 'Seeds of Grain', 'Torch', 'Flowers'], 
+    'The Queen of the Iron Queen. She represents the duality of nature: the vibrant life of spring and the quiet ruling of the dead. She walks between worlds.', 
+    'https://placehold.co/600x400/800000/FFB6C1/png?text=Persephone'
+  ),
+  
+  -- 3. Athena
+  (
+    'Athena', 
+    'Greek', 
+    ARRAY['Wisdom', 'Strategy', 'War', 'Crafts', 'Reason'], 
+    ARRAY['Owl', 'Olive Tree', 'Aegis (Shield)', 'Spear'], 
+    'The grey-eyed goddess of wisdom and strategic warfare. Born from the head of Zeus, she is the patron of heroic endeavor and the master of strategy over brute force.', 
+    'https://placehold.co/600x400/DAA520/FFFFFF/png?text=Athena'
+  ),
+  
+  -- 4. Ra
+  (
+    'Ra', 
+    'Egyptian', 
+    ARRAY['The Sun', 'Creation', 'Kingship', 'Order (Ma''at)', 'Light'], 
+    ARRAY['Sun Disk', 'Falcon', 'Scepter', 'Cobra (Uraeus)'], 
+    'The Supreme Sun God. He travels across the sky in his solar barque, bringing light to the world and battling the serpent of chaos, Apep, every night.', 
+    'https://placehold.co/600x400/FFD700/000000/png?text=Ra'
+  )
+ON CONFLICT (name) 
+DO UPDATE SET
+  pantheon = EXCLUDED.pantheon,
+  domain = EXCLUDED.domain,
+  symbols = EXCLUDED.symbols,
+  description = EXCLUDED.description,
+  image_url = EXCLUDED.image_url;
+
+  -- end deity update
+
+-- Profile setting update for customization sidebar
+  -- 1. Add a flexible JSONB column for settings
+ALTER TABLE public.profiles 
+ADD COLUMN preferences JSONB DEFAULT '{"widget_order": ["profile", "moon", "tarot", "crystal"], "active_deity": null, "theme": "default"}'::jsonb;
+
+-- 2. Update existing rows to have default values (optional but recommended)
+UPDATE public.profiles 
+SET preferences = '{"widget_order": ["profile", "moon", "tarot", "crystal"], "active_deity": null, "theme": "default"}'::jsonb 
+WHERE preferences IS NULL;

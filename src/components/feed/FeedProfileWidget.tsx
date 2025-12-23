@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import CreatePostForm from '../features/CreatePostForm';
+import CreatePostForm from './CreatePostForm';
 
 export default function FeedProfileWidget() {
     const [isVisible, setIsVisible] = useState(false);

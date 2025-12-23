@@ -1,8 +1,8 @@
 import { getDailySpread } from "@/app/actions/tarot-actions";
-import DailySpreadInteractive from "@/components/features/DailySpreadInteractive";
+import DailySpreadInteractive from "@/components/tarot/DailySpreadInteractive";
 
 export const metadata = {
-  title: 'Tarot Spreads | Nocta',
+  title: 'Tarot Spreads | Nyxus',
   description: 'Use the platforms tarot cards to perform certain spreads!',
 };
 

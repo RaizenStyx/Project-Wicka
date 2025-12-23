@@ -5,7 +5,7 @@ import SpellForm from '@/components/spellbook/SpellForm'
 import SpellCard from '@/components/spellbook/SpellCard' 
 
 export const metadata = {
-  title: 'SpellBook | Nocta',
+  title: 'SpellBook | Nyxus',
   description: 'Craft spells for private use, post on your profile, or publish for everyone to see!',
 };
 

@@ -5,7 +5,7 @@ import RoleBadge from '@/components/ui/RoleBadge'
 import Avatar from '@/components/ui/Avatar'
 
 export const metadata = {
-  title: 'Members | Nocta',
+  title: 'Members | Nyxus',
   description: 'Explore all the current members!',
 };
 
@@ -18,7 +18,7 @@ export default async function MembersPage() {
       {/* Page Header */}
       <div className="mb-10 text-center">
         <h1 className="text-4xl font-serif text-purple-200 drop-shadow-[0_0_10px_rgba(168,85,247,0.5)]">
-          Nocta Members 
+          Nyxus Members 
         </h1>
         <p className="text-slate-400 mt-2">
           Connect with your fellow witches and practitioners.

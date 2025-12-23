@@ -2,7 +2,7 @@ import { getHerbsData } from '@/app/actions/herb-actions'
 import HerbClientWrapper from '@/components/shared/HerbClientWrapper'
 
 export const metadata = {
-  title: 'Herbs | Nocta',
+  title: 'Herbs | Nyxus',
   description: 'Explore all the herbs and how to use them to make magic!',
 };
 

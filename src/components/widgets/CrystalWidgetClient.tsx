@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Plus, ChevronLeft, Gem, Star } from 'lucide-react'
 import { Crystal } from '@/app/types/database'
-import SecureImage from '../features/SecureImage'
+import SecureImage from '../profile/SecureImage'
 
 interface CollectionItem {
   id: string
@@ -202,7 +202,7 @@ export default function CrystalWidgetClient({ collection }: WidgetClientProps) {
                     
                     {/* Footer Link */}
                     <Link 
-                        href={`/crystals?open=${selectedItem.crystals.id}`}
+                        href={`/sanctuary?open=${selectedItem.crystals.id}`}
                         className="mt-auto block w-full rounded border border-slate-700 py-1.5 text-center text-[10px] text-slate-400 transition-colors hover:bg-slate-800 hover:text-slate-200"
                     >
                         View Full Entry

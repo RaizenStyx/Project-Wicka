@@ -104,9 +104,9 @@ export default function Shell({
           )}
 
           <Link href="/" className="flex items-center gap-2 group">
-          <Image src={'/icon.png'} alt='Nocta Logo' width={50} height={50} />
+          <Image src={'/icon.png'} alt='Nyxus Logo' width={50} height={50} />
             <span className="font-serif text-xl font-bold tracking-wider text-slate-100 group-hover:text-white transition-colors">
-              NOCTA
+              NYXUS
             </span>
             <Sparkles className="w-5 h-5 text-purple-500 group-hover:text-purple-400 transition-colors" />
           </Link>

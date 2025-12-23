@@ -8,7 +8,7 @@ import { getDeitiesData } from '@/app/actions/deity-actions'
 import { getCandlesData } from '@/app/actions/candle-actions'
 
 export const metadata = {
-  title: 'My Sanctuary | Nocta',
+  title: 'My Sanctuary | Nyxus',
   description: 'Your personal collection of magical tools.',
 }
 

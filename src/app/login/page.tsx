@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useActionState } from 'react';
-import { login, signup } from '@/app/login/actions';
+import { login, signup } from '../actions/auth-actions';
 import { Eye, EyeOff } from 'lucide-react';
 
 export default function AuthPage() {
@@ -24,7 +24,7 @@ export default function AuthPage() {
       <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-2xl relative z-10 transition-all duration-300">
         
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-serif text-purple-400 tracking-wider font-bold mb-2">NOCTA</h1>
+          <h1 className="text-3xl font-serif text-purple-400 tracking-wider font-bold mb-2">NYXUS</h1>
           <p className="text-slate-500 text-sm">
             {isLogin ? 'Enter the circle.' : 'Begin your journey.'}
           </p>

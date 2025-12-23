@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { updateProfile } from '@/app/settings/actions'
+import { updateProfile } from '@/app/actions/profile-actions'
 import { Pencil, Save, X, Sparkles, Loader2 } from 'lucide-react'
 import { clsx } from 'clsx'
 

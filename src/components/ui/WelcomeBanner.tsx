@@ -60,7 +60,7 @@ export default function WelcomeBanner({ username, role, sign, planet }: WelcomeB
              </span>
              {role && role !== 'initiate' && (
                 <span className="text-xs uppercase tracking-widest text-purple-400/80 font-bold">
-                  {role} of Nocta
+                  {role} of Nyxus
                 </span>
              )}
            </div>

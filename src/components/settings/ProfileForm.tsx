@@ -1,7 +1,7 @@
 'use client'
 
 import { useActionState } from 'react' 
-import { updateProfile } from './actions'
+import { updateProfile } from '../../app/actions/profile-actions'
 import { Sparkles } from 'lucide-react'
 
 // Define what props this form expects to receive

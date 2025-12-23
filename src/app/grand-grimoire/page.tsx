@@ -1,10 +1,10 @@
 
 import { getCommunitySpells, getCommonRituals } from '@/app/actions/spell-actions' // Import new action
-import GrimoireFeed from '@/components/ui/GrimoireFeed';
+import GrimoireFeed from '@/components/spellbook/GrimoireFeed';
 import { BookOpen } from 'lucide-react' 
 
 export const metadata = {
-  title: 'Grand Grimoire | Nocta',
+  title: 'Grand Grimoire | Nyxus',
   description: 'Explore the spells or rituals others create!',
 };
 

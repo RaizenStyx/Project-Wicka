@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import { createClient } from "./utils/supabase/server";
 import Shell from "@/components/layout/Shell";
-import SidebarLinks from "@/components/ui/SidebarLinks";
+import SidebarLinks from "@/components/layout/SidebarLinks";
 import WidgetSidebar from "@/components/widgets/WidgetSidebar";
 import "./globals.css";
 
@@ -18,13 +18,13 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Nocta - Creators of Night",
+  title: "Nyxus - Creators of Night",
   description: "A mystical social platform for witches and wizards to share their spells and connect with fellow coven members.",
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'Nocta - Creators of Night',
+    title: 'Nyxus - Creators of Night',
   },
   formatDetection: {
     telephone: false,
@@ -61,7 +61,7 @@ export default async function RootLayout({
       <body className={`${inter.variable} ${playfair.variable} bg-slate-950 text-slate-200`}>
         <Shell 
           leftSidebar={<SidebarLinks profile={userProfile} />}
-          rightSidebar={<WidgetSidebar />}
+          rightSidebar={<WidgetSidebar profilePreferences={userProfile?.preferences} />}
         >
         {children}
         </Shell>

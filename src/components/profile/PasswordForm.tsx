@@ -15,7 +15,6 @@ export default function PasswordForm() {
     return (
  
     <div className="mt-12 pt-8 border-t border-slate-800">
-      <h2 className="text-xl font-serif text-slate-300 mb-6">Security Changes</h2>
       
       <form action={pwdAction} className="bg-slate-900/30 p-8 rounded-xl border border-slate-800/50">
         <div className="mb-6 flex items-start justify-between">

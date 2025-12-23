@@ -1,12 +1,12 @@
 'use client' 
 
 import React, { useState } from 'react';
-import Avatar from './Avatar';
+import Avatar from '../ui/Avatar';
 import Image from 'next/image';
-import Lightbox from './Lightbox';
-import LikeButton from '../feed/LikeButton';
+import Lightbox from '../ui/Lightbox';
+import LikeButton from './LikeButton';
 import { MessageCircle, Flag } from 'lucide-react' 
-import RoleBadge from './RoleBadge';
+import RoleBadge from '../ui/RoleBadge';
 import CommentSection from './CommentSection'
 import Link from 'next/link'; 
 

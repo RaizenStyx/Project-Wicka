@@ -5,7 +5,7 @@ import { ZodiacSign } from '../types/database';
 
 /* METADATA */
 export const metadata = {
-  title: 'Astrology | Nocta',
+  title: 'Astrology | Nyxus',
   description: 'Explore the 12 Zodiac signs and their cosmic meanings.',
 };
 

@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { Search } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Search, ChevronLeft, ChevronRight } from 'lucide-react'
 import GrimoireCard from './GrimoireCard'
 
 interface GrimoireItem {
@@ -31,6 +31,8 @@ interface DashboardProps {
   onItemClick: (item: any) => void
 }
 
+const ITEMS_PER_PAGE = 10;
+
 export default function GrimoireDashboard({ 
   title, description, items, 
   filterCategories, filterKey, 
@@ -41,8 +43,11 @@ export default function GrimoireDashboard({
   
   const [search, setSearch] = useState('')
   const [activeFilter, setActiveFilter] = useState('All')
+  
+  // PAGINATION STATE
+  const [currentPage, setCurrentPage] = useState(1)
 
-  // Unified Filtering Logic
+  // 1. Unified Filtering Logic
   const filteredItems = items.filter((item) => {
     const itemName = item.name || item.color || ''; 
     const matchesSearch = itemName.toLowerCase().includes(search.toLowerCase());
@@ -60,10 +65,31 @@ export default function GrimoireDashboard({
     }
     return matchesSearch && matchesFilter;
   })
+
+  // 2. Pagination Logic
+  const totalPages = Math.ceil(filteredItems.length / ITEMS_PER_PAGE)
+  const currentItems = filteredItems.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE, 
+    currentPage * ITEMS_PER_PAGE
+  )
+
+  // 3. Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [search, activeFilter])
   
+  // 4. Handlers
+  const handlePageChange = (newPage: number) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+        setCurrentPage(newPage)
+        // SCROLL TO TOP LOGIC
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }
+
   return (
-    <div className="space-y-8">
-      {/* HEADER (Only show if title exists) */}
+    <div className="space-y-8 min-h-screen"> 
+      {/* HEADER */}
       {title && (
         <div className="text-center">
           <h1 className="font-serif text-4xl text-purple-200">{title}</h1>
@@ -111,30 +137,60 @@ export default function GrimoireDashboard({
       </div>
 
       {/* GRID */}
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {filteredItems.map((item) => {
-          // Safe State Access
-          const state = userState?.[item.id] || { isOwned: false, isWishlisted: false };
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 min-h-[500px]">
+        {currentItems.length > 0 ? (
+            currentItems.map((item) => {
+            const state = userState?.[item.id] || { isOwned: false, isWishlisted: false };
 
-          return (
-            <GrimoireCard
-              key={item.id}
-              id={item.id}
-              title={item.name}
-              subtitle={item.element || item.pantheon || ''} 
-              image={item.image_url}
-              color={item.color}
-              
-              isOwned={state.isOwned}
-              isWishlisted={state.isWishlisted}
-              
-              onToggleOwned={() => onToggleOwned(item.id)}
-              onToggleWishlist={() => onToggleWishlist(item.id)}
-              onClick={() => onItemClick(item)}
-            />
-          )
-        })}
+            return (
+                <GrimoireCard
+                key={item.id}
+                id={item.id}
+                title={item.name}
+                subtitle={item.element || item.pantheon || ''} 
+                image={item.image_url}
+                color={item.color}
+                
+                isOwned={state.isOwned}
+                isWishlisted={state.isWishlisted}
+                
+                onToggleOwned={() => onToggleOwned(item.id)}
+                onToggleWishlist={() => onToggleWishlist(item.id)}
+                onClick={() => onItemClick(item)}
+                />
+            )
+            })
+        ) : (
+            <div className="col-span-full flex flex-col items-center justify-center py-20 text-slate-500">
+                <p>No items found matching your search.</p>
+            </div>
+        )}
       </div>
+
+      {/* PAGINATION CONTROLS */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-4 py-8">
+            <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="p-2 rounded-lg border border-slate-700 bg-slate-900 text-slate-300 hover:bg-slate-800 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+                <ChevronLeft className="h-5 w-5" />
+            </button>
+            
+            <span className="text-sm font-medium text-slate-400">
+                Page <span className="text-white">{currentPage}</span> of {totalPages}
+            </span>
+            
+            <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="p-2 rounded-lg border border-slate-700 bg-slate-900 text-slate-300 hover:bg-slate-800 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+                <ChevronRight className="h-5 w-5" />
+            </button>
+        </div>
+      )}
     </div>
   )
 }

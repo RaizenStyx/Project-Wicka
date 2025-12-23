@@ -1,28 +1,30 @@
-import { createClient } from '../utils/supabase/server'
-import { redirect } from 'next/navigation'
-import Link from 'next/link'
-import ProfileForm from './ProfileForm' 
-import PasswordForm from '@/components/features/PasswordForm'
-import BirthDateForm from '@/components/profile/BirthDateForm'
+import { createClient } from "../utils/supabase/server";
+import { redirect } from "next/navigation";
+import SettingsTabs from "@/components/settings/SettingsTabs";
+import Link from "next/link";
 
-export const metadata = {
-  title: 'Settings | Nocta',
-  description: 'Change your settings within Nocta.',
-};
+interface SettingsPageProps {
+  searchParams: Promise<{ tab?: string }>;
+}
 
-export default async function SettingsPage() {
+export default async function SettingsPage({ searchParams }: SettingsPageProps) {
   const supabase = await createClient();
+  
+  // 1. Resolve the active tab from URL (e.g., /settings?tab=sanctuary)
+  const resolvedParams = await searchParams; 
+  const activeTab = resolvedParams.tab || "profile";
 
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
+  // 2. Fetch User & Profile
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
 
   const { data: profile } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
-    .single()
+    .from("profiles")
+    .select("*")
+    .eq("id", user.id)
+    .single();
 
-  // Combine the auth email with the profile data
+  // 3. Prepare Initial Data for the form
   const initialData = {
     email: user.email || '',
     username: profile?.username || '',
@@ -34,28 +36,34 @@ export default async function SettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-200 p-8">
-      <div className="max-w-2xl mx-auto">
-        <h1 className="text-3xl font-serif text-purple-400 mb-2">Edit Grimoire</h1>
-        <p className="text-slate-500 mb-8">Update your public persona within the coven.</p>
-        <Link href={`/u/${profile?.handle || 'handle'}`} className="text-sm text-purple-400 hover:underline mb-6 inline-block">
-          &larr; View Public Profile
-        </Link>
-        {/* Render the Client Components */}
-        {profile.birth_date ? (
-          <div className="bg-gradient-to-r from-purple-900 to-purple-800 border-l-4 border-purple-400 p-6 rounded-lg mb-8">
-            <h3 className="text-lg font-semibold text-purple-200 mb-2">✓ Birth Date Registered</h3>
-            <p className="text-purple-100 mb-3">Your birth date has been securely recorded in your grimoire.</p>
-            <p className="text-sm text-purple-300">To modify your birth date, please <Link href="mailto:me@calexreed.dev" className="text-purple-200 hover:text-purple-100 underline">reach out to the creator</Link>.</p>
-          </div>
-        ) : (
-          <BirthDateForm />
-        )}
+    <div className="min-h-screen bg-slate-950 px-4 py-8">
+      <div className="mx-auto max-w-6xl">
         
-        <ProfileForm initialData={initialData} />
-        <PasswordForm />
-        
+        {/* Header Container using Flexbox */}
+        <div className="flex items-center gap-4 mb-8">
+            <Link 
+              href={`/u/${initialData.handle || 'handle'}`} 
+              className="text-sm text-purple-400 hover:underline shrink-0"
+            >
+              &larr; View Public Profile
+            </Link>
+
+            {/* Vertical Divider (Optional, looks nice) */}
+            <span className="text-slate-700">|</span>
+
+            <h1 className="font-serif text-3xl text-slate-200">
+              Account Settings
+            </h1>
+        </div>
+
+        {/* Pass everything down to the tabs component */}
+        <SettingsTabs 
+            user={user} 
+            profile={profile} 
+            initialData={initialData} 
+            activeTab={activeTab} 
+        />
       </div>
     </div>
-  )
+  );
 }

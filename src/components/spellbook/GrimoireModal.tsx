@@ -5,8 +5,9 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { 
   X, Sparkles, Image as ImageIcon, Star, Check, 
   Loader2, Upload, Camera, Disc, Moon, Sun, Flame, Wheat 
-} from 'lucide-react' // Added specific icons
+} from 'lucide-react' 
 import { createClient } from '@/app/utils/supabase/client'
+import { CANDLE_NAMES } from '@/app/utils/constants'
 
 interface GrimoireModalProps {
   isOpen: boolean
@@ -93,6 +94,13 @@ export default function GrimoireModal({
     )
   }
 
+    // Check if it's a candle based on name match
+    const isCandle = CANDLE_NAMES.includes(item.name);
+    const isDeity = category === 'deity';
+
+    // Get the color: 'hex_code' for candles, 'color' for crystals, or fallback
+    const candleColor = item.hex_code || item.color || '#cbd5e1';
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -113,12 +121,64 @@ export default function GrimoireModal({
              {/* IMAGE HEADER */}
              <div className="relative h-48 w-full bg-slate-900">
               {activeTab === 'journey' && displayUrl ? (
-                 <img src={displayUrl} alt="My Personal Item" className="h-full w-full object-cover opacity-90" />
-              ) : item.image_url ? (
-                <img src={item.image_url} alt={item.name} className="h-full w-full object-cover opacity-80" />
-              ) : (
-                 <div className="flex h-full items-center justify-center"><ImageIcon className="h-12 w-12 text-slate-700" /></div>
-              )}
+                // 1. User's Personal Photo (Highest Priority)
+                <img 
+                    src={displayUrl} 
+                    alt="My Personal Item" 
+                    className="h-full w-full object-cover opacity-90" 
+                />
+                ) : item.image_url ? (
+                // 2. Database Image (Standard)
+                <img 
+                    src={item.image_url} 
+                    alt={item.name} 
+                    className="h-full w-full object-cover opacity-80" 
+                />
+                ) : isCandle ? (
+                // 3. CSS Candle Fallback (If no image & is candle)
+                <div className="relative flex h-full w-full items-center justify-center bg-slate-900/50 overflow-hidden">
+                    
+                    {/* Background Ambient Glow */}
+                    <div 
+                        className="absolute inset-0 opacity-20 transition-colors duration-700" 
+                        style={{ backgroundColor: candleColor }} 
+                    />
+
+                    {/* The Big Modal Candle */}
+                    <div className="relative flex flex-col items-center justify-end h-56 w-full translate-y-8">
+                        
+                        {/* Flame (Larger for Modal) */}
+                        <div className="relative -mb-2 z-10">
+                            <div className="w-6 h-10 bg-orange-300 rounded-[50%] blur-[4px] animate-pulse origin-bottom" />
+                            <div className="absolute top-2 left-2 w-2 h-5 bg-white rounded-[50%] blur-[2px] opacity-80" />
+                        </div>
+                        
+                        {/* Wax Pillar */}
+                        <div 
+                            className="w-20 h-44 rounded-t-xl shadow-inner relative"
+                            style={{ 
+                            backgroundColor: candleColor,
+                            boxShadow: 'inset 0 0 30px rgba(0,0,0,0.4)' 
+                            }}
+                        >
+                            {/* Detail: Wax Drip */}
+                            <div className="absolute top-0 right-4 w-3 h-10 bg-white/10 rounded-b-full" />
+                            <div className="absolute top-0 left-4 w-2 h-6 bg-white/10 rounded-b-full" />
+                        </div>
+
+                        {/* Table Reflection */}
+                        <div 
+                            className="absolute -bottom-4 w-32 h-8 blur-xl opacity-60 rounded-[50%]"
+                            style={{ backgroundColor: candleColor }}
+                        />
+                    </div>
+                </div>
+                ) : (
+                // 4. Standard Fallback Icon (If not a candle)
+                <div className="flex h-full items-center justify-center">
+                    <ImageIcon className="h-12 w-12 text-slate-700" />
+                </div>
+                )}
               
               <button onClick={onClose} className="absolute right-4 top-4 rounded-full bg-black/50 p-2 text-white hover:bg-black/70 cursor-pointer z-10"><X className="h-5 w-5" /></button>
               
@@ -278,11 +338,39 @@ export default function GrimoireModal({
 
             {/* FOOTER */}
             <div className="flex gap-3 border-t border-slate-800 p-4 bg-slate-950">
-                <button onClick={onToggleOwned} className={`flex flex-1 items-center justify-center gap-2 rounded-lg py-3 font-medium transition-colors cursor-pointer ${isOwned ? 'bg-purple-900/50 text-purple-200 hover:bg-purple-900/70' : 'bg-slate-100 text-slate-900 hover:bg-white'}`}>
-                  {isOwned ? <><Check className="h-4 w-4" /> In Sanctuary</> : <><Sparkles className="h-4 w-4" /> Add to Sanctuary</>}
+                
+                {/* Action Button */}
+                <button 
+                onClick={onToggleOwned} 
+                className={`flex flex-1 items-center justify-center gap-2 rounded-lg py-3 font-medium transition-colors cursor-pointer ${
+                    isOwned 
+                    ? 'bg-purple-900/50 text-purple-200 hover:bg-purple-900/70' 
+                    : 'bg-slate-100 text-slate-900 hover:bg-white'
+                }`}
+                >
+                {isOwned ? (
+                    <>
+                    <Check className="h-4 w-4" /> 
+                    {isDeity ? 'Deity Invoked' : 'In Sanctuary'}
+                    </>
+                ) : (
+                    <>
+                    {isDeity ? <Flame className="h-4 w-4" /> : <Sparkles className="h-4 w-4" />} 
+                    {isDeity ? 'Invoke Deity' : 'Add to Sanctuary'}
+                    </>
+                )}
                 </button>
-                <button onClick={onToggleWishlist} className={`flex items-center justify-center rounded-lg border px-4 transition-colors cursor-pointer ${isWishlisted ? 'border-amber-500/50 bg-amber-500/10 text-amber-400' : 'border-slate-700 text-slate-400 hover:border-slate-500 hover:text-white'}`}>
-                   <Star className={`h-5 w-5 ${isWishlisted ? 'fill-amber-400' : ''}`} />
+
+                {/* Wishlist Button */}
+                <button 
+                onClick={onToggleWishlist} 
+                className={`flex items-center justify-center rounded-lg border px-4 transition-colors cursor-pointer ${
+                    isWishlisted 
+                    ? 'border-amber-500/50 bg-amber-500/10 text-amber-400' 
+                    : 'border-slate-700 text-slate-400 hover:border-slate-500 hover:text-white'
+                }`}
+                >
+                <Star className={`h-5 w-5 ${isWishlisted ? 'fill-amber-400' : ''}`} />
                 </button>
             </div>
           </motion.div>

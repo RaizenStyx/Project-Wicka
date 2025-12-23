@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Users, Scroll, Search } from 'lucide-react'
 import { clsx } from 'clsx'
 import SpellCard from '@/components/spellbook/SpellCard'
-import CommonRitualCard from '../spellbook/CommonRitualCard'
+import CommonRitualCard from './CommonRitualCard'
 import { ExtendedSpell, CommonRitual } from '@/app/types/database'
 
 interface GrimoireFeedProps {

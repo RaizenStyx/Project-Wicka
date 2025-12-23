@@ -2,7 +2,7 @@ import { getCandlesData } from '@/app/actions/candle-actions'
 import CandleClientWrapper from '@/components/shared/CandleClientWrapper' // Ensure path is correct
 
 export const metadata = {
-  title: 'Candles | Nocta',
+  title: 'Candles | Nyxus',
   description: 'Explore candle magic and learn what each color means!',
 };
 

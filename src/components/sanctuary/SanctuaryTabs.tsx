@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import GrimoireDashboard from '../ui/GrimoireDashboard'
-import GrimoireModal from '../ui/GrimoireModal'
+import { useRouter, usePathname, useSearchParams } from 'next/navigation'
+import GrimoireDashboard from '../spellbook/GrimoireDashboard'
+import GrimoireModal from '../spellbook/GrimoireModal'
 import { updateCrystalState, saveUserCrystalImage } from '@/app/actions/crystal-actions'
 import { updateHerbState, saveUserHerbImage } from '@/app/actions/herb-actions'
 import { updateDeityState, saveUserDeityImage } from '@/app/actions/deity-actions'
@@ -25,6 +26,10 @@ export default function SanctuaryTabs({
   deities, deityState, 
   candles, candleState 
 }: Props) {
+
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
 
   const [activeTab, setActiveTab] = useState<Tab>('crystals')
   const [selectedItem, setSelectedItem] = useState<any | null>(null)
@@ -88,6 +93,38 @@ export default function SanctuaryTabs({
       default: return null
     }
   }
+
+
+  useEffect(() => {
+    const openId = searchParams.get('open')
+    
+    // If no ID in URL, and modal is open, we might want to close it? 
+    // Or just do nothing. Usually, we only care if openId EXISTS.
+    if (!openId) {
+        // Optional: Close modal if user hits 'back' button to a clean URL
+        if (isModalOpen) setIsModalOpen(false) 
+        return
+    }
+
+    // A. Helper to find item and its category
+    const findItem = (id: string) => {
+        const c = crystals.find(i => i.id === id); if (c) return { item: c, tab: 'crystals' as Tab }
+        const h = herbs.find(i => i.id === id);    if (h) return { item: h, tab: 'herbs' as Tab }
+        const d = deities.find(i => i.id === id);  if (d) return { item: d, tab: 'deities' as Tab }
+        const ca = candles.find(i => i.id === id); if (ca) return { item: ca, tab: 'candles' as Tab }
+        return null
+    }
+
+    const match = findItem(openId)
+
+    if (match) {
+        // B. Update State to match URL
+        setActiveTab(match.tab) // Switch to correct tab
+        setSelectedItem(match.item)
+        setIsModalOpen(true)
+    }
+  }, [searchParams, crystals, herbs, deities, candles]) // Re-run if URL changes
+
 
   const context = getContext()
 
@@ -161,6 +198,14 @@ export default function SanctuaryTabs({
     }
     setSelectedItem(item)
     setIsModalOpen(true)
+    router.push(`${pathname}?open=${item.id}`, { scroll: false })
+  }
+
+  // 5. UPDATE: Handle Close (Clear URL)
+  const handleCloseModal = () => {
+      setIsModalOpen(false)
+      // Remove param from URL
+      router.push(pathname, { scroll: false })
   }
 
   // Calculate Modal State
@@ -271,7 +316,7 @@ export default function SanctuaryTabs({
       {/* MODAL */}
       <GrimoireModal 
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={handleCloseModal}
         item={selectedItem}
         category={context?.category || 'general'}
         // Pass State & Handlers

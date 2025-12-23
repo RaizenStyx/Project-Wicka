@@ -2,7 +2,7 @@ import { getDeitiesData } from '@/app/actions/deity-actions'
 import DeityClientWrapper from '@/components/shared/DeityClientWrapper'
 
 export const metadata = {
-  title: 'Deities | Nocta',
+  title: 'Deities | Nyxus',
   description: 'Explore how each deity relates to modern magic!',
 };
 

@@ -1,8 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import GrimoireDashboard from '@/components/ui/GrimoireDashboard'
-import GrimoireModal from '@/components/ui/GrimoireModal'
+import GrimoireDashboard from '@/components/spellbook/GrimoireDashboard'
+import GrimoireModal from '@/components/spellbook/GrimoireModal'
 import { updateCandleState, saveUserCandleImage } from '@/app/actions/candle-actions'
 import { UserCollectionState } from '@/app/actions/sanctuary-usercollectionstate'
 import { createClient } from '@/app/utils/supabase/client'
