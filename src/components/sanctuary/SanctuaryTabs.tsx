@@ -1,12 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import GrimoireDashboard from '../ui/GrimoireDashboard'
 import GrimoireModal from '../ui/GrimoireModal'
-import { updateCrystalState } from '@/app/actions/crystal-actions'
-import { updateHerbState } from '@/app/actions/herb-actions'
-import { updateDeityState } from '@/app/actions/deity-actions'
-import { updateCandleState } from '@/app/actions/candle-actions'
+import { updateCrystalState, saveUserCrystalImage } from '@/app/actions/crystal-actions'
+import { updateHerbState, saveUserHerbImage } from '@/app/actions/herb-actions'
+import { updateDeityState, saveUserDeityImage } from '@/app/actions/deity-actions'
+import { updateCandleState, saveUserCandleImage } from '@/app/actions/candle-actions'
+import { createClient } from '@/app/utils/supabase/client'
 import { Sparkles, Star } from 'lucide-react'
 
 interface Props {
@@ -24,16 +25,22 @@ export default function SanctuaryTabs({
   deities, deityState, 
   candles, candleState 
 }: Props) {
-  
+
   const [activeTab, setActiveTab] = useState<Tab>('crystals')
   const [selectedItem, setSelectedItem] = useState<any | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const supabase = createClient()
 
   // --- LOCAL STATE FOR OPTIMISTIC UPDATES ---
   const [localCrystalState, setLocalCrystalState] = useState(crystalState)
   const [localHerbState, setLocalHerbState] = useState(herbState)
   const [localDeityState, setLocalDeityState] = useState(deityState)
   const [localCandleState, setLocalCandleState] = useState(candleState)
+
+  useEffect(() => { setLocalCrystalState(crystalState) }, [crystalState])
+  useEffect(() => { setLocalHerbState(herbState) }, [herbState])
+  useEffect(() => { setLocalDeityState(deityState) }, [deityState])
+  useEffect(() => { setLocalCandleState(candleState) }, [candleState])
 
 // --- HELPER: Get Current Context ---
   const getContext = () => {
@@ -43,6 +50,8 @@ export default function SanctuaryTabs({
           state: localCrystalState, 
           setter: setLocalCrystalState, 
           action: updateCrystalState,
+          saveImageAction: saveUserCrystalImage, 
+          category: 'crystal' as const,          
           filters: ['Earth', 'Fire', 'Water', 'Air'],
           filterKey: 'element'
       }
@@ -51,6 +60,8 @@ export default function SanctuaryTabs({
           state: localHerbState, 
           setter: setLocalHerbState, 
           action: updateHerbState,
+          saveImageAction: saveUserHerbImage, 
+          category: 'herb' as const,          
           filters: ['Earth', 'Fire', 'Water', 'Air'],
           filterKey: 'element'
       }
@@ -59,6 +70,8 @@ export default function SanctuaryTabs({
           state: localDeityState, 
           setter: setLocalDeityState, 
           action: updateDeityState,
+          saveImageAction: saveUserDeityImage, 
+          category: 'deity' as const,          
           filters: ['Greek', 'Norse', 'Egyptian'],
           filterKey: 'pantheon'
       }
@@ -67,6 +80,8 @@ export default function SanctuaryTabs({
           state: localCandleState, 
           setter: setLocalCandleState, 
           action: updateCandleState,
+          saveImageAction: saveUserCandleImage, 
+          category: 'general' as const,         
           filters: [],
           filterKey: 'associations'
       }
@@ -81,11 +96,12 @@ export default function SanctuaryTabs({
     if (!context) return
     const { state, setter, action } = context
     
-    const current = state[id] || { isOwned: false, isWishlisted: false }
+    // Default to null for userImage
+    const current = state[id] || { isOwned: false, isWishlisted: false, userImage: null }
     const newState = { ...current, isOwned: !current.isOwned }
     
     setter((prev: any) => ({ ...prev, [id]: newState }))
-    await action(id, newState)
+    await action(id, { isOwned: newState.isOwned, isWishlisted: newState.isWishlisted })
   }
 
   // --- LOGIC: Toggle Wishlist ---
@@ -93,11 +109,45 @@ export default function SanctuaryTabs({
     if (!context) return
     const { state, setter, action } = context
     
-    const current = state[id] || { isOwned: false, isWishlisted: false }
+    const current = state[id] || { isOwned: false, isWishlisted: false, userImage: null }
     const newState = { ...current, isWishlisted: !current.isWishlisted }
     
     setter((prev: any) => ({ ...prev, [id]: newState }))
-    await action(id, newState)
+    await action(id, { isOwned: newState.isOwned, isWishlisted: newState.isWishlisted })
+  }
+
+  // --- NEW: Unified Image Upload Handler ---
+  const handleImageUpload = async (file: File) => {
+    if (!context || !selectedItem) throw new Error("No context or item selected")
+    
+    const { saveImageAction, setter } = context
+    const id = selectedItem.id
+
+    // 1. Auth Check
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error("Not logged in")
+
+    // 2. Upload to Supabase
+    const fileExt = file.name.split('.').pop()
+    const fileName = `${id}_${Date.now()}.${fileExt}`
+    const filePath = `${user.id}/${fileName}`
+
+    const { error: uploadError } = await supabase.storage
+        .from('user_uploads')
+        .upload(filePath, file)
+
+    if (uploadError) throw uploadError
+
+    // 3. Save to DB using the specific action for this tab
+    await saveImageAction(id, filePath)
+
+    // 4. Update Local State
+    setter((prev: any) => ({
+        ...prev,
+        [id]: { ...prev[id], userImage: filePath }
+    }))
+    
+    return filePath
   }
 
   // --- DATA PREP ---
@@ -209,18 +259,28 @@ export default function SanctuaryTabs({
             </div>
             </>
             )}
-
+        {/* {isModalOpen && (
+            <div className="fixed top-20 left-10 z-[100] bg-black border border-red-500 p-4 text-xs font-mono text-red-400 max-w-sm">
+                <p>DEBUG MODAL PROPS:</p>
+                <p>Item ID: {selectedItem?.id}</p>
+                <p>Has Context? {context ? 'Yes' : 'No'}</p>
+                <p>Is Owned? {String(selectedState.isOwned)}</p>
+                <p>User Image Prop: {String(selectedState.userImage)}</p>
+            </div>
+        )} */}
       {/* MODAL */}
       <GrimoireModal 
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         item={selectedItem}
-        
+        category={context?.category || 'general'}
         // Pass State & Handlers
         isOwned={selectedState.isOwned}
         isWishlisted={selectedState.isWishlisted}
+        userImage={selectedState.userImage}
         onToggleOwned={() => selectedItem && handleToggleOwned(selectedItem.id)}
         onToggleWishlist={() => selectedItem && handleToggleWishlist(selectedItem.id)}
+        onImageUpload={handleImageUpload} 
       />
     </div>
   )

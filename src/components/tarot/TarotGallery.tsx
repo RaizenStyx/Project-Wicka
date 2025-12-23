@@ -54,6 +54,7 @@ export default function TarotGallery({ initialCards }: TarotGalleryProps) {
             onChange={(e) => setSearch(e.target.value)}
             className="w-full rounded-lg border border-slate-700 bg-slate-900 py-2 pl-10 pr-4 text-slate-100 placeholder-slate-500 transition-colors focus:border-purple-500 focus:outline-none"
           />
+
         </div>
 
         {/* Filters Group */}
@@ -86,7 +87,7 @@ export default function TarotGallery({ initialCards }: TarotGalleryProps) {
                 initial={{ opacity: 0, width: 0, scale: 0.9 }} 
                 animate={{ opacity: 1, width: 'auto', scale: 1 }}
                 exit={{ opacity: 0, width: 0, scale: 0.9 }}
-                className="relative min-w-[140px]"
+                className="relative max-w-[100px]" // this was min-w-[140px]
               >
                 <div className="relative">
                   <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
@@ -95,7 +96,7 @@ export default function TarotGallery({ initialCards }: TarotGalleryProps) {
                     onChange={(e) => setSuit(e.target.value as SuitFilter)}
                     className="w-full appearance-none rounded-lg border border-slate-700 bg-slate-900 py-2 pl-4 pr-10 text-sm text-slate-100 focus:border-purple-500 focus:outline-none cursor-pointer"
                   >
-                    <option value="All">All Suits</option>
+                    <option value="All">Suits</option>
                     <option value="Wands">🔥 Wands</option>
                     <option value="Cups">💧 Cups</option>
                     <option value="Swords">💨 Swords</option>

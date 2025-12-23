@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Sparkles, Star, Check, Image as ImageIcon } from 'lucide-react'
+import { Sparkles, Star, Check, Image as ImageIcon, Camera } from 'lucide-react'
 
 interface GrimoireCardProps {
   id: string
@@ -10,27 +10,27 @@ interface GrimoireCardProps {
   image?: string | null
   color?: string
   
+  // User State
   isOwned: boolean
   isWishlisted: boolean
+  hasUserImage?: boolean
   
-  onToggleOwned: (e: React.MouseEvent) => void
-  onToggleWishlist: (e: React.MouseEvent) => void
-  onClick: () => void // Opens Modal
+  onToggleOwned: () => void
+  onToggleWishlist: () => void
+  onClick: () => void 
 }
 
 export default function GrimoireCard({ 
   title, subtitle, image, color = '#a855f7', 
-  isOwned, isWishlisted, 
-  onToggleOwned, 
-  onToggleWishlist, 
-  onClick 
+  isOwned, isWishlisted, hasUserImage,
+  onToggleOwned, onToggleWishlist, onClick 
 }: GrimoireCardProps) {
 
-const handleAction = (e: React.MouseEvent, action: () => void) => {
-    e.stopPropagation() // Stop card from opening modal
-    e.preventDefault()  // Prevent any weird default browser behaviors
-    action()
-}
+  const handleAction = (e: React.MouseEvent, action: () => void) => {
+      e.stopPropagation() 
+      e.preventDefault() 
+      action()
+  }
 
   return (
     <motion.div 
@@ -53,15 +53,22 @@ const handleAction = (e: React.MouseEvent, action: () => void) => {
           </div>
         )}
         
-        {/* ACTION: WISHLIST (Top Right) */}
+        {/* Wishlist Button */}
         <button 
-        onClick={(e) => handleAction(e, onToggleWishlist as () => void)}
-        className={`absolute right-2 top-2 rounded-full p-2 backdrop-blur-md transition-all cursor-pointer ${
-            isWishlisted ? 'bg-amber-500/20 text-amber-400' : 'bg-black/40 text-slate-400 hover:bg-black/60 hover:text-white'
-          }`}
+          onClick={(e) => handleAction(e, onToggleWishlist)}
+          className={`absolute right-2 top-2 rounded-full p-2 backdrop-blur-md transition-all cursor-pointer ${
+              isWishlisted ? 'bg-amber-500/20 text-amber-400' : 'bg-black/40 text-slate-400 hover:bg-black/60 hover:text-white'
+            }`}
         >
           <Star className={`h-4 w-4 ${isWishlisted ? 'fill-amber-400' : ''}`} />
         </button>
+
+        {/* NEW: Has User Image Indicator */}
+        {hasUserImage && (
+             <div className="absolute left-2 top-2 rounded-full bg-black/60 p-1.5 text-purple-300 backdrop-blur-md">
+                <Camera className="h-3 w-3" />
+             </div>
+        )}
       </div>
 
       {/* TEXT SECTION */}
@@ -78,21 +85,21 @@ const handleAction = (e: React.MouseEvent, action: () => void) => {
           )}
         </div>
         
-        <div className="flex-1" /> {/* Spacer */}
+        <div className="flex-1" />
 
         {/* SANCTUARY BUTTON */}
-      <button
-        onClick={(e) => handleAction(e, onToggleOwned as () => void)}
-        className={`mt-4 flex w-full items-center justify-center gap-2 rounded-lg border py-2 text-xs font-bold uppercase tracking-widest transition-all cursor-pointer ${
-            isOwned 
-              ? 'border-purple-500 bg-purple-500/10 text-purple-300' 
-              : 'border-slate-700 bg-transparent text-slate-400 hover:border-slate-500 hover:text-white hover:bg-slate-800'
-          }`}
+        <button
+          onClick={(e) => handleAction(e, onToggleOwned)}
+          className={`mt-4 flex w-full items-center justify-center gap-2 rounded-lg border py-2 text-xs font-bold uppercase tracking-widest transition-all cursor-pointer ${
+              isOwned 
+                ? 'border-purple-500 bg-purple-500/10 text-purple-300' 
+                : 'border-slate-700 bg-transparent text-slate-400 hover:border-slate-500 hover:text-white hover:bg-slate-800'
+            }`}
         >
           {isOwned ? (
             <> <Check className="h-3 w-3" /> In Sanctuary </>
           ) : (
-            <> <Sparkles className="h-3 w-3" /> Add to Sanctuary </>
+            <> <Sparkles className="h-3 w-3" />Add to Sanctuary </>
           )}
         </button>
       </div>

@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import { createClient } from '../utils/supabase/server'
 import SanctuaryTabs from '@/components/sanctuary/SanctuaryTabs'
 import { getCrystalsData } from '@/app/actions/crystal-actions'

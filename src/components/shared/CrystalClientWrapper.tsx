@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react'
 import GrimoireDashboard from '../ui/GrimoireDashboard'
 import GrimoireModal from '../ui/GrimoireModal'
-import { updateCrystalState } from '@/app/actions/crystal-actions'
+import { updateCrystalState, saveUserCrystalImage } from '@/app/actions/crystal-actions'
+import { createClient } from '@/app/utils/supabase/client'
 import { UserCollectionState } from '@/app/actions/sanctuary-usercollectionstate'
 
 interface Props {
@@ -15,57 +16,74 @@ export default function CrystalClientWrapper({ crystals, initialUserState }: Pro
   const [selectedItem, setSelectedItem] = useState<any | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [userState, setUserState] = useState(initialUserState)
+  const supabase = createClient()
 
   useEffect(() => { setUserState(initialUserState) }, [initialUserState])
 
-  // Calculate unique filters (Elements)
   const uniqueElements = Array.from(new Set(crystals.map(c => c.element).filter(Boolean))).sort() as string[]
 
-// --- GENERIC HANDLER ---
+  // --- GENERIC STATE UPDATE (Owned/Wishlist) ---
   const handleUpdate = async (id: string, field: 'isOwned' | 'isWishlisted') => {
-    // 1. Get current state
-    const current = userState[id] || { isOwned: false, isWishlisted: false }
-    
-    // 2. Calculate new state
-    const newState = { 
-        ...current, 
-        [field]: !current[field] 
-    }
+    const current = userState[id] || { isOwned: false, isWishlisted: false, userImage: null }
+    const newState = { ...current, [field]: !current[field] }
 
-    // 3. Optimistic Update (Update UI immediately)
     setUserState(prev => ({ ...prev, [id]: newState }))
 
     try {
-        // 4. Call Server Action
         await updateCrystalState(id, {
             isOwned: newState.isOwned,
             isWishlisted: newState.isWishlisted
         })
-        console.log(`Success: Updated ${id}`)
     } catch (error) {
-        // 5. Revert on Error
-        console.error("Action failed:", error)
-        setUserState(prev => ({ ...prev, [id]: current })) // Revert to previous
-        alert("Failed to update sanctuary. Are you logged in?")
+        setUserState(prev => ({ ...prev, [id]: current }))
+        console.error("Update failed", error)
     }
   }
 
-  // Get state for the currently open modal item
+  // --- NEW: IMAGE UPLOAD HANDLER ---
+  const handleImageUpload = async (id: string, file: File) => {
+    // 1. Check Auth
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error("Not logged in")
+
+    // 2. Upload to Supabase Storage
+    const fileExt = file.name.split('.').pop()
+    const fileName = `${id}_${Date.now()}.${fileExt}`
+    const filePath = `${user.id}/${fileName}` // Must match RLS
+
+    const { error: uploadError } = await supabase.storage
+        .from('user_uploads')
+        .upload(filePath, file)
+
+    if (uploadError) throw uploadError
+
+    // 3. Save Path to DB (Server Action)
+    await saveUserCrystalImage(id, filePath)
+
+    // 4. Update Local State
+    setUserState(prev => ({
+        ...prev,
+        [id]: { ...prev[id], userImage: filePath }
+    }))
+    
+    return filePath
+  }
+
+  // Current State for Modal
   const selectedItemState = selectedItem 
-    ? (userState[selectedItem.id] || { isOwned: false, isWishlisted: false })
-    : { isOwned: false, isWishlisted: false }
+    ? (userState[selectedItem.id] || { isOwned: false, isWishlisted: false, userImage: null })
+    : { isOwned: false, isWishlisted: false, userImage: null }
 
   return (
     <>
       <GrimoireDashboard
         title="Crystal Database"
         description="Explore the properties of the earth."
-        items={crystals.map(c => ({ ...c }))}
+        items={crystals}
         filterCategories={uniqueElements}
         filterKey="element"
         mode="modal"
         userState={userState}
-        // Pass the handlers wrapped to call our generic function
         onToggleOwned={(id) => handleUpdate(id, 'isOwned')}
         onToggleWishlist={(id) => handleUpdate(id, 'isWishlisted')}
         onItemClick={(item) => { setSelectedItem(item); setIsModalOpen(true); }}
@@ -75,10 +93,18 @@ export default function CrystalClientWrapper({ crystals, initialUserState }: Pro
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         item={selectedItem}
-        isOwned={selectedItem ? (userState[selectedItem.id]?.isOwned || false) : false}
-        isWishlisted={selectedItem ? (userState[selectedItem.id]?.isWishlisted || false) : false}
+        category="crystal"
+        // Pass State
+        isOwned={selectedItemState.isOwned}
+        isWishlisted={selectedItemState.isWishlisted}
+        userImage={selectedItemState.userImage} // NEW: Pass the image path
+        
+        // Pass Handlers
         onToggleOwned={() => selectedItem && handleUpdate(selectedItem.id, 'isOwned')}
         onToggleWishlist={() => selectedItem && handleUpdate(selectedItem.id, 'isWishlisted')}
+        
+        // NEW: Pass the specific upload logic for Crystals
+        onImageUpload={(file) => selectedItem ? handleImageUpload(selectedItem.id, file) : Promise.reject()}
       />
     </>
   )

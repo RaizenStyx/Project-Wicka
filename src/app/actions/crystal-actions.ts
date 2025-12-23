@@ -7,6 +7,15 @@ import { UserCollectionState } from './sanctuary-usercollectionstate'
 export async function getCrystalsData() {
   const supabase = await createClient()
 
+  // 1. Get Current User (Required for filtering)
+  const { data: { user } } = await supabase.auth.getUser()
+  
+  // If no user, return empty state immediately to prevent errors
+  if (!user) {
+      return { crystals: [], userStateMap: {} }
+  }
+
+  // 2. Fetch Static Crystal Data
   const { data: crystals, error } = await supabase
     .from('crystals')
     .select('*')
@@ -14,23 +23,23 @@ export async function getCrystalsData() {
   
   if (error) console.error("Error fetching crystals:", error)
 
-  // Fetch flags
+  // 3. Fetch User Flags 
   const { data: collection } = await supabase
     .from('user_crystals')
     .select('crystal_id, is_owned, is_wishlisted, user_image_url')
-
-  // Map: CrystalID -> State
+    .eq('user_id', user.id)
+  
+  // 4. Map: CrystalID -> State
   const userStateMap: Record<string, UserCollectionState> = {}
   
   collection?.forEach((item) => {
     userStateMap[item.crystal_id] = { 
       isOwned: item.is_owned, 
       isWishlisted: item.is_wishlisted,
-      userImage: item.user_image_url
+      userImage: item.user_image_url 
     }
   })
 
-  // THE FIX: Explicitly return [] if null, ensuring it is always an Array
   return { crystals: crystals || [], userStateMap }
 }
 
