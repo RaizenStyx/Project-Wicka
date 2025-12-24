@@ -274,7 +274,7 @@ export default function SpellCard({
         <div className="text-slate-300 text-sm whitespace-pre-wrap leading-relaxed font-serif">{spell.content}</div>
 
         {!readOnly && (
-            <div className="absolute bottom-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 sm:opacity-0 sm:group-hover:opacity-100">
+            <div className="absolute bottom-4 right-4 flex gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200">
                 <button onClick={() => setIsEditing(true)} className="p-2 text-slate-500 hover:text-purple-400 hover:bg-slate-800 rounded-lg transition-colors cursor-pointer" title="Edit Spell"><Pencil className="w-4 h-4" /></button>
                 <button onClick={handleBurn} disabled={isBurning} className="p-2 text-slate-500 hover:text-orange-500 hover:bg-orange-950/30 rounded-lg transition-colors cursor-pointer" title="Burn Page"><Flame className={clsx("w-4 h-4", isBurning && "animate-pulse text-orange-500")} /></button>
             </div>
