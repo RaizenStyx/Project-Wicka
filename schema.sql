@@ -2410,3 +2410,7 @@ ADD COLUMN preferences JSONB DEFAULT '{"widget_order": ["profile", "moon", "taro
 UPDATE public.profiles 
 SET preferences = '{"widget_order": ["profile", "moon", "tarot", "crystal"], "active_deity": null, "theme": "default"}'::jsonb 
 WHERE preferences IS NULL;
+
+
+alter table public.user_deities 
+add column last_offering_at timestamp with time zone null;
