@@ -135,26 +135,34 @@ export default function GrimoireCard({
         <div className="flex-1" />
 
         {/* SANCTUARY BUTTON */}
-      <button
-        onClick={(e) => handleAction(e, onToggleOwned)}
-        className={`mt-4 flex w-full items-center justify-center gap-2 rounded-lg border py-2 text-xs font-bold uppercase tracking-widest transition-all cursor-pointer ${
-          isOwned 
-            ? 'border-purple-500 bg-purple-500/10 text-purple-300' 
-            : 'border-slate-700 bg-transparent text-slate-400 hover:border-slate-500 hover:text-white hover:bg-slate-800'
-        }`}
-      >
-        {isOwned ? (
-          <>
-            <Check className="h-3 w-3" />
-            {isDeity ? 'Deity Invoked' : 'In Sanctuary'}
-          </>
+        {isDeity ? (
+          <div className="text-xs text-slate-500 mb-1 italic flex items-center gap-1">
+            <Flame className="h-3 w-3 text-orange-400" />
+            Deity Card
+            <Sparkles className="h-3 w-3 text-purple-400" />
+          </div>
         ) : (
-          <>
-            {isDeity ? <Flame className="h-3 w-3" /> : <Sparkles className="h-3 w-3" />}
-            {isDeity ? 'Invoke Deity' : 'Add to Sanctuary'}
-          </>
+          <button
+          onClick={(e) => handleAction(e, onToggleOwned)}
+          className={`mt-4 flex w-full items-center justify-center gap-2 rounded-lg border py-2 text-xs font-bold uppercase tracking-widest transition-all cursor-pointer ${
+            isOwned 
+              ? 'border-purple-500 bg-purple-500/10 text-purple-300' 
+              : 'border-slate-700 bg-transparent text-slate-400 hover:border-slate-500 hover:text-white hover:bg-slate-800'
+          }`}
+        >
+          {isOwned ? (
+            <>
+              <Check className="h-3 w-3" />
+              Remove from Sanctuary
+            </>
+          ) : (
+            <>
+              <Sparkles className="h-3 w-3" />
+              Add to Sanctuary
+            </>
+          )}
+        </button>
         )}
-      </button>
       </div>
     </motion.div>
   )

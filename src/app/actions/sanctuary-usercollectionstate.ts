@@ -3,4 +3,5 @@ export type UserCollectionState = {
   isOwned: boolean;
   isWishlisted: boolean;
   userImage?: string | null;
+  lastOfferingAt?: string | null;
 }

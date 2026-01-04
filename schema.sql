@@ -2414,3 +2414,35 @@ WHERE preferences IS NULL;
 
 alter table public.user_deities 
 add column last_offering_at timestamp with time zone null;
+
+
+
+
+
+-- 1. Refactor user_deities to support the new "Invocation" system
+ALTER TABLE public.user_deities 
+  RENAME COLUMN is_patron TO is_invoked;
+
+ALTER TABLE public.user_deities 
+  ADD COLUMN IF NOT EXISTS last_invoked_at timestamptz;
+
+-- 2. Create the Journal Table (History of Invocations)
+CREATE TABLE public.deity_invocations (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  deity_id uuid REFERENCES public.deities(id) ON DELETE CASCADE NOT NULL,
+  
+  started_at timestamptz DEFAULT now() NOT NULL,
+  ended_at timestamptz, -- NULL means it's currently active or timed out naturally
+  
+  notes text, -- Optional: User can journal about this specific session later
+  created_at timestamptz DEFAULT now() NOT NULL
+);
+
+-- 3. Security (RLS) for the new table
+ALTER TABLE public.deity_invocations ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can manage own invocations" 
+  ON public.deity_invocations 
+  FOR ALL 
+  USING (auth.uid() = user_id);

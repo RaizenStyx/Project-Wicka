@@ -219,7 +219,7 @@ export default function SanctuaryTabs({
         <div className="mb-8 relative group">
         {/* The Scroll Container */}
         <div className="flex overflow-x-auto gap-3 pb-4 no-scrollbar scroll-smooth">
-            {['crystals', 'herbs', 'deities', 'candles', 'runes', 'oils'].map((tab) => (
+            {['crystals', 'herbs', 'candles', 'runes', 'oils'].map((tab) => (
             <button
                 key={tab}
                 onClick={() => setActiveTab(tab as Tab)}

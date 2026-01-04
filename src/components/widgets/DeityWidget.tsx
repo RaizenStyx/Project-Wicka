@@ -2,368 +2,206 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/app/utils/supabase/client'
-import { Flame, Sparkles, Edit2, Search, BookOpen } from 'lucide-react'
-import { formatDistanceToNow, addHours, isAfter } from 'date-fns'
+import { Sparkles, Flame } from 'lucide-react'
+import Image from 'next/image'
+import { formatDistanceToNow, addHours } from 'date-fns'
+import DeityModal from '@/components/deities/DeityModal'
 
-// Define the shape of the data we get from the join
-interface UserDeity {
-  id: string; 
+// Types
+interface WidgetDeity {
   deity_id: string;
-  is_patron: boolean;
-  last_offering_at: string | null;
+  is_invoked: boolean;
+  last_invoked_at: string | null;
+  is_owned: boolean;
   deities: {
+    id: string;
     name: string;
     title: string;
-    // Add icon/image here 
+    image_url: string;
+    pantheon: string;
+    domain: string[];
+    description: string;
+    symbols: string[];
   }
 }
 
 export default function DeityWidget() {
   const [loading, setLoading] = useState(true)
-  const [mode, setMode] = useState<'view' | 'edit'>('view')
+  const [invokedDeity, setInvokedDeity] = useState<WidgetDeity | null>(null)
+  const [roster, setRoster] = useState<WidgetDeity[]>([])
   
-  // Data State
-  const [activePatron, setActivePatron] = useState<UserDeity | null>(null)
-  const [customDeity, setCustomDeity] = useState<any>(null) // Fallback for custom names
-  
-  // Offering State
-  const [offeringActive, setOfferingActive] = useState(false)
-  const [timeLeft, setTimeLeft] = useState('')
-
-  // Search State
-  const [userCollection, setUserCollection] = useState<UserDeity[]>([])
-  const [searchTerm, setSearchTerm] = useState('')
-  const [showCustomInput, setShowCustomInput] = useState(false)
-  const [customName, setCustomName] = useState('')
+  // Modal State
+  const [selectedDeity, setSelectedDeity] = useState<any | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   const supabase = createClient()
 
-  // 1. INITIAL LOAD
   useEffect(() => {
-    loadWidgetData()
+    fetchWidgetData()
   }, [])
 
-  // 2. CHECK OFFERING STATUS (Run every minute)
+  // Auto-refresh timer for countdown (every minute)
   useEffect(() => {
-    const checkTimer = () => {
-      let lastTime = null
-      
-      if (activePatron?.last_offering_at) {
-        lastTime = new Date(activePatron.last_offering_at)
-      } else if (customDeity?.last_offering_at) {
-        lastTime = new Date(customDeity.last_offering_at)
-      }
-
-      if (lastTime) {
-        // Offerings last 24 hours
-        const endTime = addHours(lastTime, 24)
-        if (isAfter(endTime, new Date())) {
-          setOfferingActive(true)
-          setTimeLeft(formatDistanceToNow(endTime) + ' left')
-        } else {
-          setOfferingActive(false)
-          setTimeLeft('')
-        }
-      } else {
-        setOfferingActive(false)
-      }
-    }
-
-    checkTimer()
-    const interval = setInterval(checkTimer, 60000) // Update every minute
+    if (!invokedDeity) return
+    const interval = setInterval(() => {
+        // Just triggering a re-render to update 'formatDistanceToNow'
+        setInvokedDeity({ ...invokedDeity }) 
+    }, 60000)
     return () => clearInterval(interval)
-  }, [activePatron, customDeity])
+  }, [invokedDeity])
 
-  const loadWidgetData = async () => {
+  const fetchWidgetData = async () => {
+    setLoading(true)
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
 
-    // A. Check user_deities for a "Patron"
-    const { data: dbPatron } = await supabase
-      .from('user_deities')
-      .select('*, deities(name, title)')
-      .eq('user_id', user.id)
-      .eq('is_patron', true)
-      .maybeSingle() // Use maybeSingle to avoid errors if none exists
+    // 1. Get Invoked
+    const { data: active } = await supabase
+        .from('user_deities')
+        .select('*, deities(*)')
+        .eq('user_id', user.id)
+        .eq('is_invoked', true)
+        .maybeSingle()
+    
+    // 2. Get Roster (Wishlisted)
+    const { data: list } = await supabase
+        .from('user_deities')
+        .select('*, deities(*)')
+        .eq('user_id', user.id)
+        .eq('is_wishlisted', true)
+        .neq('is_invoked', true) // Don't show the active one in the carousel list
+        .order('created_at', { ascending: false })
 
-    if (dbPatron) {
-      setActivePatron(dbPatron)
-      setCustomDeity(null)
-      setMode('view')
-    } else {
-      // B. If no DB Patron, check Preferences for Custom
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('preferences')
-        .eq('id', user.id)
-        .single()
-      
-      const customPref = profile?.preferences?.deity
-      if (customPref) {
-        setCustomDeity(customPref)
-        setActivePatron(null)
-        setMode('view')
-      } else {
-        setMode('edit')
-      }
-    }
+    if (active) setInvokedDeity(active)
+    else setInvokedDeity(null)
+    
+    if (list) setRoster(list)
     setLoading(false)
   }
 
-  // 3. FETCH USER'S COLLECTION (For Search Mode)
-  const fetchCollection = async () => {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
-
-    // Fetch owned OR wishlisted deities
-    const { data } = await supabase
-      .from('user_deities')
-      .select('*, deities(name, title)')
-      .eq('user_id', user.id)
-      .or('is_owned.eq.true,is_wishlisted.eq.true')
-    
-    if (data) {
-      setUserCollection(data)
-    }
-  }
-
-  // Trigger fetch when entering edit mode
+  // 3. LISTEN FOR GLOBAL UPDATES (Sync with Modal actions)
   useEffect(() => {
-    if (mode === 'edit') fetchCollection()
-  }, [mode])
+      const handleStateChange = () => {
+          console.log("Deity state changed, refreshing widget...");
+          fetchWidgetData();
+      };
 
-  // 4. SAVE SELECTION (DB DEITY)
-  const selectPatron = async (rowId: string) => {
-    setLoading(true)
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
+      window.addEventListener('deity-state-changed', handleStateChange);
+      
+      // Cleanup listener
+      return () => {
+          window.removeEventListener('deity-state-changed', handleStateChange);
+      };
+  }, []); // Run once on mount
 
-    // 1. Reset old patrons
-    await supabase
-      .from('user_deities')
-      .update({ is_patron: false })
-      .eq('user_id', user.id)
-
-    // 2. Set new patron
-    await supabase
-      .from('user_deities')
-      .update({ is_patron: true })
-      .eq('id', rowId)
-
-    // 3. Clear custom preference (so DB takes priority)
-    const { data: profile } = await supabase.from('profiles').select('preferences').eq('id', user.id).single()
-    const currentPrefs = profile?.preferences || {}
-    const { deity, ...rest } = currentPrefs; // Remove deity key
-    
-    await supabase
-      .from('profiles')
-      .update({ preferences: rest })
-      .eq('id', user.id)
-
-    await loadWidgetData()
-    setMode('view')
+  const openModal = (item: WidgetDeity) => {
+    setSelectedDeity(item)
+    setIsModalOpen(true)
   }
 
-  // 5. SAVE SELECTION (CUSTOM)
-  const saveCustomDeity = async () => {
-    setLoading(true)
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
-
-    // 1. Reset any DB patrons
-    await supabase
-      .from('user_deities')
-      .update({ is_patron: false })
-      .eq('user_id', user.id)
-
-    // 2. Save to Preferences
-    const { data: profile } = await supabase.from('profiles').select('preferences').eq('id', user.id).single()
-    const currentPrefs = profile?.preferences || {}
-    const newCustomData = { name: customName, title: 'Personal Deity', id: 'custom', last_offering_at: null }
-
-    await supabase
-      .from('profiles')
-      .update({ preferences: { ...currentPrefs, deity: newCustomData } })
-      .eq('id', user.id)
-
-    await loadWidgetData()
-    setMode('view')
+  const handleModalClose = () => {
+      setIsModalOpen(false)
+      fetchWidgetData() // Refresh data when modal closes (in case they invoked/banished)
   }
 
-  // 6. MAKE OFFERING (Light Candle)
-  const makeOffering = async () => {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
-    
-    const now = new Date().toISOString()
-
-    if (activePatron) {
-      // Update DB Timestamp
-      await supabase
-        .from('user_deities')
-        .update({ last_offering_at: now })
-        .eq('id', activePatron.id)
-      
-      // Optimistic update
-      setActivePatron({ ...activePatron, last_offering_at: now })
-    } else if (customDeity) {
-      // Update Preference JSON
-      const { data: profile } = await supabase.from('profiles').select('preferences').eq('id', user.id).single()
-      const currentPrefs = profile?.preferences || {}
-      
-      const updatedDeity = { ...customDeity, last_offering_at: now }
-      
-      await supabase
-        .from('profiles')
-        .update({ preferences: { ...currentPrefs, deity: updatedDeity } })
-        .eq('id', user.id)
-      
-      setCustomDeity(updatedDeity)
-    }
-  }
-
-  // --- FILTER FOR SEARCH ---
-  const filteredCollection = userCollection.filter(item => 
-    item.deities.name.toLowerCase().includes(searchTerm.toLowerCase())
-  )
-
-  if (loading && !activePatron && !customDeity) return <div className="h-40 rounded-xl bg-slate-900/50 animate-pulse" />
-
-  // --- EDIT MODE ---
-  if (mode === 'edit') {
-    return (
-      <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-lg">
-        <h3 className="text-purple-400 font-serif text-lg mb-4 flex items-center gap-2">
-           <Sparkles size={18} /> Select Patron
-        </h3>
-        
-        {!showCustomInput ? (
-            <div className="space-y-4">
-                <div className="relative">
-                    <Search className="absolute left-3 top-2.5 text-slate-500" size={16} />
-                    <input 
-                        type="text"
-                        placeholder="Search your collection..."
-                        className="w-full bg-slate-950 border border-slate-800 rounded-lg pl-9 pr-4 py-2 text-sm text-slate-200 focus:outline-none focus:border-purple-500"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                </div>
-
-                <div className="space-y-1 max-h-40 overflow-y-auto pr-1 custom-scrollbar">
-                    {userCollection.length === 0 && (
-                       <p className="text-xs text-slate-500 p-2">You haven't added any deities to your collection yet.</p>
-                    )}
-                    
-                    {filteredCollection.map((item) => (
-                        <button
-                            key={item.id}
-                            onClick={() => selectPatron(item.id)}
-                            className="w-full flex items-center justify-between p-2 rounded hover:bg-slate-800 transition-colors text-left group"
-                        >
-                            <span className="text-slate-200 text-sm font-medium">{item.deities.name}</span>
-                            <span className="text-xs text-slate-500 group-hover:text-purple-400">
-                                {item.deities.title}
-                            </span>
-                        </button>
-                    ))}
-                </div>
-
-                <div className="pt-2 border-t border-slate-800">
-                    <button 
-                        onClick={() => setShowCustomInput(true)}
-                        className="text-xs text-slate-400 hover:text-purple-400 transition-colors flex items-center gap-1"
-                    >
-                        <Edit2 size={12} /> Use Custom Name instead
-                    </button>
-                </div>
-            </div>
-        ) : (
-            <div className="space-y-4">
-                 <input 
-                    type="text" 
-                    placeholder="Enter Custom Name"
-                    className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-sm text-slate-200 focus:outline-none focus:border-purple-500"
-                    value={customName}
-                    onChange={(e) => setCustomName(e.target.value)}
-                />
-                <div className="flex gap-2">
-                    <button 
-                        onClick={saveCustomDeity}
-                        className="flex-1 bg-purple-600 hover:bg-purple-500 text-white text-sm py-2 rounded-lg font-medium"
-                        disabled={!customName.trim()}
-                    >
-                        Confirm
-                    </button>
-                    <button 
-                        onClick={() => setShowCustomInput(false)}
-                        className="px-3 py-2 text-slate-400 hover:text-slate-200 text-sm"
-                    >
-                        Back
-                    </button>
-                </div>
-            </div>
-        )}
-      </div>
-    )
-  }
-
-  // --- VIEW MODE ---
-  // Determine display data
-  const displayName = activePatron ? activePatron.deities.name : customDeity?.name
-  const displayTitle = activePatron ? activePatron.deities.title : customDeity?.title
+  if (loading) return <div className="h-48 rounded-xl bg-slate-900/50 animate-pulse" />
 
   return (
-    <div className={`
-      relative overflow-hidden rounded-xl border p-6 transition-all duration-700
-      ${offeringActive 
-        ? 'bg-gradient-to-t from-orange-950/30 to-slate-900 border-orange-900/50 shadow-[0_0_30px_-5px_rgba(251,146,60,0.1)]' 
-        : 'bg-slate-900 border-slate-800'
-      }
-    `}>
-      <button 
-        onClick={() => setMode('edit')}
-        className="absolute top-3 right-3 text-slate-600 hover:text-purple-400 transition-colors"
-      >
-        <Edit2 size={14} />
-      </button>
-
-      <div className="text-center">
-        {/* Simple Icon Placeholder */}
-        <div className="text-4xl mb-3 drop-shadow-md flex justify-center text-purple-200">
-             <BookOpen />
-        </div>
+    <div className="relative overflow-hidden rounded-xl border border-slate-800 bg-slate-900 transition-all duration-500">
         
-        <h3 className="font-serif text-xl text-slate-200">{displayName}</h3>
-        <p className="text-xs text-slate-500 uppercase tracking-widest mb-6">{displayTitle}</p>
-        
-        <button
-          onClick={makeOffering}
-          disabled={offeringActive}
-          className={`
-            group relative inline-flex items-center justify-center gap-2 px-6 py-2 rounded-full text-sm font-medium transition-all duration-500
-            ${offeringActive 
-              ? 'bg-orange-500/10 text-orange-200 ring-1 ring-orange-500/50 cursor-default' 
-              : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-200 cursor-pointer'
-            }
-          `}
-        >
-          <Flame 
-            size={16} 
-            className={`transition-all duration-700 ${offeringActive ? 'fill-orange-500 text-orange-500 animate-pulse' : 'text-slate-500'}`} 
-          />
-          <span>{offeringActive ? 'Offering Active' : 'Light Candle'}</span>
-          
-          {offeringActive && <div className="absolute inset-0 bg-orange-500 blur-xl opacity-20 rounded-full" />}
-        </button>
+        {/* --- VIEW A: INVOKED STATE --- */}
+        {invokedDeity ? (
+             <div className="relative p-6 flex flex-col items-center text-center">
+                {/* Background Glow */}
+                <div className="absolute inset-0 bg-gradient-to-t from-purple-900/20 to-slate-900 pointer-events-none" />
+                
+                <div className="relative mb-3 group cursor-pointer" onClick={() => openModal(invokedDeity)}>
+                     <div className="w-20 h-20 rounded-full border-2 border-purple-500 p-1 shadow-[0_0_20px_#a855f7]">
+                        <div className="relative w-full h-full rounded-full overflow-hidden">
+                            <Image 
+                                src={invokedDeity.deities.image_url} 
+                                alt={invokedDeity.deities.name}
+                                fill
+                                className="object-cover"
+                            />
+                        </div>
+                     </div>
+                     <div className="absolute -bottom-1 -right-1 bg-slate-900 rounded-full p-1 border border-slate-700">
+                        <Flame size={12} className="text-orange-500 fill-orange-500 animate-pulse" />
+                     </div>
+                </div>
 
-        {/* Timer Text */}
-        {offeringActive && (
-            <p className="text-[10px] text-orange-500/60 mt-2 font-medium tracking-wide animate-pulse">
-                {timeLeft} remaining
-            </p>
+                <h3 className="font-serif text-xl text-purple-200">{invokedDeity.deities.name}</h3>
+                <p className="text-xs text-purple-400/70 uppercase tracking-widest mb-4">Invocation Active</p>
+
+                <div className="w-full bg-slate-950/50 rounded-lg p-3 border border-slate-800/50 backdrop-blur-sm">
+                    <p className="text-xs text-slate-400">Time Remaining</p>
+                    <p className="font-mono text-sm text-slate-200">
+                        {invokedDeity.last_invoked_at 
+                            ? formatDistanceToNow(addHours(new Date(invokedDeity.last_invoked_at), 24)) 
+                            : '24h 00m'
+                        }
+                    </p>
+                </div>
+
+                <button 
+                    onClick={() => openModal(invokedDeity)}
+                    className="absolute top-2 right-2 text-slate-600 hover:text-purple-400"
+                >
+                    <Sparkles size={14} />
+                </button>
+             </div>
+        ) : (
+            /* --- VIEW B: ROSTER (CAROUSEL) --- */
+            <div className="p-4">
+                <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-serif text-slate-200 flex items-center gap-2">
+                        <Sparkles size={14} className="text-purple-400" /> 
+                        Spirit Roster
+                    </h3>
+                    <span className="text-xs text-slate-500">{roster.length} Avail</span>
+                </div>
+
+                {roster.length === 0 ? (
+                    <div className="text-center py-6 text-slate-500 text-sm">
+                        <p>No deities in roster.</p>
+                        <a href="/deities" className="text-purple-400 hover:underline">Explore Pantheon</a>
+                    </div>
+                ) : (
+                    <div className="flex gap-3 overflow-x-auto pb-2 snap-x custom-scrollbar">
+                        {roster.map((item) => (
+                            <button 
+                                key={item.deity_id}
+                                onClick={() => openModal(item)}
+                                className="flex-shrink-0 snap-start w-16 flex flex-col items-center gap-1 group"
+                            >
+                                <div className="w-14 h-14 rounded-full border border-slate-700 overflow-hidden group-hover:border-purple-500 transition-colors">
+                                    <Image 
+                                        src={item.deities.image_url} 
+                                        alt={item.deities.name} 
+                                        width={56} height={56} 
+                                        className="w-full h-full object-cover opacity-70 group-hover:opacity-100"
+                                    />
+                                </div>
+                                <span className="text-[10px] text-slate-400 truncate w-full text-center group-hover:text-purple-300">
+                                    {item.deities.name}
+                                </span>
+                            </button>
+                        ))}
+                    </div>
+                )}
+            </div>
         )}
-      </div>
+
+        {/* REUSABLE MODAL */}
+        <DeityModal 
+            isOpen={isModalOpen}
+            onClose={handleModalClose}
+            deity={selectedDeity?.deities}
+            isInvoked={selectedDeity?.is_invoked || false}
+            isOwned={selectedDeity?.is_owned || false}
+            lastInvokedAt={selectedDeity?.last_invoked_at}
+        />
     </div>
   )
 }

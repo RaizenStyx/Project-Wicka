@@ -14,18 +14,20 @@ export async function getDeitiesData() {
 
   if (error) console.error(error)
 
+  // UPDATED: Select 'is_invoked' and 'last_invoked_at'
   const { data: collection } = await supabase
     .from('user_deities')
-    .select('deity_id, is_patron, is_owned, is_wishlisted, user_image_url')
+    .select('deity_id, is_invoked, is_owned, is_wishlisted, user_image_url, last_invoked_at')
 
-  const userStateMap: Record<string, UserCollectionState & { isPatron?: boolean }> = {}
+  const userStateMap: Record<string, UserCollectionState & { isInvoked?: boolean; lastInvokedAt?: string }> = {}
   
   collection?.forEach((item) => {
     userStateMap[item.deity_id] = { 
       isOwned: item.is_owned, 
       isWishlisted: item.is_wishlisted,
       userImage: item.user_image_url,
-      isPatron: item.is_patron
+      isInvoked: item.is_invoked, 
+      lastInvokedAt: item.last_invoked_at
     }
   })
 
@@ -37,7 +39,14 @@ export async function updateDeityState(deityId: string, newState: { isOwned: boo
   const user = (await supabase.auth.getUser()).data.user
   if (!user) throw new Error('Unauthorized')
 
-  if (!newState.isOwned && !newState.isWishlisted) {
+  // Prevent "Ghost Rows" - if they have nothing set, delete the row
+  // Note: We also check is_invoked. We don't want to delete the row if they are currently invoking the deity!
+  
+  // 1. Check if they are currently invoking (we need to know this before deciding to delete)
+  const { data: current } = await supabase.from('user_deities').select('is_invoked').match({ user_id: user.id, deity_id: deityId }).single()
+  const isInvoked = current?.is_invoked || false
+
+  if (!newState.isOwned && !newState.isWishlisted && !isInvoked) {
     const {error} = await supabase
       .from('user_deities')
       .delete()
@@ -51,12 +60,13 @@ export async function updateDeityState(deityId: string, newState: { isOwned: boo
         deity_id: deityId, 
         is_owned: newState.isOwned,
         is_wishlisted: newState.isWishlisted,
-        // We ensure a row exists. 'is_patron' would be handled by a separate toggle if you wanted.
-      }, { onConflict: 'user_id, deity_id' } as any)
+        // We DON'T touch is_invoked here. That is handled by the specialized actions.
+      }, { onConflict: 'user_id, deity_id' })
       if (error) throw error;
   }
 
   revalidatePath('/deities')
+  revalidatePath('/sanctuary')
 }
 
 export async function saveUserDeityImage(deityId: string, filePath: string) {
