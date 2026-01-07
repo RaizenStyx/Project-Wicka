@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Sparkles, Flame, Star, Check, Image as ImageIcon, Camera } from 'lucide-react'
+import { Sparkles, Flame, Star, Check, Plus, Image as ImageIcon, Camera, Minus } from 'lucide-react'
 import { CANDLE_NAMES, KNOWN_PANTHEONS } from '@/app/utils/constants'
 
 interface GrimoireCardProps {
@@ -153,12 +153,14 @@ export default function GrimoireCard({
           {isOwned ? (
             <>
               <Check className="h-3 w-3" />
-              Remove from Sanctuary
+              Sanctuary
+              <Minus className="h-3 w-3 text-red-500" />
             </>
           ) : (
             <>
               <Sparkles className="h-3 w-3" />
-              Add to Sanctuary
+              Sanctuary
+              <Plus className="h-3 w-3 text-teal-500" />
             </>
           )}
         </button>

@@ -2446,3 +2446,16 @@ CREATE POLICY "Users can manage own invocations"
   ON public.deity_invocations 
   FOR ALL 
   USING (auth.uid() = user_id);
+
+
+
+ --- Tarot Card Back Insertion
+INSERT INTO public.tarot_cards (name, arcana_type, suit, description, image_url)
+VALUES 
+(
+  'Card Back', 
+  'System',       
+  NULL, 
+  'The hidden face of fate.', 
+  '/tarot/card-back.jpg' 
+);

@@ -10,19 +10,24 @@ export default async function TarotPage() {
   const supabase = await createClient();
 
   // Fetch the entire deck.
-  // We sort by number (0-21 Major) then by Suit/Number for Minor usually.
-  // Adjust sorting logic as needed for your DB.
   const { data: cards, error } = await supabase
     .from('tarot_cards')
     .select('*')
-    .order('arcana_type', { ascending: true }) // Majors first usually
+    .not('slug', 'is', null) 
+    .order('arcana_type', { ascending: true }) 
     .order('number', { ascending: true });
 
   if (error) {
-  // Use JSON.stringify to reveal the hidden error message object
-  console.error("Tarot fetch error:", JSON.stringify(error, null, 2));
-  return <div className="p-20 text-center text-red-400">The cards are refusing to show themselves today.</div>;
-}
+    console.error("Tarot fetch error:", JSON.stringify(error, null, 2));
+    return <div className="p-20 text-center text-red-400">The cards are refusing to show themselves today.</div>;
+  }
+
+  // Find the Card Back 
+  // Assuming 'Card Back' might have a specific ID or Name if slug is null:
+  const cardBack = cards?.find(c => c.name === 'Card Back') || null;
+
+  // Filter the rest of the deck (Normal Cards)
+  const deck = cards?.filter(c => c.name !== 'Card Back') || [];
 
   return (
     <main className="min-h-screen bg-black text-white selection:bg-purple-500/30">
@@ -38,9 +43,28 @@ export default async function TarotPage() {
           </p>
         </div>
 
-        {/* The Interactive Client Component */}
-        <TarotGallery initialCards={cards || []} />
+        {/* Gallery */}
+        <TarotGallery initialCards={deck} cardBack={cardBack} />
         
+        {/* --- ATTRIBUTION FOOTER --- */}
+        <footer className="mt-24 border-t border-white/5 pt-12 text-center animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <p className="font-serif text-sm text-slate-500">
+                Tarot imagery provided by courtesy of{' '}
+                <a 
+                    href="https://www.tarottraveler.com/" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="font-medium text-purple-400 hover:text-purple-300 hover:underline transition-colors decoration-purple-500/30 underline-offset-4"
+                >
+                    Tarot Traveler
+                </a>
+                .
+            </p>
+            <p className="mt-2 text-xs text-slate-600">
+                May the cards guide your path.
+            </p>
+        </footer>
+
       </div>
     </main>
   );

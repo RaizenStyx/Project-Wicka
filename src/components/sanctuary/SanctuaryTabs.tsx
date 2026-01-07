@@ -304,15 +304,7 @@ export default function SanctuaryTabs({
             </div>
             </>
             )}
-        {/* {isModalOpen && (
-            <div className="fixed top-20 left-10 z-[100] bg-black border border-red-500 p-4 text-xs font-mono text-red-400 max-w-sm">
-                <p>DEBUG MODAL PROPS:</p>
-                <p>Item ID: {selectedItem?.id}</p>
-                <p>Has Context? {context ? 'Yes' : 'No'}</p>
-                <p>Is Owned? {String(selectedState.isOwned)}</p>
-                <p>User Image Prop: {String(selectedState.userImage)}</p>
-            </div>
-        )} */}
+        
       {/* MODAL */}
       <GrimoireModal 
         isOpen={isModalOpen}

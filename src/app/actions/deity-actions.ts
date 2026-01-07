@@ -17,7 +17,7 @@ export async function getDeitiesData() {
   // UPDATED: Select 'is_invoked' and 'last_invoked_at'
   const { data: collection } = await supabase
     .from('user_deities')
-    .select('deity_id, is_invoked, is_owned, is_wishlisted, user_image_url, last_invoked_at')
+    .select('deity_id, is_invoked, is_owned, is_wishlisted, user_image_url, last_invoked_at, last_offering_at')
 
   const userStateMap: Record<string, UserCollectionState & { isInvoked?: boolean; lastInvokedAt?: string }> = {}
   
@@ -27,7 +27,8 @@ export async function getDeitiesData() {
       isWishlisted: item.is_wishlisted,
       userImage: item.user_image_url,
       isInvoked: item.is_invoked, 
-      lastInvokedAt: item.last_invoked_at
+      lastInvokedAt: item.last_invoked_at,
+      lastOfferingAt: item.last_offering_at
     }
   })
 

@@ -34,9 +34,6 @@ export default function SpellCard({
   // Should we show the Public Badge? (Yes, unless we are in the Grimoire)
   const showPublicBadge = spell.is_published && !isGrandGrimoire
   
-  // Should we stack them? (Only if we are showing BOTH badges)
-  const shouldStack = showPublicBadge && spell.is_ritual
-  
   const [isBurning, setIsBurning] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -203,7 +200,7 @@ export default function SpellCard({
     )
   }
 
-  // --- RENDER: VIEW MODE ---
+// --- RENDER: VIEW MODE ---
   return (
     <motion.div 
         layout
@@ -212,49 +209,49 @@ export default function SpellCard({
     >
         {/* --- BADGE CONTAINER UPDATE --- */}
         <div className={clsx(
-            "absolute top-6 right-6 flex",
-            // If stacking, align right and use column. Otherwise, row center.
-            shouldStack ? "flex-col items-end gap-1" : "flex-row items-center gap-2"
+            // 1. Positioning: Relative on mobile (pushes content down), Absolute on Desktop (floats in corner)
+            "flex justify-end mb-2 sm:absolute sm:top-6 sm:right-6 sm:mb-0",
+            
+            // 2. Layout: ALWAYS row, side-by-side, never stack
+            "flex-row items-center gap-2" 
         )}>
-           
-           {/* PUBLIC BADGE (Conditionally Rendered) */}
-           {showPublicBadge && (
-               <span className="flex items-center gap-1 text-[10px] text-purple-300 border border-purple-900 bg-purple-900/40 px-2 py-0.5 rounded-full uppercase tracking-wider font-bold shadow-sm shadow-purple-900/50">
-                  <Globe className="w-3 h-3" /> Public
-               </span>
-           )}
+            
+            {/* PUBLIC BADGE */}
+            {showPublicBadge && (
+                <span className="flex items-center gap-1 text-[10px] text-purple-300 border border-purple-900 bg-purple-900/40 px-2 py-0.5 rounded-full uppercase tracking-wider font-bold shadow-sm shadow-purple-900/50">
+                   <Globe className="w-3 h-3" /> Public
+                </span>
+            )}
 
-           {/* RITUAL BADGE (Always shows if it is a ritual) */}
-           {spell.is_ritual && (
-               <span className="flex items-center gap-1 text-[10px] text-amber-300 border border-amber-900 bg-amber-900/20 px-2 py-0.5 rounded-full uppercase tracking-wider font-bold shadow-sm">
-                  <Scroll className="w-3 h-3" /> Ritual
-               </span>
-           )}
+            {/* RITUAL BADGE */}
+            {spell.is_ritual && (
+                <span className="flex items-center gap-1 text-[10px] text-amber-300 border border-amber-900 bg-amber-900/20 px-2 py-0.5 rounded-full uppercase tracking-wider font-bold shadow-sm">
+                   <Scroll className="w-3 h-3" /> Ritual
+                </span>
+            )}
 
-           {/* PRIVATE / PROFILE ICONS (These act as the "Not Public" state) */}
-           {/* If it's NOT published, we show these. Since they are small icons, 
-               they will sit side-by-side with the Ritual badge due to our ternary logic above. */}
-           {!spell.is_published && (
-               <>
-                   {spell.is_private && <Lock className="w-4 h-4 text-slate-600" />}
-                   {!spell.is_private && <Eye className="w-4 h-4 text-slate-500" />}
-               </>
-           )}
+            {/* PRIVATE / PROFILE ICONS */}
+            {!spell.is_published && (
+                <>
+                    {spell.is_private && <Lock className="w-4 h-4 text-slate-600" />}
+                    {!spell.is_private && <Eye className="w-4 h-4 text-slate-500" />}
+                </>
+            )}
         </div>
 
         {/* Author */}
         {showAuthor && spell.profiles && (
-           <div className="mb-4 flex items-center gap-2 pb-3 border-b border-slate-800/50">
-               <span className="text-xs text-slate-500">Scribed by</span>
-               <span className="text-sm font-bold text-purple-400 font-serif">{spell.profiles.username}</span>
-           </div>
+            <div className="mb-4 flex items-center gap-2 pb-3 border-b border-slate-800/50">
+                <span className="text-xs text-slate-500">Scribed by</span>
+                <span className="text-sm font-bold text-purple-400 font-serif">{spell.profiles.username}</span>
+            </div>
         )}
 
         <h3 className="text-xl font-bold text-slate-200 font-serif mb-2">{spell.title}</h3>
         
         <div className="flex flex-wrap gap-3 mb-4 text-xs">
-           {spell.intent && <span className="bg-purple-900/20 text-purple-300 px-2 py-1 rounded border border-purple-800/30">{spell.intent}</span>}
-           {spell.moon_phase && spell.moon_phase !== 'Any' && <span className="bg-slate-800 text-slate-400 px-2 py-1 rounded flex items-center gap-1 border border-slate-700"><Moon className="w-3 h-3" /> {spell.moon_phase}</span>}
+            {spell.intent && <span className="bg-purple-900/20 text-purple-300 px-2 py-1 rounded border border-purple-800/30">{spell.intent}</span>}
+            {spell.moon_phase && spell.moon_phase !== 'Any' && <span className="bg-slate-800 text-slate-400 px-2 py-1 rounded flex items-center gap-1 border border-slate-700"><Moon className="w-3 h-3" /> {spell.moon_phase}</span>}
         </div>
 
         {/* --- SMART INGREDIENTS DISPLAY --- */}
@@ -266,9 +263,9 @@ export default function SpellCard({
 
         {/* Extra Ingredients */}
         {spell.ingredients && (
-           <div className="mb-4 py-2 border-t border-b border-slate-800/50 border-dashed">
-              <p className="text-xs text-slate-400 font-serif italic"><span className="not-italic text-slate-600 font-sans text-[10px] uppercase tracking-wider mr-2 font-bold">Extra:</span> {spell.ingredients}</p>
-           </div>
+            <div className="mb-4 py-2 border-t border-b border-slate-800/50 border-dashed">
+               <p className="text-xs text-slate-400 font-serif italic"><span className="not-italic text-slate-600 font-sans text-[10px] uppercase tracking-wider mr-2 font-bold">Extra:</span> {spell.ingredients}</p>
+            </div>
         )}
 
         <div className="text-slate-300 text-sm whitespace-pre-wrap leading-relaxed font-serif">{spell.content}</div>

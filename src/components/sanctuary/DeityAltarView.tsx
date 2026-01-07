@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation' // Added Router for page refresh
+import { useRouter } from 'next/navigation' 
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Flame, X, Clock, BookOpen } from 'lucide-react'
@@ -213,10 +213,10 @@ export default function DeityAltarView({ invokedDeity, roster, userDeityState }:
         
         // Pass dynamic Invocation status
         isInvoked={selectedDeity?.id === invokedDeity?.deity_id}
-        // For the Altar view, we can assume ownership is false or fetch it if needed, 
-        // but for now focus is on invocation.
+        
         isOwned={false} 
         lastInvokedAt={selectedDeity?.id === invokedDeity?.deity_id ? invokedDeity?.last_invoked_at : null}
+        lastOfferingAt={selectedDeity?.id === invokedDeity?.deity_id ? invokedDeity?.last_offering_at : null}
       />
     </div>
   )

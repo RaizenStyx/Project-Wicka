@@ -6,11 +6,11 @@ import DeityModal from '../deities/DeityModal'
 import { UserCollectionState } from '@/app/actions/sanctuary-usercollectionstate'
 import { updateDeityState } from '@/app/actions/deity-actions'
 
-
 interface Props {
   deities: any[]
   pantheons: string[]
-  initialUserState: Record<string, UserCollectionState & { isInvoked?: boolean; lastInvokedAt?: string }>
+  // Updated type definition to include lastOfferingAt
+  initialUserState: Record<string, UserCollectionState & { isInvoked?: boolean; lastInvokedAt?: string; lastOfferingAt?: string }>
 }
 
 export default function DeityClientWrapper({ deities, pantheons, initialUserState }: Props) {
@@ -20,20 +20,16 @@ export default function DeityClientWrapper({ deities, pantheons, initialUserStat
 
   useEffect(() => { setUserState(initialUserState) }, [initialUserState])
 
-  // LOGIC: Toggle Ownership (Physical Statue)
   const handleToggleOwned = async (id: string) => {
       const current = userState[id] || { isOwned: false, isWishlisted: false }
       const newState = { ...current, isOwned: !current.isOwned }
-      
       setUserState(prev => ({ ...prev, [id]: newState }))
       await updateDeityState(id, newState) 
   }
   
-  // LOGIC: Toggle Wishlist (Roster)
   const handleToggleWishlist = async (id: string) => {
       const current = userState[id] || { isOwned: false, isWishlisted: false }
       const newState = { ...current, isWishlisted: !current.isWishlisted }
-      
       setUserState(prev => ({ ...prev, [id]: newState }))
       await updateDeityState(id, newState) 
   }
@@ -54,23 +50,20 @@ const selectedItemState = selectedItem
         mode="modal"
         
         userState={userState}
-        // We keep these toggles for the CARD view (Heart/Checkmark)
         onToggleOwned={handleToggleOwned}
         onToggleWishlist={handleToggleWishlist}
         onItemClick={(item) => { setSelectedItem(item); setIsModalOpen(true); }}
       />
 
-      {/* NEW SPECIALIZED MODAL */}
       <DeityModal 
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         deity={selectedItem}
         
-        // Pass the specialized state
         isInvoked={selectedItemState.isInvoked || false}
         isOwned={selectedItemState.isOwned}
         lastInvokedAt={selectedItemState.lastInvokedAt}
-        lastOfferingAt={selectedItemState.lastOfferingAt}
+        lastOfferingAt={selectedItemState.lastOfferingAt} // Passing the data!
       />
     </>
   )

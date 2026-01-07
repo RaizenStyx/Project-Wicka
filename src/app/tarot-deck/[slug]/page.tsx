@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import Link from 'next/link';
 
-// 1. Anon Client for Static Generation (Fixes the "Cookies" error)
+// 1. Anon Client for Static Generation
 const getPublicClient = () => {
   return createSupabaseClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -14,7 +14,12 @@ const getPublicClient = () => {
 // 2. Generate Static Params (Build all 78 pages)
 export async function generateStaticParams() {
   const supabase = getPublicClient();
-  const { data: cards } = await supabase.from('tarot_cards').select('slug');
+  
+  // UPDATED: Filter out the 'Card Back' or any incomplete entries using .not('slug', 'is', null)
+  const { data: cards } = await supabase
+    .from('tarot_cards')
+    .select('slug')
+    .not('slug', 'is', null);
 
   return (
     cards?.map((card) => ({
@@ -26,6 +31,10 @@ export async function generateStaticParams() {
 // 3. Metadata
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
+  
+  // Safety check
+  if (!slug || slug === 'null') return { title: 'Tarot Card' };
+
   const title = slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
   return {
     title: `${title} | Tarot Meaning`,

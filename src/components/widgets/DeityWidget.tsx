@@ -12,6 +12,7 @@ interface WidgetDeity {
   deity_id: string;
   is_invoked: boolean;
   last_invoked_at: string | null;
+  last_offering_at: string | null;
   is_owned: boolean;
   deities: {
     id: string;
@@ -69,7 +70,7 @@ export default function DeityWidget() {
         .select('*, deities(*)')
         .eq('user_id', user.id)
         .eq('is_wishlisted', true)
-        .neq('is_invoked', true) // Don't show the active one in the carousel list
+        .neq('is_invoked', true)
         .order('created_at', { ascending: false })
 
     if (active) setInvokedDeity(active)
@@ -201,6 +202,7 @@ export default function DeityWidget() {
             isInvoked={selectedDeity?.is_invoked || false}
             isOwned={selectedDeity?.is_owned || false}
             lastInvokedAt={selectedDeity?.last_invoked_at}
+            lastOfferingAt={selectedDeity?.last_offering_at}
         />
     </div>
   )

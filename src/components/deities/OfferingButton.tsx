@@ -1,29 +1,37 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Flame, Clock } from 'lucide-react'
-import { extendInvocation } from '@/app/actions/deity-invocation-actions'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react';
+import { Flame, Clock } from 'lucide-react';
+import { extendInvocation } from '@/app/actions/deity-invocation-actions';
 
 interface Props {
-    deityId: string
-    lastOfferingAt: string | null
-    onUpdate: () => void
+    deityId: string;
+    lastOfferingAt: string | null;
+    onUpdate: () => void;
 }
 
 export default function OfferingButton({ deityId, lastOfferingAt, onUpdate }: Props) {
-    const [loading, setLoading] = useState(false)
-    const [cooldownRemaining, setCooldownRemaining] = useState<string | null>(null)
+    const [loading, setLoading] = useState(false);
+    const [cooldownRemaining, setCooldownRemaining] = useState<string | null>(null);
+    
+    // 1. Create an internal state initialized by the prop
+    const [optimisticLastOfferingAt, setOptimisticLastOfferingAt] = useState<string | null>(lastOfferingAt)
 
+    // 2. Sync internal state if the prop changes (e.g., on initial load or server refresh)
     useEffect(() => {
-        if (!lastOfferingAt) {
+        setOptimisticLastOfferingAt(lastOfferingAt)
+    }, [lastOfferingAt])
+
+    // 3. Effect now depends on the OPTIMISTIC state, not just the prop
+    useEffect(() => {
+        if (!optimisticLastOfferingAt) {
             setCooldownRemaining(null)
             return
         }
 
         const checkCooldown = () => {
             const now = new Date().getTime()
-            const offeringTime = new Date(lastOfferingAt).getTime()
+            const offeringTime = new Date(optimisticLastOfferingAt).getTime()
             const cooldownMs = 8 * 60 * 60 * 1000 // 8 hours
             const nextAvailable = offeringTime + cooldownMs
             const diff = nextAvailable - now
@@ -40,15 +48,22 @@ export default function OfferingButton({ deityId, lastOfferingAt, onUpdate }: Pr
         checkCooldown()
         const interval = setInterval(checkCooldown, 60000) // Update every minute
         return () => clearInterval(interval)
-    }, [lastOfferingAt])
+    }, [optimisticLastOfferingAt])
 
     const handleExtend = async () => {
         setLoading(true)
         try {
             await extendInvocation(deityId)
-            onUpdate() // Trigger parent refresh
+            
+            // 4. OPTIMISTIC UPDATE:
+            // Set the timestamp immediately upon success.
+            // This triggers the useEffect above to disable the button instantly.
+            setOptimisticLastOfferingAt(new Date().toISOString())
+
+            onUpdate() // Still trigger the parent refresh to sync server data in background
         } catch (e) {
             console.error(e)
+            // Ideally add toast error handling here
         } finally {
             setLoading(false)
         }
