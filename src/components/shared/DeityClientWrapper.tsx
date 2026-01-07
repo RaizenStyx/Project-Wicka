@@ -10,7 +10,11 @@ interface Props {
   deities: any[]
   pantheons: string[]
   // Updated type definition to include lastOfferingAt
-  initialUserState: Record<string, UserCollectionState & { isInvoked?: boolean; lastInvokedAt?: string; lastOfferingAt?: string }>
+  initialUserState: Record<string, UserCollectionState & { 
+      isInvoked?: boolean; 
+      lastInvokedAt?: string | null; 
+      lastOfferingAt?: string | null 
+  }>
 }
 
 export default function DeityClientWrapper({ deities, pantheons, initialUserState }: Props) {

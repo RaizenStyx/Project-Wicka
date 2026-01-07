@@ -19,7 +19,11 @@ export async function getDeitiesData() {
     .from('user_deities')
     .select('deity_id, is_invoked, is_owned, is_wishlisted, user_image_url, last_invoked_at, last_offering_at')
 
-  const userStateMap: Record<string, UserCollectionState & { isInvoked?: boolean; lastInvokedAt?: string }> = {}
+  const userStateMap: Record<string, UserCollectionState & { 
+    isInvoked?: boolean; 
+    lastInvokedAt?: string | null; 
+    lastOfferingAt?: string | null; 
+  }> = {}
   
   collection?.forEach((item) => {
     userStateMap[item.deity_id] = { 
