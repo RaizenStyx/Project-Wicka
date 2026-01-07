@@ -2463,7 +2463,11 @@ VALUES
 
 
 
-
+-- Allow ANYONE to see which deity a user has currently invoked
+CREATE POLICY "Public can view active invocations"
+ON public.user_deities
+FOR SELECT
+USING ( is_invoked = true );
 
 
 

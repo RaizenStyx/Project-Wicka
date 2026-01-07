@@ -1,6 +1,6 @@
 import { createClient } from '@/app/utils/supabase/server'
 import { notFound, redirect } from 'next/navigation'
-import { Cannabis, Cat, Shield, ChevronLeft, Check, Omega, UserRoundCog } from 'lucide-react'
+import { Cannabis, Cat, Shield, ChevronLeft, Check, Omega, UserRoundCog, Sparkles, Flame } from 'lucide-react'
 import { signOut } from '@/app/actions/auth-actions'
 import { clsx } from 'clsx'
 import RoleBadge from '@/components/ui/RoleBadge'
@@ -10,6 +10,7 @@ import PostCard from '@/components/feed/PostCard'
 import SpellCard from '@/components/spellbook/SpellCard'
 import Link from 'next/link'
 import { Metadata } from 'next'
+import ProfileDeityWidget from '@/components/profile/ProfileDeityWidget'
 
 // 3. Metadata
 export async function generateMetadata({ params }: { params: Promise<{ handle: string }> }): Promise<Metadata> {
@@ -49,7 +50,7 @@ export default async function ProfilePage({
     .single()
 
   // 3. Fetch the TARGET Profile (Based on the Handle in the URL)
-  const { data: profile } = await supabase
+    const { data: profile } = await supabase
     .from('profiles')
     .select(`
       *,
@@ -60,41 +61,27 @@ export default async function ProfilePage({
           name,
           symbol
         )
-      ),
-      user_deities (
-        is_invoked,
-        deities (
-          name,
-          title,
-          image_url,
-          pantheon
-        )
       )
     `)
     .eq('handle', handle) 
     .single()
 
-    // const { data: profile } = await supabase
-    // .from('profiles')
-    // .select(`
-    //   *,
-    //   zodiac_signs (
-    //     name,
-    //     symbol,
-    //     planets (
-    //       name,
-    //       symbol
-    //     )
-    //   )
-    // `)
-    // .eq('handle', handle) 
-    // .single()
-
-    console.log("Fetched profile:", profile);
 
   if (!profile) return notFound()
 
-  // 4. DATA FETCHING SPLIT
+  // 4. SEPARATE FETCH: Active Invocation
+  // We use the profile.id we just fetched to find their active deity.
+  // This is safer than a join and won't crash the page if empty.
+  const { data: activeInvocation } = await supabase
+    .from('user_deities')
+    .select('*, deities(*)')
+    .eq('user_id', profile.id)
+    .eq('is_invoked', true)
+    .maybeSingle()
+
+  const invokedDeity = activeInvocation?.deities || null;
+
+  // 5. DATA FETCHING SPLIT
   let posts = null;
   let spells = null;
 
@@ -120,9 +107,6 @@ export default async function ProfilePage({
   const isSupporter = ['supporter', 'admin', 'verified', 'Goddess', 'Princess'].includes(profile.role);
 
   const showBackButton = from === 'members';
- 
-  const activeInvocation = profile.user_deities?.find((ud: any) => ud.is_invoked)
-  const invokedDeity = activeInvocation ? activeInvocation.deities : null
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-200 font-sans">
@@ -280,17 +264,87 @@ export default async function ProfilePage({
                </div>
              </div>
 
-            {/* Placeholder Widget */}
-            {invokedDeity && (
-              <div className="p-6 rounded-xl bg-slate-900 border border-slate-800">
-                <h3 className="text-xs uppercase tracking-widest text-slate-500 mb-4 font-bold">Astrology Info</h3>
-                <div className="space-y-3 text-sm">
-                  <div className="flex justify-between pb-2">
-                    <span className="text-slate-500">Currently invoking:</span>
-                   <p className="text-slate-400">{invokedDeity?.name || 'No deity invoked'}</p>
+            {/* Invoked Deity Widget */}
+            {activeInvocation && invokedDeity && (
+                <ProfileDeityWidget 
+                    invocation={activeInvocation} 
+                    deity={invokedDeity} 
+                />
+            )}
+            {!activeInvocation && !invokedDeity && (
+            <div className="relative overflow-hidden rounded-2xl border border-slate-700/50 bg-slate-900 shadow-2xl h-[280px] flex flex-col">
+      
+              {/* Subtle animated background pattern */}
+              <div className="absolute inset-0 z-0 opacity-5">
+                <div className="absolute inset-0" style={{
+                  backgroundImage: 'radial-gradient(circle at 2px 2px, rgb(148, 163, 184) 1px, transparent 0)',
+                  backgroundSize: '40px 40px'
+                }} />
+              </div>
+
+              {/* Gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800" />
+              
+              {/* Decorative corner accents */}
+              <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 rounded-full blur-3xl" />
+              <div className="absolute bottom-0 left-0 w-40 h-40 bg-orange-500/5 rounded-full blur-3xl" />
+
+              {/* Content Container */}
+              <div className="relative z-10 flex flex-col items-center justify-center h-full p-6 text-center">
+                
+                {/* Icon Container */}
+                <div className="relative mb-5">
+                  {/* Outer glow ring */}
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-purple-500/20 to-orange-500/20 blur-xl scale-150 animate-pulse" />
+                  
+                  {/* Icon background */}
+                  <div className="relative w-16 h-16 rounded-full bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700/50 flex items-center justify-center shadow-lg">
+                    <Flame size={28} className="text-slate-600" strokeWidth={1.5} />
                   </div>
-               </div>
-             </div>
+
+                  {/* Decorative sparkles */}
+                  <Sparkles 
+                    size={16} 
+                    className="absolute -top-1 -right-1 text-purple-400/30 animate-pulse" 
+                    style={{ animationDelay: '0.5s' }}
+                  />
+                  <Sparkles 
+                    size={12} 
+                    className="absolute -bottom-1 -left-1 text-orange-400/30 animate-pulse" 
+                    style={{ animationDelay: '1s' }}
+                  />
+                </div>
+
+                {/* Heading */}
+                <h3 className="text-[11px] font-bold uppercase tracking-widest text-purple-400/70 mb-2">
+                  No Active Invocation
+                </h3>
+
+                {/* Main message */}
+                <p className="text-slate-400 text-sm leading-relaxed max-w-[260px] mb-6">
+                  This altar stands quiet. Invoking a deity will begin your sacred rite.
+                </p>
+
+                {/* Decorative divider */}
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-12 h-px bg-gradient-to-r from-transparent via-slate-700 to-transparent" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-slate-700" />
+                  <div className="w-12 h-px bg-gradient-to-r from-transparent via-slate-700 to-transparent" />
+                </div>
+
+                {/* Call to action hint */}
+                <div className="inline-flex items-center gap-2 rounded-full border border-slate-700/50 bg-slate-800/50 px-4 py-2 backdrop-blur-sm">
+                  <div className="w-2 h-2 rounded-full bg-slate-600 animate-pulse" />
+                  <span className="text-xs font-medium text-slate-500">
+                    Awaiting invocation
+                  </span>
+                </div>
+
+              </div>
+
+              {/* Subtle border enhancement */}
+              <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/5 pointer-events-none" />
+            </div>
             )}
 
               {/* Placeholder Widget */}

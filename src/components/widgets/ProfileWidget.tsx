@@ -117,7 +117,7 @@ export default async function ProfileWidget() {
                                 <Cat className="w-3 h-3 text-purple-400 fill-purple-400/20" />
                             )}
                             {(profile.role === 'Creator') && (
-                                <Omega className="w-3 h-3 text-purple-400 fill-purple-400/20" />
+                                <Omega className="w-3 h-3 text-teal-400 fill-purple-400/20" />
                             )}
                         </p>
                         <p className="text-xs text-slate-500">Member since: {date}</p>

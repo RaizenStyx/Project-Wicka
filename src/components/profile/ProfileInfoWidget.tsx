@@ -17,7 +17,6 @@ interface Profile {
   zodiac_signs: {
     name: string
     symbol: string
-    // Optional: Add planets if you are fetching the ruling planet info too
     planets?: {
       name: string
       symbol: string
