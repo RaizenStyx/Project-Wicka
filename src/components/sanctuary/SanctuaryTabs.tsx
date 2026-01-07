@@ -6,25 +6,29 @@ import GrimoireDashboard from '../spellbook/GrimoireDashboard'
 import GrimoireModal from '../spellbook/GrimoireModal'
 import { updateCrystalState, saveUserCrystalImage } from '@/app/actions/crystal-actions'
 import { updateHerbState, saveUserHerbImage } from '@/app/actions/herb-actions'
-import { updateDeityState, saveUserDeityImage } from '@/app/actions/deity-actions'
 import { updateCandleState, saveUserCandleImage } from '@/app/actions/candle-actions'
+import { updateRuneState, saveUserRuneImage } from '@/app/actions/rune-actions'
+import { updateOilState, saveUserOilImage } from '@/app/actions/oil-actions'
+
 import { createClient } from '@/app/utils/supabase/client'
 import { Sparkles, Star } from 'lucide-react'
 
 interface Props {
   crystals: any[]; crystalState: any;
   herbs: any[]; herbState: any;
-  deities: any[]; deityState: any;
   candles: any[]; candleState: any;
+  runes: any[]; runeState: any;
+  oils: any[]; oilState: any;
 }
 
-type Tab = 'crystals' | 'herbs' | 'deities' | 'candles'
+type Tab = 'crystals' | 'herbs' | 'candles' | 'runes' | 'oils'
 
 export default function SanctuaryTabs({ 
   crystals, crystalState, 
   herbs, herbState, 
-  deities, deityState, 
-  candles, candleState 
+  candles, candleState,
+  runes, runeState,
+  oils, oilState
 }: Props) {
 
   const router = useRouter()
@@ -39,15 +43,17 @@ export default function SanctuaryTabs({
   // --- LOCAL STATE FOR OPTIMISTIC UPDATES ---
   const [localCrystalState, setLocalCrystalState] = useState(crystalState)
   const [localHerbState, setLocalHerbState] = useState(herbState)
-  const [localDeityState, setLocalDeityState] = useState(deityState)
   const [localCandleState, setLocalCandleState] = useState(candleState)
+  const [localRuneState, setLocalRuneState] = useState(runeState)
+  const [localOilState, setLocalOilState] = useState(oilState)
 
   useEffect(() => { setLocalCrystalState(crystalState) }, [crystalState])
   useEffect(() => { setLocalHerbState(herbState) }, [herbState])
-  useEffect(() => { setLocalDeityState(deityState) }, [deityState])
   useEffect(() => { setLocalCandleState(candleState) }, [candleState])
+  useEffect(() => { setLocalRuneState(runeState) }, [runeState])
+  useEffect(() => { setLocalOilState(oilState) }, [oilState])
 
-// --- HELPER: Get Current Context ---
+  // --- HELPER: Get Current Context ---
   const getContext = () => {
     switch (activeTab) {
       case 'crystals': return { 
@@ -70,16 +76,6 @@ export default function SanctuaryTabs({
           filters: ['Earth', 'Fire', 'Water', 'Air'],
           filterKey: 'element'
       }
-      case 'deities': return { 
-          items: deities, 
-          state: localDeityState, 
-          setter: setLocalDeityState, 
-          action: updateDeityState,
-          saveImageAction: saveUserDeityImage, 
-          category: 'deity' as const,          
-          filters: ['Greek', 'Norse', 'Egyptian'],
-          filterKey: 'pantheon'
-      }
       case 'candles': return { 
           items: candles, 
           state: localCandleState, 
@@ -90,18 +86,36 @@ export default function SanctuaryTabs({
           filters: [],
           filterKey: 'associations'
       }
+      // NEW: Runes Context
+      case 'runes': return { 
+          items: runes, 
+          state: localRuneState, 
+          setter: setLocalRuneState, 
+          action: updateRuneState,
+          saveImageAction: saveUserRuneImage, 
+          category: 'rune' as const,         
+          filters: ["Freya's Aett", "Heimdall's Aett", "Tyr's Aett"],
+          filterKey: 'aett'
+      }
+      // NEW: Oils Context
+      case 'oils': return { 
+          items: oils, 
+          state: localOilState, 
+          setter: setLocalOilState, 
+          action: updateOilState,
+          saveImageAction: saveUserOilImage, 
+          category: 'oil' as const,         
+          filters: [], // Oils are diverse, search is usually better than filters
+          filterKey: 'magical_uses'
+      }
       default: return null
     }
   }
 
-
+  // --- URL SYNC ---
   useEffect(() => {
     const openId = searchParams.get('open')
-    
-    // If no ID in URL, and modal is open, we might want to close it? 
-    // Or just do nothing. Usually, we only care if openId EXISTS.
     if (!openId) {
-        // Optional: Close modal if user hits 'back' button to a clean URL
         if (isModalOpen) setIsModalOpen(false) 
         return
     }
@@ -110,20 +124,20 @@ export default function SanctuaryTabs({
     const findItem = (id: string) => {
         const c = crystals.find(i => i.id === id); if (c) return { item: c, tab: 'crystals' as Tab }
         const h = herbs.find(i => i.id === id);    if (h) return { item: h, tab: 'herbs' as Tab }
-        const d = deities.find(i => i.id === id);  if (d) return { item: d, tab: 'deities' as Tab }
         const ca = candles.find(i => i.id === id); if (ca) return { item: ca, tab: 'candles' as Tab }
+        const r = runes.find(i => i.id === id);    if (r) return { item: r, tab: 'runes' as Tab }
+        const o = oils.find(i => i.id === id);     if (o) return { item: o, tab: 'oils' as Tab }
         return null
     }
 
     const match = findItem(openId)
 
     if (match) {
-        // B. Update State to match URL
-        setActiveTab(match.tab) // Switch to correct tab
+        setActiveTab(match.tab)
         setSelectedItem(match.item)
         setIsModalOpen(true)
     }
-  }, [searchParams, crystals, herbs, deities, candles]) // Re-run if URL changes
+  }, [searchParams, crystals, herbs, candles, runes, oils])
 
 
   const context = getContext()
@@ -133,7 +147,6 @@ export default function SanctuaryTabs({
     if (!context) return
     const { state, setter, action } = context
     
-    // Default to null for userImage
     const current = state[id] || { isOwned: false, isWishlisted: false, userImage: null }
     const newState = { ...current, isOwned: !current.isOwned }
     
@@ -153,18 +166,16 @@ export default function SanctuaryTabs({
     await action(id, { isOwned: newState.isOwned, isWishlisted: newState.isWishlisted })
   }
 
-  // --- NEW: Unified Image Upload Handler ---
+  // --- IMAGE UPLOAD ---
   const handleImageUpload = async (file: File) => {
     if (!context || !selectedItem) throw new Error("No context or item selected")
     
     const { saveImageAction, setter } = context
     const id = selectedItem.id
 
-    // 1. Auth Check
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) throw new Error("Not logged in")
 
-    // 2. Upload to Supabase
     const fileExt = file.name.split('.').pop()
     const fileName = `${id}_${Date.now()}.${fileExt}`
     const filePath = `${user.id}/${fileName}`
@@ -175,10 +186,8 @@ export default function SanctuaryTabs({
 
     if (uploadError) throw uploadError
 
-    // 3. Save to DB using the specific action for this tab
     await saveImageAction(id, filePath)
 
-    // 4. Update Local State
     setter((prev: any) => ({
         ...prev,
         [id]: { ...prev[id], userImage: filePath }
@@ -188,7 +197,6 @@ export default function SanctuaryTabs({
   }
 
   // --- DATA PREP ---
-  // Get items, filter only owned ones, and map if necessary
   let displayedItems = context?.items.filter((item: any) => context.state[item.id]?.isOwned) || []
   let wishlistItems = context?.items.filter((item: any) => context.state[item.id]?.isWishlisted) || []
 
@@ -201,14 +209,11 @@ export default function SanctuaryTabs({
     router.push(`${pathname}?open=${item.id}`, { scroll: false })
   }
 
-  // 5. UPDATE: Handle Close (Clear URL)
   const handleCloseModal = () => {
       setIsModalOpen(false)
-      // Remove param from URL
       router.push(pathname, { scroll: false })
   }
 
-  // Calculate Modal State
   const selectedState = selectedItem && context 
     ? (context.state[selectedItem.id] || { isOwned: false, isWishlisted: false }) 
     : { isOwned: false, isWishlisted: false }
@@ -217,7 +222,6 @@ export default function SanctuaryTabs({
     <div>
       {/* SCROLLABLE CATEGORY NAVIGATION */}
         <div className="mb-8 relative group">
-        {/* The Scroll Container */}
         <div className="flex overflow-x-auto gap-3 pb-4 no-scrollbar scroll-smooth">
             {['crystals', 'herbs', 'candles', 'runes', 'oils'].map((tab) => (
             <button
@@ -236,12 +240,10 @@ export default function SanctuaryTabs({
             </button>
             ))}
         </div>
-  
-    {/* Visual hint that there is more content (Fade on the right) */}
-    <div className="absolute right-0 top-0 bottom-4 w-12 bg-gradient-to-l from-slate-950 to-transparent pointer-events-none md:hidden" />
+        <div className="absolute right-0 top-0 bottom-4 w-12 bg-gradient-to-l from-slate-950 to-transparent pointer-events-none md:hidden" />
     </div>
 
-        {/* === OWNED SECTION === */}
+      {/* === OWNED SECTION === */}
       <div className="min-h-[400px]">
         <div className="relative flex items-center py-8">
         <div className="flex-grow border-t border-slate-800"></div>
@@ -251,17 +253,15 @@ export default function SanctuaryTabs({
         <div className="flex-grow border-t border-slate-800"></div>
         </div>
          <GrimoireDashboard 
-            // Key forces re-render when tab changes so search/filters reset
             key={activeTab} 
             title="Sanctuary Collection" 
-            description="Your collected items and such and a longer description can be placed here."
+            description="Your collected items."
             items={displayedItems}
             filterCategories={context?.filters || []}
             filterKey={context?.filterKey || ''}
             mode="modal"
             onItemClick={handleItemClick}
             
-            // Pass the Correct Props
             userState={context?.state}
             onToggleOwned={handleToggleOwned}
             onToggleWishlist={handleToggleWishlist}
@@ -289,14 +289,13 @@ export default function SanctuaryTabs({
                 <GrimoireDashboard 
                     key={activeTab} 
                     title="Manifestation List" 
-                    description="Your wishlisted items and such and a longer description can be placed here."
+                    description="Items you wish to acquire."
                     items={wishlistItems}
                     filterCategories={context?.filters || []}
                     filterKey={context?.filterKey || ''}
                     mode="modal"
                     onItemClick={handleItemClick}
                     
-                    // Pass the Correct Props
                     userState={context?.state}
                     onToggleOwned={handleToggleOwned}
                     onToggleWishlist={handleToggleWishlist}
@@ -311,10 +310,11 @@ export default function SanctuaryTabs({
         onClose={handleCloseModal}
         item={selectedItem}
         category={context?.category || 'general'}
-        // Pass State & Handlers
+        
         isOwned={selectedState.isOwned}
         isWishlisted={selectedState.isWishlisted}
         userImage={selectedState.userImage}
+        
         onToggleOwned={() => selectedItem && handleToggleOwned(selectedItem.id)}
         onToggleWishlist={() => selectedItem && handleToggleWishlist(selectedItem.id)}
         onImageUpload={handleImageUpload} 

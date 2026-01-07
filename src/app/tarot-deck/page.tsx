@@ -13,7 +13,7 @@ export default async function TarotPage() {
   const { data: cards, error } = await supabase
     .from('tarot_cards')
     .select('*')
-    .not('slug', 'is', null) 
+    //.not('slug', 'is', null) 
     .order('arcana_type', { ascending: true }) 
     .order('number', { ascending: true });
 
@@ -34,7 +34,7 @@ export default async function TarotPage() {
       <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
         
         {/* Header */}
-        <div className="mb-12 text-center">
+        <div className="mb-8 text-center">
           <h1 className="bg-gradient-to-r from-purple-200 via-white to-purple-200 bg-clip-text text-5xl font-extrabold text-transparent sm:text-6xl">
             The Tarot
           </h1>

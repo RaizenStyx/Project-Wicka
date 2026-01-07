@@ -1,6 +1,6 @@
 import { getMembers } from '@/app/actions/member-actions'
 import Link from 'next/link'
-import { MessageCircle, Shield, House, Cannabis, Cat } from 'lucide-react'
+import { MessageCircle, Shield, House, Cannabis, Cat, Omega, UserRoundCog } from 'lucide-react'
 import RoleBadge from '@/components/ui/RoleBadge'
 import Avatar from '@/components/ui/Avatar'
 
@@ -67,6 +67,12 @@ export default async function MembersPage() {
                   )}
                   {(member.role === 'Princess') && (
                       <Cat className="w-3 h-3 text-purple-400 fill-purple-400/20" />
+                  )}
+                  {(member.role === 'Creator') && (
+                      <Omega className="w-3 h-3 text-teal-400 fill-purple-400/20" />
+                  )}
+                  {(member.role === 'admin') && (
+                      <UserRoundCog className="w-3 h-3 text-gray-100 fill-purple-400/20" />
                   )}
               </p>
               {/* Optional: Show Coven Name if they have one */}

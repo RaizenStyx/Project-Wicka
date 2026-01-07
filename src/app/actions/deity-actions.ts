@@ -14,7 +14,6 @@ export async function getDeitiesData() {
 
   if (error) console.error(error)
 
-  // UPDATED: Select 'is_invoked' and 'last_invoked_at'
   const { data: collection } = await supabase
     .from('user_deities')
     .select('deity_id, is_invoked, is_owned, is_wishlisted, user_image_url, last_invoked_at, last_offering_at')

@@ -6,6 +6,8 @@ import DeityAltarView from '@/components/sanctuary/DeityAltarView'
 import { getCrystalsData } from '@/app/actions/crystal-actions'
 import { getHerbsData } from '@/app/actions/herb-actions'
 import { getCandlesData } from '@/app/actions/candle-actions'
+import { getOilsData } from '../actions/oil-actions'
+import { getRunesData } from '../actions/rune-actions'
 
 export const metadata = {
   title: 'My Sanctuary | Nyxus',
@@ -24,10 +26,12 @@ export default async function SanctuaryPage(props: { searchParams: Promise<{ vie
   }
 
   // 1. Fetch Inventory Data (Parallel)
-  const [crystalsData, herbsData, candlesData] = await Promise.all([
+  const [crystalsData, herbsData, candlesData, oilsData, runesData] = await Promise.all([
     getCrystalsData(),
     getHerbsData(),
-    getCandlesData()
+    getCandlesData(),
+    getOilsData(),
+    getRunesData()
   ])
 
   // 2. Fetch Altar Data (Deities)
@@ -46,6 +50,35 @@ export default async function SanctuaryPage(props: { searchParams: Promise<{ vie
     .eq('user_id', user.id)
     .eq('is_wishlisted', true)
     .order('created_at', { ascending: false })
+
+  // --- BUILD THE STATE MAP ---
+  // We need to construct the Record<string, any> that DeityAltarView expects
+  // so it can look up "isOwned" and "isWishlisted" for the modal.
+  const userDeityState: Record<string, any> = {};
+
+  // 1. Add Invoked Deity State
+  if (invokedDeity) {
+      userDeityState[invokedDeity.deity_id] = {
+          isOwned: invokedDeity.is_owned,
+          isWishlisted: invokedDeity.is_wishlisted,
+          isInvoked: invokedDeity.is_invoked,
+          lastInvokedAt: invokedDeity.last_invoked_at,
+          lastOfferingAt: invokedDeity.last_offering_at
+      }
+  }
+
+  // 2. Add Roster States
+  if (roster) {
+      roster.forEach((item) => {
+          userDeityState[item.deity_id] = {
+              isOwned: item.is_owned,
+              isWishlisted: item.is_wishlisted,
+              isInvoked: item.is_invoked,
+              lastInvokedAt: item.last_invoked_at,
+              lastOfferingAt: item.last_offering_at
+          }
+      })
+  }
 
   return (
     <main className="min-h-screen bg-slate-950 px-4 py-8 text-slate-200">
@@ -80,7 +113,7 @@ export default async function SanctuaryPage(props: { searchParams: Promise<{ vie
             <DeityAltarView 
                 invokedDeity={invokedDeity}
                 roster={roster || []}
-                userDeityState={{}} // pass the full map if we need complex modal interactions later
+                userDeityState={userDeityState}
             />
         ) : (
             <SanctuaryTabs 
@@ -90,12 +123,14 @@ export default async function SanctuaryPage(props: { searchParams: Promise<{ vie
                 herbs={herbsData.herbs}
                 herbState={herbsData.userStateMap}
                 
-                // We pass empty deities here to SanctuaryTabs because we handled them separately
-                deities={[]} 
-                deityState={{}}
-                
                 candles={candlesData.candles}
                 candleState={candlesData.userStateMap}
+
+                runes={runesData.runes}
+                runeState={runesData.userStateMap}
+
+                oils={oilsData.oils}
+                oilState={oilsData.userStateMap}
             />
         )}
       </div>

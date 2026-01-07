@@ -1,23 +1,23 @@
-export interface Crystal {
-  id: string;
-  name: string;
-  meaning: string;
-  element: 'Earth' | 'Air' | 'Fire' | 'Water' | 'Spirit';
-  color: string;
-  image_url: string | null;
-  created_at: string;
-  color_category: string;
-  zodiac?: string;
-  chakra?: string;
-}
+// export interface Crystal {
+//   id: string;
+//   name: string;
+//   meaning: string;
+//   element: 'Earth' | 'Air' | 'Fire' | 'Water' | 'Spirit';
+//   color: string;
+//   image_url: string | null;
+//   created_at: string;
+//   color_category: string;
+//   zodiac?: string;
+//   chakra?: string;
+// }
 
-export interface UserCollectionItem {
-  id: string;
-  user_id: string;
-  crystal_id: string;
-  acquired_at: string;
-  crystals?: Crystal; 
-}
+// export interface UserCollectionItem {
+//   id: string;
+//   user_id: string;
+//   crystal_id: string;
+//   acquired_at: string;
+//   crystals?: Crystal; 
+// }
 
 export interface Like {
   user_id: string;
@@ -95,6 +95,8 @@ export interface BaseRitualBlock {
   linked_herbs: string[];
   linked_candles: string[];
   linked_deities: string[];
+  linked_runes: string[];
+  linked_essential_oils: string[];
 }
 
 // 3. User Spells (Community Content)

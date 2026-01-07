@@ -6,8 +6,8 @@ import { revalidatePath } from 'next/cache'
 /**
  * INVOKE A DEITY
  * 1. Banish any currently active deity (set is_invoked = false).
- * 2. Set the target deity to is_invoked = true & update timestamp.
- * 3. Log the start of this session in the deity_invocations journal.
+ * 2. Set the target deity to is_invoked = true & is_owned = true.
+ * 3. Log the start of this session.
  */
 export async function invokeDeity(deityId: string) {
   const supabase = await createClient()
@@ -17,26 +17,24 @@ export async function invokeDeity(deityId: string) {
   const now = new Date().toISOString()
 
   // 1. "Banish" current active (Reset old invocations)
-  // We effectively "end" the previous session in the journal if we wanted to be strict,
-  // but for now, we just ensure the toggle is off on the user_deities table.
+  // We explicitly turn off is_invoked AND is_owned for any other deity
+  // This ensures only the active deity is "Owned" (Viewable in Gallery)
   await supabase
     .from('user_deities')
-    .update({ is_invoked: false })
+    .update({ is_invoked: false, is_owned: false }) 
     .eq('user_id', user.id)
     .eq('is_invoked', true)
 
   // 2. Invoke the new one
-  // We use upsert to ensure the row exists if they haven't "collected" it before
-  // though typically they should have wishlisted it first.
   const { error } = await supabase
     .from('user_deities')
     .upsert({ 
       user_id: user.id, 
       deity_id: deityId,
-      is_invoked: true,
+      is_owned: true,       // Unlock Gallery
+      is_invoked: true,     // Start Timer
       last_invoked_at: now,
-      // We presume if they invoke it, it's at least in their wishlist/roster
-      is_wishlisted: true 
+      is_wishlisted: true   // Ensure it's in the roster
     }, { onConflict: 'user_id, deity_id' })
 
   if (error) throw error
@@ -56,27 +54,27 @@ export async function invokeDeity(deityId: string) {
 
 /**
  * BANISH A DEITY (Cancel Invocation)
- * 1. Set is_invoked = false.
- * 2. Update the journal entry to show it ended.
+ * 1. Set is_invoked = false & is_owned = false.
+ * 2. Update the journal entry.
  */
 export async function banishDeity(deityId: string) {
   const supabase = await createClient()
   const user = (await supabase.auth.getUser()).data.user
   if (!user) throw new Error('Unauthorized')
 
-  // 1. Turn off flag
+  // 1. Turn off flags
+  // We flip is_owned to false so the Gallery Tab locks again.
   await supabase
     .from('user_deities')
-    .update({ is_invoked: false })
+    .update({ is_invoked: false, is_owned: false }) 
     .match({ user_id: user.id, deity_id: deityId })
 
   // 2. Close the Journal Entry
-  // We find the most recent open session for this deity and close it.
   await supabase
     .from('deity_invocations')
     .update({ ended_at: new Date().toISOString() })
     .match({ user_id: user.id, deity_id: deityId })
-    .is('ended_at', null) // Only close currently open ones
+    .is('ended_at', null) 
 
   revalidatePath('/sanctuary')
 }
@@ -115,7 +113,6 @@ export async function extendInvocation(deityId: string) {
     }
 
     // 3. Apply Extension
-    // We add 6 hours to the *start time* (last_invoked_at), which effectively pushes the 24h expiration forward by 6h.
     const currentStart = new Date(data.last_invoked_at)
     const newStart = new Date(currentStart.getTime() + (6 * 60 * 60 * 1000))
 
@@ -123,7 +120,7 @@ export async function extendInvocation(deityId: string) {
         .from('user_deities')
         .update({ 
             last_invoked_at: newStart.toISOString(),
-            last_offering_at: now.toISOString() // Mark usage
+            last_offering_at: now.toISOString()
         })
         .match({ user_id: user.id, deity_id: deityId })
 

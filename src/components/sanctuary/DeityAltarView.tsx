@@ -1,12 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation' 
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Flame, X, Clock, BookOpen } from 'lucide-react'
+import { X, Clock, BookOpen } from 'lucide-react'
 import { formatDistanceToNow, addHours } from 'date-fns'
 import { banishDeity, extendInvocation } from '@/app/actions/deity-invocation-actions'
+import { updateDeityState } from '@/app/actions/deity-actions'
 import OfferingButton from '@/components/deities/OfferingButton'
 import DeityModal from '@/components/deities/DeityModal'
 
@@ -20,7 +21,16 @@ export default function DeityAltarView({ invokedDeity, roster, userDeityState }:
   const [selectedDeity, setSelectedDeity] = useState<any | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [loading, setLoading] = useState(false)
+  
+  // 1. Local State for Optimistic Updates
+  const [localUserState, setLocalUserState] = useState(userDeityState)
+  
   const router = useRouter()
+
+  // Sync prop changes to local state (in case server refreshes)
+  useEffect(() => {
+      setLocalUserState(userDeityState)
+  }, [userDeityState])
 
   const getTimeRemaining = () => {
     if (!invokedDeity?.last_invoked_at) return ''
@@ -55,12 +65,17 @@ export default function DeityAltarView({ invokedDeity, roster, userDeityState }:
       setLoading(false)
   }
 
-  const handleExtendActive = async () => {
-      if (!invokedDeity) return
-      setLoading(true)
-      await extendInvocation(invokedDeity.deities.id)
-      notifyStateChange()
-      setLoading(false)
+  // 2. Handle Wishlist Toggle (Add to Roster)
+  const handleToggleWishlist = async (id: string) => {
+      // Optimistic Update
+      const current = localUserState[id] || { isOwned: false, isWishlisted: false }
+      const newState = { ...current, isWishlisted: !current.isWishlisted }
+      
+      setLocalUserState(prev => ({ ...prev, [id]: newState }))
+
+      // Server Action
+      await updateDeityState(id, newState)
+      router.refresh()
   }
 
   // --- MODAL HANDLERS ---
@@ -78,9 +93,10 @@ export default function DeityAltarView({ invokedDeity, roster, userDeityState }:
 
   return (
     <div className="space-y-12 animate-in fade-in duration-700">
-      
+
+        <h2 className="text-3xl font-serif flex justify-center text-center text-slate-300">Deity Altar | Space will evolve with Nyxus</h2>      
       {/* HERO SECTION */}
-      <section className="relative min-h-[50vh] flex flex-col items-center justify-center p-8 rounded-3xl overflow-hidden border border-slate-800 bg-slate-950/50">
+      <section className="relative min-h-[50vh] flex flex-col items-center justify-center p-8 rounded-3xl overflow-hidden border border-slate-800 bg-slate-950/50">        
         <div className="absolute inset-0 z-0">
             {invokedDeity ? (
                  <div className="w-full h-full bg-gradient-to-b from-purple-900/20 via-slate-950 to-slate-950" />
@@ -205,18 +221,24 @@ export default function DeityAltarView({ invokedDeity, roster, userDeityState }:
         </div>
       </section>
 
-      {/* MODAL */}
+      {/* 3. MODAL WIRED UP */}
       <DeityModal 
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         deity={selectedDeity ? { ...selectedDeity, id: selectedDeity.id } : null}
         
-        // Pass dynamic Invocation status
+        // Dynamic Invocation status
         isInvoked={selectedDeity?.id === invokedDeity?.deity_id}
         
-        isOwned={false} 
+        // FIXED: Using camelCase to match data (.isOwned, .isWishlisted)
+        isOwned={selectedDeity ? (localUserState[selectedDeity.id]?.isOwned || false) : false} 
+        
         lastInvokedAt={selectedDeity?.id === invokedDeity?.deity_id ? invokedDeity?.last_invoked_at : null}
         lastOfferingAt={selectedDeity?.id === invokedDeity?.deity_id ? invokedDeity?.last_offering_at : null}
+        
+        // FIXED: Using camelCase to match data
+        isWishlisted={selectedDeity ? (localUserState[selectedDeity.id]?.isWishlisted || false) : false}
+        onToggleWishlist={() => selectedDeity && handleToggleWishlist(selectedDeity.id)}
       />
     </div>
   )

@@ -6,7 +6,8 @@ import { Loader2 } from 'lucide-react';
 
 interface IngredientBadgeListProps {
   ids: string[];
-  tableName: 'crystals' | 'herbs' | 'candles';
+  // Updated table names
+  tableName: 'crystals' | 'herbs' | 'candles' | 'runes' | 'essential_oils';
   label: string;
 }
 
@@ -24,7 +25,7 @@ export default function IngredientBadgeList({ ids, tableName, label }: Ingredien
 
       const { data } = await supabase
         .from(tableName)
-        .select('id, name') // Remember: we renamed 'color' to 'name' for candles!
+        .select('id, name') 
         .in('id', ids);
 
       if (data) setItems(data);

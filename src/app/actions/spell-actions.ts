@@ -3,6 +3,7 @@
 import { createClient } from '../utils/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { CommonRitual } from '../types/database';
+import { link } from 'fs';
 
 export async function getSpells() {
   const supabase = await createClient();
@@ -51,6 +52,9 @@ export async function createSpell(formData: FormData) {
   const linkedCrystals = JSON.parse(formData.get('linked_crystals') as string || '[]');
   const linkedHerbs = JSON.parse(formData.get('linked_herbs') as string || '[]');
   const linkedCandles = JSON.parse(formData.get('linked_candles') as string || '[]');
+  const linkedDeities = JSON.parse(formData.get('linked_deities') as string || '[]');
+  const linkedRunes = JSON.parse(formData.get('linked_runes') as string || '[]');
+  const linkedEssentialOils = JSON.parse(formData.get('linked_essential_oils') as string || '[]');
   const isRitual = formData.get('is_ritual') === 'true';
 
   // 2. The Check: If they are an initiate, they cannot publish
@@ -88,7 +92,10 @@ export async function createSpell(formData: FormData) {
       is_ritual: isRitual,
       linked_crystals: linkedCrystals,
       linked_herbs: linkedHerbs,
-      linked_candles: linkedCandles
+      linked_candles: linkedCandles,
+      linked_deities: linkedDeities,
+      linked_runes: linkedRunes,
+      linked_essential_oils: linkedEssentialOils
     })
 
   if (error) {
@@ -134,6 +141,9 @@ export async function updateSpell(id: string, formData: FormData) {
   const linkedCrystals = JSON.parse(formData.get('linked_crystals') as string || '[]');
   const linkedHerbs = JSON.parse(formData.get('linked_herbs') as string || '[]');
   const linkedCandles = JSON.parse(formData.get('linked_candles') as string || '[]');
+  const linkedDeities = JSON.parse(formData.get('linked_deities') as string || '[]');
+  const linkedRunes = JSON.parse(formData.get('linked_runes') as string || '[]');
+  const linkedEssentialOils = JSON.parse(formData.get('linked_essential_oils') as string || '[]');
   const isRitual = formData.get('is_ritual') === 'true';
 
   // Logic check: You can't publish a private spell
@@ -165,7 +175,10 @@ export async function updateSpell(id: string, formData: FormData) {
       is_ritual: isRitual,
       linked_crystals: linkedCrystals,
       linked_herbs: linkedHerbs,
-      linked_candles: linkedCandles
+      linked_candles: linkedCandles,
+      linked_deities: linkedDeities,
+      linked_runes: linkedRunes,
+      linked_essential_oils: linkedEssentialOils
     })
     .eq('id', id)
     .eq('user_id', user.id) // Double security: Only update if they own it

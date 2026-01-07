@@ -6,10 +6,11 @@ import DeityModal from '../deities/DeityModal'
 import { UserCollectionState } from '@/app/actions/sanctuary-usercollectionstate'
 import { updateDeityState } from '@/app/actions/deity-actions'
 
+
 interface Props {
   deities: any[]
   pantheons: string[]
-  // Updated type definition to include lastOfferingAt
+  // Updated type definition
   initialUserState: Record<string, UserCollectionState & { 
       isInvoked?: boolean; 
       lastInvokedAt?: string | null; 
@@ -38,8 +39,8 @@ export default function DeityClientWrapper({ deities, pantheons, initialUserStat
       await updateDeityState(id, newState) 
   }
 
-// Get state for the currently open modal item
-const selectedItemState = selectedItem 
+  // Get state for the currently open modal item
+  const selectedItemState = selectedItem 
     ? (userState[selectedItem.id] || { isOwned: false, isWishlisted: false, isInvoked: false, lastInvokedAt: null, lastOfferingAt: null })
     : { isOwned: false, isWishlisted: false, isInvoked: false, lastInvokedAt: null, lastOfferingAt: null }
 
@@ -66,8 +67,11 @@ const selectedItemState = selectedItem
         
         isInvoked={selectedItemState.isInvoked || false}
         isOwned={selectedItemState.isOwned}
+        isWishlisted={selectedItemState.isWishlisted} 
         lastInvokedAt={selectedItemState.lastInvokedAt}
-        lastOfferingAt={selectedItemState.lastOfferingAt} // Passing the data!
+        lastOfferingAt={selectedItemState.lastOfferingAt}
+        
+        onToggleWishlist={() => selectedItem && handleToggleWishlist(selectedItem.id)} // Passed
       />
     </>
   )

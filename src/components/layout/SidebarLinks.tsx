@@ -55,6 +55,7 @@ export default function SidebarLinks({ profile }: SidebarLinksProps) {
         { label: 'Sanctuary', href: '/sanctuary'},
         { label: 'Daily Tarot', href: '/tarot-draw', allowedRoles: ['guardian', 'supporter', 'Goddess', 'Princess', 'Creator', 'admin'] },
         { label: 'Home Altar', href: '/altar' },
+        { label: 'Find your Deity', href: '/deities', allowedRoles: ['guardian', 'supporter', 'Goddess', 'Princess', 'Creator', 'admin'] },
         { label: 'Oracle AI', href: 'https://ai-oracle-eight.vercel.app/access', allowedRoles: ['supporter', 'Goddess', 'Princess', 'Creator', 'admin'], isExternal: true }
       ]
     },
@@ -65,9 +66,10 @@ export default function SidebarLinks({ profile }: SidebarLinksProps) {
         { label: 'Crystals', href: '/crystals' },
         { label: 'Candles', href: '/candles' },
         { label: 'Herbs', href: '/herbs' },
-        { label: 'Deities', href: '/deities' },
+        { label: 'Runes', href: '/runes' },
+        { label: 'Essential Olis', href: '/essential-oils' },
         { label: 'Zodiac Signs', href: '/astrology' },
-        { label: 'Tarot Meanings', href: '/tarot-deck' }
+        { label: 'Tarot Meanings', href: '/tarot-deck', allowedRoles: ['guardian', 'supporter', 'Goddess', 'Princess', 'Creator', 'admin'] }
       ]
     },
     COVENS: {

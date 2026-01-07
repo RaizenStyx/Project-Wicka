@@ -2,7 +2,7 @@
 
 import { createSpell } from '@/app/actions/spell-actions'
 import { useState } from 'react'
-import { Plus, X, Sparkles, Scroll, Lock, Eye, Globe } from 'lucide-react'
+import { Plus, X, Scroll, Lock, Eye, Globe } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { clsx } from 'clsx'
 import SmartIngredientSelector from './SmartIngredientSelector'
@@ -11,14 +11,15 @@ export default function SpellForm({ userRole }: {userRole: string}) {
   const [isOpen, setIsOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   
-  // We use a single string state to manage the 3 options
-  // Options: 'private' | 'profile' | 'community'
   const [visibility, setVisibility] = useState('private')
 
   const [isRitual, setIsRitual] = useState(false)
   const [selectedCrystals, setSelectedCrystals] = useState<string[]>([])
   const [selectedHerbs, setSelectedHerbs] = useState<string[]>([])
   const [selectedCandles, setSelectedCandles] = useState<string[]>([])
+  // New State
+  const [selectedOils, setSelectedOils] = useState<string[]>([])
+  const [selectedRunes, setSelectedRunes] = useState<string[]>([])
 
   const handleSubmit = async (formData: FormData) => {
     // --- NEW VALIDATION CHECK ---
@@ -28,23 +29,24 @@ export default function SpellForm({ userRole }: {userRole: string}) {
 
       if (!hasEarth || !hasFire) {
         alert("A Ritual requires active components to be performed.\n\nPlease link at least:\n- One Earth Element (Crystal or Herb)\n- One Fire Element (Candle)");
-        return; // Stop the function here
+        return; 
       }
     }
     setLoading(true)
     
-    // 1. Handle Visibility (Existing Logic)
+    // 1. Handle Visibility
     const isPrivate = visibility === 'private'
     const isPublished = visibility === 'community'
     formData.set('is_private', isPrivate ? 'on' : 'off')
     formData.set('is_published', isPublished ? 'on' : 'off')
 
     // 2. INJECT NEW DATA INTO FORMDATA
-    // We stringify the arrays so they can pass through FormData easily
     formData.set('is_ritual', isRitual ? 'true' : 'false')
     formData.set('linked_crystals', JSON.stringify(selectedCrystals))
     formData.set('linked_herbs', JSON.stringify(selectedHerbs))
     formData.set('linked_candles', JSON.stringify(selectedCandles))
+    formData.set('linked_essential_oils', JSON.stringify(selectedOils))
+    formData.set('linked_runes', JSON.stringify(selectedRunes))
 
     const result = await createSpell(formData)
     
@@ -60,6 +62,8 @@ export default function SpellForm({ userRole }: {userRole: string}) {
         setSelectedCrystals([])
         setSelectedHerbs([])
         setSelectedCandles([])
+        setSelectedOils([])
+        setSelectedRunes([])
     }
   }
 
@@ -139,7 +143,6 @@ export default function SpellForm({ userRole }: {userRole: string}) {
                 </div>
 
                 {/* --- SMART SELECTORS --- */}
-                {/* We render these visually, but pass data via state in handleSubmit */}
                 <div className="space-y-2 border-l-2 border-slate-800 pl-4">
                     <SmartIngredientSelector 
                         tableName="crystals"
@@ -158,6 +161,18 @@ export default function SpellForm({ userRole }: {userRole: string}) {
                         label="Link Candles (Fire/South)"
                         selectedIds={selectedCandles}
                         onSelectionChange={setSelectedCandles}
+                    />
+                    <SmartIngredientSelector 
+                        tableName="essential_oils"
+                        label="Link Essential Oils"
+                        selectedIds={selectedOils}
+                        onSelectionChange={setSelectedOils}
+                    />
+                    <SmartIngredientSelector
+                        tableName="runes"
+                        label="Link Runes"
+                        selectedIds={selectedRunes}
+                        onSelectionChange={setSelectedRunes}
                     />
                 </div>
 
@@ -179,8 +194,6 @@ export default function SpellForm({ userRole }: {userRole: string}) {
                 <div>
                    <label className="block text-[10px] uppercase tracking-widest text-slate-500 mb-2 font-bold">Visibility Level</label>
                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                      
-                      {/* Option 1: Private */}
                       <div 
                         onClick={() => setVisibility('private')}
                         className={clsx(
@@ -193,7 +206,6 @@ export default function SpellForm({ userRole }: {userRole: string}) {
                           <span className="text-[10px] text-center opacity-70">Only visible to you</span>
                       </div>
 
-                      {/* Option 2: Profile Only */}
                       <div 
                         onClick={() => setVisibility('profile')}
                         className={clsx(
@@ -206,7 +218,6 @@ export default function SpellForm({ userRole }: {userRole: string}) {
                           <span className="text-[10px] text-center opacity-70">Visible on your profile</span>
                       </div>
 
-                      {/* Option 3: Community */}
                       <div 
                         onClick={() => {
                             if (canPublish) setVisibility('community')
@@ -214,12 +225,9 @@ export default function SpellForm({ userRole }: {userRole: string}) {
                         }}
                         className={clsx(
                             "border rounded-lg p-3 flex flex-col items-center gap-2 transition-all",
-                            // Style logic
                             visibility === 'community' 
                                 ? "bg-purple-900/30 border-purple-500 text-purple-100" 
                                 : "bg-slate-950 border-slate-800 text-slate-500",
-                            
-                            // Disable logic
                             canPublish ? "cursor-pointer hover:border-slate-700" : "opacity-50 cursor-not-allowed"
                         )}
                       >
@@ -229,13 +237,12 @@ export default function SpellForm({ userRole }: {userRole: string}) {
                               {canPublish ? "Publish to Library" : "Locked (Initiate)"}
                           </span>
                       </div>
-
                    </div>
                 </div>
 
                 <div className="pt-2">
                     <button disabled={loading} type="submit" className="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 transition-all shadow-lg shadow-purple-900/20 disabled:opacity-50 cursor-pointer">
-                       {loading ? 'Scribing...' : <><Sparkles className="w-4 h-4" /> Add Page</>}
+                       {loading ? 'Scribing...' : <><Scroll className="w-4 h-4" /> Add Page</>}
                     </button>
                 </div>
               </form>

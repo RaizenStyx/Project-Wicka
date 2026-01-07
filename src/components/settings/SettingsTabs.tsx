@@ -38,7 +38,7 @@ export default function SettingsTabs({ user, profile, initialData, activeTab }: 
           <div>
             <h2 className="mb-6 text-xl font-bold text-slate-100">Customize Your Sanctuary</h2>
             <WidgetCustomizer 
-                initialOrder={profile?.preferences?.widget_order || ["profile", "moon", "tarot", "crystal"]} 
+                initialOrder={profile?.preferences?.widget_order || ["profile", "moon", "tarot", "item", "deity"]} 
             />
           </div>
         )}

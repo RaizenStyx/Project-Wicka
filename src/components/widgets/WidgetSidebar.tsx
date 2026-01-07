@@ -3,7 +3,7 @@ import ProfileWidget from './ProfileWidget';
 import MoonWidget from './MoonWidget';
 import TarotWidget from './TarotWidget';
 import DeityWidget from './DeityWidget';
-import CrystalCollectionWidget from './CrystalCollectionWidget';
+import ItemCollectionWidget from './ItemCollectionWidget';
 import { ALL_WIDGETS } from '@/app/utils/constants';
 
 export default function WidgetSidebar({ profilePreferences }: { profilePreferences: any }) {
@@ -12,11 +12,11 @@ export default function WidgetSidebar({ profilePreferences }: { profilePreferenc
     profile: <ProfileWidget />,
     moon: <MoonWidget />,
     tarot: <TarotWidget />,
-    crystal: <CrystalCollectionWidget />,
+    item: <ItemCollectionWidget />,
     deity: <DeityWidget /> 
   };
 
-  let activeWidgets: string[] = ["profile", "moon", "tarot", "crystal", "deity"];
+  let activeWidgets: string[] = ["profile", "moon", "tarot", "item", "deity"];
   
   const rawOrder = profilePreferences?.widget_order;
 

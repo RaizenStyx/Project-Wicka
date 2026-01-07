@@ -9,7 +9,8 @@ import { twMerge } from 'tailwind-merge';
 import { DatabaseItem } from '@/app/types/database';
 
 interface SmartIngredientSelectorProps {
-  tableName: 'crystals' | 'herbs' | 'deities' | 'candles';
+  // Updated to include 'runes' and 'essential_oils'
+  tableName: 'crystals' | 'herbs' | 'deities' | 'candles' | 'runes' | 'essential_oils';
   label: string;
   selectedIds: string[];
   onSelectionChange: (ids: string[]) => void;
@@ -31,23 +32,26 @@ export default function SmartIngredientSelector({
   
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // 1. Fetch details of already selected IDs (on mount)
+  // 1. Fetch details of already selected IDs
   useEffect(() => {
     const fetchSelectedDetails = async () => {
-      if (selectedIds.length === 0) return;
+      if (selectedIds.length === 0) {
+          setSelectedItems([]); // Clear items if IDs are empty
+          return;
+      }
       
       const { data } = await supabase
         .from(tableName)
-        .select('id, name') // Add image_url here if you have it
+        .select('id, name') 
         .in('id', selectedIds);
         
       if (data) setSelectedItems(data);
     };
     
     fetchSelectedDetails();
-  }, [selectedIds.length]); // Only re-run if length changes dramatically to avoid loops
+  }, [selectedIds, tableName]); // Depend on tableName too
 
-  // 2. Search Database (Debounced via simple timeout)
+  // 2. Search Database
   useEffect(() => {
     const searchDB = async () => {
       if (query.length < 2) {
@@ -75,6 +79,7 @@ export default function SmartIngredientSelector({
     if (selectedIds.includes(item.id)) return;
     
     const newIds = [...selectedIds, item.id];
+    // Optimistically update selectedItems
     const newItems = [...selectedItems, item];
     
     onSelectionChange(newIds);

@@ -142,7 +142,13 @@ function TarotCardReveal({ card, index, animateEntry }: { card: TarotCard, index
         style={{ backfaceVisibility: 'hidden', transform: 'rotateY(0deg)' }}
       >
         {card.image_url ? (
+          <div>
             <Image src={card.image_url} alt={card.name} fill className="object-cover" />
+          <div className="w-full h-full flex flex-col items-center justify-center p-4 text-center bottom-0 bg-gradient-to-t from-black/70 via-transparent to-transparent absolute">
+                <h3 className="text-xl font-bold text-purple-200">{card.name}</h3>
+                <p className="mt-4 text-xs text-slate-400">{card.meaning_upright}</p>
+            </div>
+          </div>
         ) : (
             <div className="w-full h-full flex flex-col items-center justify-center p-4 text-center">
                 <h3 className="text-xl font-bold text-purple-200">{card.name}</h3>

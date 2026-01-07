@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
   X, Sparkles, Image as ImageIcon, Star, Check, 
-  Loader2, Upload, Camera, Disc, Moon, Sun, Flame, Wheat 
+  Loader2, Upload, Camera, Disc, Moon, Sun, Wheat, 
+  Droplet, AlertTriangle, Fingerprint 
 } from 'lucide-react' 
 import { createClient } from '@/app/utils/supabase/client'
 import { CANDLE_NAMES } from '@/app/utils/constants'
@@ -14,8 +15,8 @@ interface GrimoireModalProps {
   onClose: () => void
   item: any | null
   
-  // NEW: Tell the modal what kind of item this is
-  category: 'crystal' | 'herb' | 'deity' | 'general' 
+  // UPDATED: Removed 'deity', added 'rune' and 'oil'
+  category: 'crystal' | 'herb' | 'rune' | 'oil' | 'general' 
 
   // User State & Actions
   isOwned: boolean
@@ -60,8 +61,6 @@ export default function GrimoireModal({
     if (isOpen) fetchSignedUrl()
   }, [userImage, isOpen, supabase])
 
-
-
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || !e.target.files[0]) return
     const file = e.target.files[0]
@@ -96,8 +95,6 @@ export default function GrimoireModal({
 
     // Check if it's a candle based on name match
     const isCandle = CANDLE_NAMES.includes(item.name);
-    const isDeity = category === 'deity';
-
     // Get the color: 'hex_code' for candles, 'color' for crystals, or fallback
     const candleColor = item.hex_code || item.color || '#cbd5e1';
 
@@ -118,9 +115,9 @@ export default function GrimoireModal({
             className="fixed left-1/2 top-1/2 z-50 w-full max-w-lg -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl border-2 bg-slate-950 shadow-2xl"
             style={{ borderColor: accentColor }}
           >
-             {/* IMAGE HEADER */}
-             <div className="relative h-48 w-full bg-slate-900">
-              {activeTab === 'journey' && displayUrl ? (
+              {/* IMAGE HEADER */}
+              <div className="relative h-48 w-full bg-slate-900">
+               {activeTab === 'journey' && displayUrl ? (
                 // 1. User's Personal Photo (Highest Priority)
                 <img 
                     src={displayUrl} 
@@ -137,23 +134,15 @@ export default function GrimoireModal({
                 ) : isCandle ? (
                 // 3. CSS Candle Fallback (If no image & is candle)
                 <div className="relative flex h-full w-full items-center justify-center bg-slate-900/50 overflow-hidden">
-                    
-                    {/* Background Ambient Glow */}
                     <div 
                         className="absolute inset-0 opacity-20 transition-colors duration-700" 
                         style={{ backgroundColor: candleColor }} 
                     />
-
-                    {/* The Big Modal Candle */}
                     <div className="relative flex flex-col items-center justify-end h-56 w-full translate-y-8">
-                        
-                        {/* Flame (Larger for Modal) */}
                         <div className="relative -mb-2 z-10">
                             <div className="w-6 h-10 bg-orange-300 rounded-[50%] blur-[4px] animate-pulse origin-bottom" />
                             <div className="absolute top-2 left-2 w-2 h-5 bg-white rounded-[50%] blur-[2px] opacity-80" />
                         </div>
-                        
-                        {/* Wax Pillar */}
                         <div 
                             className="w-20 h-44 rounded-t-xl shadow-inner relative"
                             style={{ 
@@ -161,12 +150,9 @@ export default function GrimoireModal({
                             boxShadow: 'inset 0 0 30px rgba(0,0,0,0.4)' 
                             }}
                         >
-                            {/* Detail: Wax Drip */}
                             <div className="absolute top-0 right-4 w-3 h-10 bg-white/10 rounded-b-full" />
                             <div className="absolute top-0 left-4 w-2 h-6 bg-white/10 rounded-b-full" />
                         </div>
-
-                        {/* Table Reflection */}
                         <div 
                             className="absolute -bottom-4 w-32 h-8 blur-xl opacity-60 rounded-[50%]"
                             style={{ backgroundColor: candleColor }}
@@ -183,11 +169,17 @@ export default function GrimoireModal({
               <button onClick={onClose} className="absolute right-4 top-4 rounded-full bg-black/50 p-2 text-white hover:bg-black/70 cursor-pointer z-10"><X className="h-5 w-5" /></button>
               
               <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-slate-950 to-transparent p-6 pt-12">
-                 <h2 className="font-serif text-3xl text-white drop-shadow-md">{item.name}</h2>
-                 <div className="flex gap-2 text-sm font-bold uppercase tracking-wider text-purple-400">
-                    {/* Show Element if it exists */}
+                  <div className="flex items-baseline gap-3">
+                      <h2 className="font-serif text-3xl text-white drop-shadow-md">{item.name}</h2>
+                      {category === 'rune' && item.symbol && (
+                          <span className="font-serif text-2xl text-purple-400 bg-slate-900/50 px-2 rounded">{item.symbol}</span>
+                      )}
+                  </div>
+                  
+                  <div className="flex gap-2 text-sm font-bold uppercase tracking-wider text-purple-400 mt-1">
                     {item.element && <span>{item.element}</span>}
-                 </div>
+                    {item.aett && <span>{item.aett}</span>} {/* Runes */}
+                  </div>
               </div>
             </div>
 
@@ -212,24 +204,16 @@ export default function GrimoireModal({
                     {category === 'crystal' && (
                         <div className="space-y-4 text-slate-300 leading-relaxed text-sm">
                             <p>{item.meaning || item.description}</p>
-                            
-                            {/* The Grid from your Old System */}
                             <div className="grid grid-cols-2 gap-4 mt-6">
-                                {/* Chakra Box */}
                                 <div className="p-3 rounded-lg bg-slate-900/50 border border-slate-800 flex items-start gap-3">
-                                    <div className="mt-0.5 p-1.5 rounded-full bg-slate-800 text-slate-400">
-                                        <Disc className="w-4 h-4" />
-                                    </div>
+                                    <div className="mt-0.5 p-1.5 rounded-full bg-slate-800 text-slate-400"><Disc className="w-4 h-4" /></div>
                                     <div>
                                         <h4 className="text-[10px] font-bold tracking-wider text-slate-500 uppercase mb-1">Chakra</h4>
                                         <p className="text-white text-sm font-medium">{item.chakra || 'Unknown'}</p> 
                                     </div>
                                 </div>
-                                {/* Zodiac Box */}
                                 <div className="p-3 rounded-lg bg-slate-900/50 border border-slate-800 flex items-start gap-3">
-                                    <div className="mt-0.5 p-1.5 rounded-full bg-slate-800 text-slate-400">
-                                        <Moon className="w-4 h-4" />
-                                    </div>
+                                    <div className="mt-0.5 p-1.5 rounded-full bg-slate-800 text-slate-400"><Moon className="w-4 h-4" /></div>
                                     <div>
                                         <h4 className="text-[10px] font-bold tracking-wider text-slate-500 uppercase mb-1">Zodiac</h4>
                                         <p className="text-white text-sm font-medium">{item.zodiac || 'Unknown'}</p> 
@@ -239,7 +223,7 @@ export default function GrimoireModal({
                         </div>
                     )}
 
-                    {/* 2. HERB LAYOUT (Example structure) */}
+                    {/* 2. HERB LAYOUT */}
                     {category === 'herb' && (
                         <div className="space-y-4 text-slate-300 leading-relaxed text-sm">
                             <p>{item.description}</p>
@@ -247,19 +231,18 @@ export default function GrimoireModal({
                                 <div className="p-3 rounded-lg bg-slate-900/50 border border-slate-800 flex items-start gap-3">
                                     <div className="mt-0.5 p-1.5 rounded-full bg-slate-800 text-slate-400"><Sun className="w-4 h-4" /></div>
                                     <div>
-                                        <h4 className="text-[10px] font-bold tracking-wider text-slate-500 uppercase mb-1">Latin Name?</h4>
-                                        <p className="text-white text-sm font-medium">{item.latin_name || 'Unknown'}</p> 
+                                        <h4 className="text-[10px] font-bold tracking-wider text-slate-500 uppercase mb-1">Latin Name</h4>
+                                        <p className="text-white text-sm font-medium italic">{item.latin_name || 'Unknown'}</p> 
                                     </div>
                                 </div>
                                 <div className="p-3 rounded-lg bg-slate-900/50 border border-slate-800 flex items-start gap-3">
                                     <div className="mt-0.5 p-1.5 rounded-full bg-slate-800 text-slate-400"><Wheat className="w-4 h-4" /></div>
                                     <div>
-                                        <h4 className="text-[10px] font-bold tracking-wider text-slate-500 uppercase mb-1">Parts Used</h4>
-                                        <p className="text-white text-sm font-medium">{item.parts_used || 'All'}</p> 
+                                        <h4 className="text-[10px] font-bold tracking-wider text-slate-500 uppercase mb-1">Element</h4>
+                                        <p className="text-white text-sm font-medium">{item.element || 'Unknown'}</p> 
                                     </div>
                                 </div>
                             </div>
-                             {/* Specific Herb Lists */}
                             <div className="mt-6">
                                 {renderList('Medical Uses', item.medical_uses)}
                                 {renderList('Magical Uses', item.magical_uses)}
@@ -267,26 +250,55 @@ export default function GrimoireModal({
                         </div>
                     )}
 
-                    {/* 3. DEITY LAYOUT (Example structure) */}
-                    {category === 'deity' && (
+                    {/* 3. OIL LAYOUT (NEW) */}
+                    {category === 'oil' && (
                         <div className="space-y-4 text-slate-300 leading-relaxed text-sm">
                             <p>{item.description}</p>
-                            {/* Pantheon/Domain Grid */}
+                            
                             <div className="grid grid-cols-2 gap-4 mt-6 mb-6">
                                 <div className="p-3 rounded-lg bg-slate-900/50 border border-slate-800 flex items-start gap-3">
-                                    <div className="mt-0.5 p-1.5 rounded-full bg-slate-800 text-slate-400"><Flame className="w-4 h-4" /></div>
+                                    <div className="mt-0.5 p-1.5 rounded-full bg-slate-800 text-slate-400"><Fingerprint className="w-4 h-4" /></div>
                                     <div>
-                                        <h4 className="text-[10px] font-bold tracking-wider text-slate-500 uppercase mb-1">Pantheon</h4>
-                                        <p className="text-white text-sm font-medium">{item.pantheon}</p> 
+                                        <h4 className="text-[10px] font-bold tracking-wider text-slate-500 uppercase mb-1">Latin Name</h4>
+                                        <p className="text-white text-sm font-medium italic">{item.latin_name || 'Unknown'}</p> 
+                                    </div>
+                                </div>
+                                <div className="p-3 rounded-lg bg-slate-900/50 border border-slate-800 flex items-start gap-3">
+                                    <div className="mt-0.5 p-1.5 rounded-full bg-slate-800 text-slate-400"><Droplet className="w-4 h-4" /></div>
+                                    <div>
+                                        <h4 className="text-[10px] font-bold tracking-wider text-slate-500 uppercase mb-1">Scent</h4>
+                                        <p className="text-white text-sm font-medium">{item.scent_profile || 'Unknown'}</p> 
                                     </div>
                                 </div>
                             </div>
-                            {renderList('Domains', item.domain)}
-                            {renderList('Symbols', item.symbols)}
+
+                            {renderList('Magical Uses', item.magical_uses)}
+                            
+                            {item.safety_info && (
+                                <div className="mt-4 p-3 rounded bg-red-950/20 border border-red-900/50 flex gap-3 text-red-200">
+                                    <AlertTriangle className="w-5 h-5 flex-shrink-0 text-red-500" />
+                                    <div className="text-xs">
+                                        <span className="font-bold text-red-400 block mb-1">Safety Info</span>
+                                        {item.safety_info}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     )}
 
-                    {/* 4. FALLBACK / GENERAL LAYOUT */}
+                    {/* 4. RUNE LAYOUT (NEW) */}
+                    {category === 'rune' && (
+                        <div className="space-y-4 text-slate-300 leading-relaxed text-sm">
+                            <p className="text-lg font-serif text-white italic text-center py-2 opacity-90">{item.meaning}</p>
+                            <p>{item.description}</p>
+                            
+                            <div className="mt-6">
+                                {renderList('Magical Uses', item.magical_uses)}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* 5. FALLBACK / GENERAL LAYOUT */}
                     {category === 'general' && (
                         <div className="space-y-4">
                             <p className="mb-6 leading-relaxed text-slate-300">{item.description || item.meaning}</p>
@@ -351,12 +363,12 @@ export default function GrimoireModal({
                 {isOwned ? (
                     <>
                     <Check className="h-4 w-4" /> 
-                    {isDeity ? 'Deity Invoked' : 'In Sanctuary'}
+                    In Sanctuary
                     </>
                 ) : (
                     <>
-                    {isDeity ? <Flame className="h-4 w-4" /> : <Sparkles className="h-4 w-4" />} 
-                    {isDeity ? 'Invoke Deity' : 'Add to Sanctuary'}
+                    <Sparkles className="h-4 w-4" /> 
+                    Add to Sanctuary
                     </>
                 )}
                 </button>

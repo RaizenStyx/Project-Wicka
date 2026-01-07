@@ -8,4 +8,4 @@ export const CANDLE_NAMES = [
   'Red', 'Blue', 'Green', 'Yellow', 'Purple', 'Orange', 'Pink', 'Black', 'White', 'Brown', 'Gold', 'Silver'
 ];
 
-export const ALL_WIDGETS = ["profile", "moon", "tarot", "crystal", "deity"];
+export const ALL_WIDGETS = ["profile", "moon", "tarot", "item", "deity"];

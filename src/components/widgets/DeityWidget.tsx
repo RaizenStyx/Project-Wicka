@@ -6,6 +6,7 @@ import { Sparkles, Flame } from 'lucide-react'
 import Image from 'next/image'
 import { formatDistanceToNow, addHours } from 'date-fns'
 import DeityModal from '@/components/deities/DeityModal'
+import { updateDeityState } from '@/app/actions/deity-actions'
 
 // Types
 interface WidgetDeity {
@@ -14,6 +15,7 @@ interface WidgetDeity {
   last_invoked_at: string | null;
   last_offering_at: string | null;
   is_owned: boolean;
+  is_wishlisted: boolean; 
   deities: {
     id: string;
     name: string;
@@ -32,7 +34,7 @@ export default function DeityWidget() {
   const [roster, setRoster] = useState<WidgetDeity[]>([])
   
   // Modal State
-  const [selectedDeity, setSelectedDeity] = useState<any | null>(null)
+  const [selectedDeity, setSelectedDeity] = useState<WidgetDeity | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   const supabase = createClient()
@@ -45,7 +47,6 @@ export default function DeityWidget() {
   useEffect(() => {
     if (!invokedDeity) return
     const interval = setInterval(() => {
-        // Just triggering a re-render to update 'formatDistanceToNow'
         setInvokedDeity({ ...invokedDeity }) 
     }, 60000)
     return () => clearInterval(interval)
@@ -80,7 +81,7 @@ export default function DeityWidget() {
     setLoading(false)
   }
 
-  // 3. LISTEN FOR GLOBAL UPDATES (Sync with Modal actions)
+  // 3. LISTEN FOR GLOBAL UPDATES
   useEffect(() => {
       const handleStateChange = () => {
           console.log("Deity state changed, refreshing widget...");
@@ -88,12 +89,10 @@ export default function DeityWidget() {
       };
 
       window.addEventListener('deity-state-changed', handleStateChange);
-      
-      // Cleanup listener
       return () => {
           window.removeEventListener('deity-state-changed', handleStateChange);
       };
-  }, []); // Run once on mount
+  }, []);
 
   const openModal = (item: WidgetDeity) => {
     setSelectedDeity(item)
@@ -102,7 +101,28 @@ export default function DeityWidget() {
 
   const handleModalClose = () => {
       setIsModalOpen(false)
-      fetchWidgetData() // Refresh data when modal closes (in case they invoked/banished)
+      fetchWidgetData() 
+  }
+
+  // New: Handle Wishlist Toggle (Required for Modal Props)
+  const handleToggleWishlist = async (deityId: string) => {
+      if (!selectedDeity) return
+
+      // 1. Calculate new state
+      const currentVal = selectedDeity.is_wishlisted
+      const newVal = !currentVal
+
+      // 2. Optimistic Update
+      setSelectedDeity({ ...selectedDeity, is_wishlisted: newVal })
+
+      // 3. Server Action
+      await updateDeityState(deityId, { 
+          isOwned: selectedDeity.is_owned, 
+          isWishlisted: newVal 
+      })
+
+      // 4. Refresh Widget Data
+      fetchWidgetData()
   }
 
   if (loading) return <div className="h-48 rounded-xl bg-slate-900/50 animate-pulse" />
@@ -199,10 +219,18 @@ export default function DeityWidget() {
             isOpen={isModalOpen}
             onClose={handleModalClose}
             deity={selectedDeity?.deities}
+            
+            // Flags
             isInvoked={selectedDeity?.is_invoked || false}
             isOwned={selectedDeity?.is_owned || false}
+            isWishlisted={selectedDeity?.is_wishlisted || false} // PASSED
+            
+            // Timestamps
             lastInvokedAt={selectedDeity?.last_invoked_at}
             lastOfferingAt={selectedDeity?.last_offering_at}
+            
+            // Actions
+            onToggleWishlist={() => selectedDeity && handleToggleWishlist(selectedDeity.deity_id)} // PASSED
         />
     </div>
   )

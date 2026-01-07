@@ -63,7 +63,7 @@ export default function TarotGallery({ initialCards, cardBack }: TarotGalleryPro
   const handlePageChange = (newPage: number) => {
       if (newPage >= 1 && newPage <= totalPages) {
           setCurrentPage(newPage);
-          window.scrollTo({ top: 100, behavior: 'smooth' });
+          window.scrollTo({ top: 500, behavior: 'smooth' });
       }
   }
 
@@ -72,7 +72,7 @@ export default function TarotGallery({ initialCards, cardBack }: TarotGalleryPro
 
       {/* --- NEW SECTION: CARD BACK SHOWCASE --- */}
       {cardBack && (
-        <section className="flex flex-col items-center justify-center py-8 border-b border-white/10">
+        <section className="flex flex-col items-center justify-center pb-8 border-b border-white/10">
             <div className="relative group cursor-pointer" onClick={() => setIsBackSideways(!isBackSideways)}>
                 
                 {/* Visual Hint */}

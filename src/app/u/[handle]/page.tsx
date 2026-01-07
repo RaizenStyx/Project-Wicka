@@ -1,6 +1,6 @@
 import { createClient } from '@/app/utils/supabase/server'
 import { notFound, redirect } from 'next/navigation'
-import { Cannabis, Cat, Shield, ChevronLeft, Check } from 'lucide-react'
+import { Cannabis, Cat, Shield, ChevronLeft, Check, Omega, UserRoundCog } from 'lucide-react'
 import { signOut } from '@/app/actions/auth-actions'
 import { clsx } from 'clsx'
 import RoleBadge from '@/components/ui/RoleBadge'
@@ -57,13 +57,40 @@ export default async function ProfilePage({
         name,
         symbol,
         planets (
-        name,
-        symbol
+          name,
+          symbol
+        )
+      ),
+      user_deities (
+        is_invoked,
+        deities (
+          name,
+          title,
+          image_url,
+          pantheon
         )
       )
     `)
     .eq('handle', handle) 
     .single()
+
+    // const { data: profile } = await supabase
+    // .from('profiles')
+    // .select(`
+    //   *,
+    //   zodiac_signs (
+    //     name,
+    //     symbol,
+    //     planets (
+    //       name,
+    //       symbol
+    //     )
+    //   )
+    // `)
+    // .eq('handle', handle) 
+    // .single()
+
+    console.log("Fetched profile:", profile);
 
   if (!profile) return notFound()
 
@@ -93,7 +120,10 @@ export default async function ProfilePage({
   const isSupporter = ['supporter', 'admin', 'verified', 'Goddess', 'Princess'].includes(profile.role);
 
   const showBackButton = from === 'members';
-  
+ 
+  const activeInvocation = profile.user_deities?.find((ud: any) => ud.is_invoked)
+  const invokedDeity = activeInvocation ? activeInvocation.deities : null
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-200 font-sans">
       <main className="max-w-4xl mx-auto px-4 py-8">
@@ -220,6 +250,12 @@ export default async function ProfilePage({
                   {(profile.role === 'Princess') && (
                       <Cat className="w-3 h-3 text-purple-400 fill-purple-400/20" />
                   )}
+                  {(profile.role === 'Creator') && (
+                      <Omega className="w-3 h-3 text-teal-400 fill-purple-400/20" />
+                  )}
+                  {(profile.role === 'admin') && (
+                      <UserRoundCog className="w-3 h-3 text-gray-100 fill-purple-400/20" />
+                  )}
                 </p>
 
             </div>
@@ -245,15 +281,17 @@ export default async function ProfilePage({
              </div>
 
             {/* Placeholder Widget */}
-             <div className="p-6 rounded-xl bg-slate-900 border border-slate-800">
-               <h3 className="text-xs uppercase tracking-widest text-slate-500 mb-4 font-bold">Astrology Info</h3>
-               <div className="space-y-3 text-sm">
-                 <div className="flex justify-between pb-2">
-                   <span className="text-slate-500">Placeholder:</span>
-                   <p className="text-slate-400">???</p>
+            {invokedDeity && (
+              <div className="p-6 rounded-xl bg-slate-900 border border-slate-800">
+                <h3 className="text-xs uppercase tracking-widest text-slate-500 mb-4 font-bold">Astrology Info</h3>
+                <div className="space-y-3 text-sm">
+                  <div className="flex justify-between pb-2">
+                    <span className="text-slate-500">Currently invoking:</span>
+                   <p className="text-slate-400">{invokedDeity?.name || 'No deity invoked'}</p>
                   </div>
                </div>
              </div>
+            )}
 
               {/* Placeholder Widget */}
              <div className="p-6 rounded-xl bg-slate-900 border border-slate-800">

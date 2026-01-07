@@ -114,7 +114,7 @@ export default function WidgetCustomizer({ initialOrder }: WidgetCustomizerProps
       profile: "Profile Card",
       moon: "Moon Phase",
       tarot: "Daily Tarot",
-      crystal: "Crystal Identifier",
+      item: "Item Collection",
       deity: "Deity Evoke"
     }
     return labels[id] || id

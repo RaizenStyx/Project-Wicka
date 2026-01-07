@@ -28,10 +28,7 @@ export default function SpellCard({
   const pathname = usePathname()
   
   // 3. LOGIC HELPERS
-  // Are we in the public library?
   const isGrandGrimoire = pathname?.includes('/grand-grimoire')
-  
-  // Should we show the Public Badge? (Yes, unless we are in the Grimoire)
   const showPublicBadge = spell.is_published && !isGrandGrimoire
   
   const [isBurning, setIsBurning] = useState(false)
@@ -43,6 +40,8 @@ export default function SpellCard({
   const [linkedCrystals, setLinkedCrystals] = useState<string[]>(spell.linked_crystals || [])
   const [linkedHerbs, setLinkedHerbs] = useState<string[]>(spell.linked_herbs || [])
   const [linkedCandles, setLinkedCandles] = useState<string[]>(spell.linked_candles || [])
+  const [linkedOils, setLinkedOils] = useState<string[]>(spell.linked_essential_oils || [])
+  const [linkedRunes, setLinkedRunes] = useState<string[]>(spell.linked_runes || [])
   // -----------------------------
 
   const canPublish = userRole !== 'initiate';
@@ -71,6 +70,8 @@ export default function SpellCard({
         formData.set('linked_crystals', JSON.stringify(linkedCrystals))
         formData.set('linked_herbs', JSON.stringify(linkedHerbs))
         formData.set('linked_candles', JSON.stringify(linkedCandles))
+        formData.set('linked_essential_oils', JSON.stringify(linkedOils))
+        formData.set('linked_runes', JSON.stringify(linkedRunes))
 
         // 3. Client-Side Validation (Optional but good)
         if (isRitual) {
@@ -164,6 +165,18 @@ export default function SpellCard({
                     selectedIds={linkedCandles}
                     onSelectionChange={setLinkedCandles}
                 />
+                <SmartIngredientSelector 
+                    tableName="essential_oils"
+                    label="Essential Oils"
+                    selectedIds={linkedOils}
+                    onSelectionChange={setLinkedOils}
+                />
+                <SmartIngredientSelector
+                    tableName="runes"
+                    label="Runes"
+                    selectedIds={linkedRunes}
+                    onSelectionChange={setLinkedRunes}
+                />
             </div>
 
             {/* Legacy Ingredients */}
@@ -207,30 +220,21 @@ export default function SpellCard({
         animate={isBurning ? { opacity: 0, scale: 0.9, y: -50, filter: "brightness(0) blur(4px)", transition: { duration: 0.8 } } : { opacity: 1, scale: 1, y: 0, filter: "brightness(1) blur(0px)" }}
         className={clsx("bg-slate-900 border border-slate-800 rounded-xl p-6 relative group transition-all duration-300", !isBurning && "hover:border-purple-500/30 hover:shadow-lg hover:shadow-purple-900/10")}
     >
-        {/* --- BADGE CONTAINER UPDATE --- */}
+        {/* --- BADGE CONTAINER --- */}
         <div className={clsx(
-            // 1. Positioning: Relative on mobile (pushes content down), Absolute on Desktop (floats in corner)
-            "flex justify-end mb-2 sm:absolute sm:top-6 sm:right-6 sm:mb-0",
-            
-            // 2. Layout: ALWAYS row, side-by-side, never stack
+            "flex justify-end mb-2 sm:absolute sm:top-6 sm:right-6 sm:mb-0", 
             "flex-row items-center gap-2" 
         )}>
-            
-            {/* PUBLIC BADGE */}
             {showPublicBadge && (
                 <span className="flex items-center gap-1 text-[10px] text-purple-300 border border-purple-900 bg-purple-900/40 px-2 py-0.5 rounded-full uppercase tracking-wider font-bold shadow-sm shadow-purple-900/50">
                    <Globe className="w-3 h-3" /> Public
                 </span>
             )}
-
-            {/* RITUAL BADGE */}
             {spell.is_ritual && (
                 <span className="flex items-center gap-1 text-[10px] text-amber-300 border border-amber-900 bg-amber-900/20 px-2 py-0.5 rounded-full uppercase tracking-wider font-bold shadow-sm">
                    <Scroll className="w-3 h-3" /> Ritual
                 </span>
             )}
-
-            {/* PRIVATE / PROFILE ICONS */}
             {!spell.is_published && (
                 <>
                     {spell.is_private && <Lock className="w-4 h-4 text-slate-600" />}
@@ -259,6 +263,8 @@ export default function SpellCard({
             <IngredientBadgeList ids={spell.linked_crystals} tableName="crystals" label="Crystals" />
             <IngredientBadgeList ids={spell.linked_herbs} tableName="herbs" label="Herbs" />
             <IngredientBadgeList ids={spell.linked_candles} tableName="candles" label="Candles" />
+            <IngredientBadgeList ids={spell.linked_essential_oils} tableName="essential_oils" label="Oils" />
+            <IngredientBadgeList ids={spell.linked_runes} tableName="runes" label="Runes" />
         </div>
 
         {/* Extra Ingredients */}

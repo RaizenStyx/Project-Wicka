@@ -2459,3 +2459,238 @@ VALUES
   'The hidden face of fate.', 
   '/tarot/card-back.jpg' 
 );
+
+
+
+
+
+
+
+
+-- Add the new Smart Ingredient columns to the Spells table
+ALTER TABLE public.spells 
+ADD COLUMN IF NOT EXISTS linked_essential_oils uuid[] DEFAULT '{}',
+ADD COLUMN IF NOT EXISTS linked_runes uuid[] DEFAULT '{}';
+
+-- Optional: Do the same for 'common_rituals' if you want them there too
+ALTER TABLE public.common_rituals 
+ADD COLUMN IF NOT EXISTS linked_essential_oils uuid[] DEFAULT '{}',
+ADD COLUMN IF NOT EXISTS linked_runes uuid[] DEFAULT '{}';
+
+
+UPDATE public.profiles
+SET preferences = '{
+  "theme": "default",
+  "widget_order": [
+    { "id": "profile", "enabled": true },
+    { "id": "deity", "enabled": true },
+    { "id": "item", "enabled": true },
+    { "id": "moon", "enabled": true },
+    { "id": "tarot", "enabled": true }
+  ]
+}'::jsonb;
+
+
+
+-- ============================================================================
+-- 1. RUNES (The Elder Futhark)
+-- ============================================================================
+
+-- A. Create Master Table
+create table public.runes (
+  id uuid not null default gen_random_uuid (),
+  name text not null unique,       -- e.g., "Fehu"
+  symbol text not null,            -- e.g., "ᚠ"
+  aett text,                       -- e.g., "Freya's Aett"
+  meaning text not null,           -- General meaning
+  magical_uses text[],             -- Array of tags: ['Wealth', 'New Beginnings']
+  description text,                -- Longer lore/description
+  image_url text,                  -- Standard reference image
+  created_at timestamptz default now(),
+  constraint runes_pkey primary key (id)
+);
+
+-- B. Create User Collection Table
+create table public.user_runes (
+  id uuid not null default gen_random_uuid (),
+  user_id uuid references auth.users(id) on delete cascade not null,
+  rune_id uuid references public.runes(id) on delete cascade not null,
+  
+  -- Tracking State
+  is_owned boolean default false,      -- Do they have a physical set/stone of this?
+  is_wishlisted boolean default false, -- Do they want to learn/acquire it?
+  user_image_url text,                 -- User's photo of their rune
+  
+  created_at timestamptz default now(),
+  constraint user_runes_pkey primary key (id),
+  
+  -- Prevent duplicates per user
+  unique(user_id, rune_id),
+  
+  -- Prevent "Ghost Rows" (must be owned or wishlisted to exist)
+  constraint check_valid_rune_entry check (is_owned = true or is_wishlisted = true)
+);
+
+-- C. Enable Security (RLS)
+alter table public.runes enable row level security;
+alter table public.user_runes enable row level security;
+
+-- D. Policies
+-- Public can read Master Runes
+create policy "Runes are viewable by everyone" 
+on public.runes for select using ( true );
+
+-- User Policies (View, Add, Update, Remove Own)
+create policy "Users can view their own runes" 
+on public.user_runes for select using ( auth.uid() = user_id );
+
+create policy "Users can add to their own runes" 
+on public.user_runes for insert with check ( auth.uid() = user_id );
+
+create policy "Users can update their own runes" 
+on public.user_runes for update using ( auth.uid() = user_id );
+
+create policy "Users can remove from their own runes" 
+on public.user_runes for delete using ( auth.uid() = user_id );
+
+-- E. Seed Data (First 5 Runes)
+insert into public.runes (name, symbol, aett, meaning, magical_uses, description, image_url)
+values
+(
+  'Fehu', 'ᚠ', 'Freya''s Aett', 
+  'Wealth, Mobile Property, New Beginnings', 
+  ARRAY['Prosperity', 'Abundance', 'Career Success'], 
+  'The first rune. It represents cattle, which was wealth in ancient times. It signifies earned income and the energy of creation.',
+  'https://placehold.co/600x400/DAA520/FFFFFF/png?text=Fehu'
+),
+(
+  'Uruz', 'ᚢ', 'Freya''s Aett', 
+  'Strength, Vitality, Wild Ox', 
+  ARRAY['Healing', 'Physical Strength', 'Courage'], 
+  'The rune of the wild ox. It represents untamed physical power, health, and endurance. It is the raw force of formation.',
+  'https://placehold.co/600x400/8B4513/FFFFFF/png?text=Uruz'
+),
+(
+  'Thurisaz', 'ᚦ', 'Freya''s Aett', 
+  'Giant, Thorn, Defense', 
+  ARRAY['Protection', 'Breaking Barriers', 'Defense'], 
+  'Associated with Thor and his hammer. It is a rune of reactive force, directed conflict, and breaking down obstacles.',
+  'https://placehold.co/600x400/8B0000/FFFFFF/png?text=Thurisaz'
+),
+(
+  'Ansuz', 'ᚨ', 'Freya''s Aett', 
+  'Odin, Breath, Communication', 
+  ARRAY['Wisdom', 'Communication', 'Divination'], 
+  'The rune of divine inspiration and the breath of life. It governs communication, songs, poetry, and taking advice.',
+  'https://placehold.co/600x400/4169E1/FFFFFF/png?text=Ansuz'
+),
+(
+  'Raidho', 'ᚱ', 'Freya''s Aett', 
+  'Journey, Wagon, Rhythm', 
+  ARRAY['Travel Safety', 'Justice', 'Order'], 
+  'The rune of the journey, both physical and spiritual. It represents right action, order, and the rhythmic movement of the cosmos.',
+  'https://placehold.co/600x400/228B22/FFFFFF/png?text=Raidho'
+);
+
+
+-- ============================================================================
+-- 2. ESSENTIAL OILS
+-- ============================================================================
+
+-- A. Create Master Table
+create table public.essential_oils (
+  id uuid not null default gen_random_uuid (),
+  name text not null unique,       -- e.g., "Lavender Oil"
+  latin_name text,                 -- e.g., "Lavandula angustifolia"
+  scent_profile text,              -- e.g., "Floral, Sweet, Herbaceous"
+  magical_uses text[],             -- Array: ['Calm', 'Sleep']
+  safety_info text,                -- Important! e.g., "Toxic to cats, dilute before use."
+  description text,
+  image_url text,
+  created_at timestamptz default now(),
+  constraint essential_oils_pkey primary key (id)
+);
+
+-- B. Create User Collection Table
+create table public.user_oils (
+  id uuid not null default gen_random_uuid (),
+  user_id uuid references auth.users(id) on delete cascade not null,
+  oil_id uuid references public.essential_oils(id) on delete cascade not null,
+  
+  -- Tracking State
+  is_owned boolean default false,
+  is_wishlisted boolean default false,
+  user_image_url text,
+  
+  created_at timestamptz default now(),
+  constraint user_oils_pkey primary key (id),
+  
+  unique(user_id, oil_id),
+  constraint check_valid_oil_entry check (is_owned = true or is_wishlisted = true)
+);
+
+-- C. Enable Security
+alter table public.essential_oils enable row level security;
+alter table public.user_oils enable row level security;
+
+-- D. Policies
+-- Public Master
+create policy "Oils are viewable by everyone" 
+on public.essential_oils for select using ( true );
+
+-- User Collection
+create policy "Users can view their own oils" 
+on public.user_oils for select using ( auth.uid() = user_id );
+
+create policy "Users can add to their own oils" 
+on public.user_oils for insert with check ( auth.uid() = user_id );
+
+create policy "Users can update their own oils" 
+on public.user_oils for update using ( auth.uid() = user_id );
+
+create policy "Users can remove from their own oils" 
+on public.user_oils for delete using ( auth.uid() = user_id );
+
+-- E. Seed Data (5 Common Oils)
+insert into public.essential_oils (name, latin_name, scent_profile, magical_uses, safety_info, description, image_url)
+values
+(
+  'Lavender Oil', 'Lavandula angustifolia', 
+  'Floral, Sweet, Herbal', 
+  ARRAY['Peace', 'Sleep', 'Purification'], 
+  'Generally safe undiluted (neat), but dilution recommended.', 
+  'The universal healer. Essential for reducing stress, promoting sleep, and purifying the ritual space.',
+  'https://placehold.co/600x400/E6E6FA/333333/png?text=Lavender+Oil'
+),
+(
+  'Peppermint Oil', 'Mentha piperita', 
+  'Fresh, Menthol, Sharp', 
+  ARRAY['Energy', 'Cleansing', 'Focus'], 
+  'Skin irritant if not diluted. Avoid using near eyes.', 
+  'A powerful stimulant that clears the mind and raises energy levels. Great for breaking stagnation.',
+  'https://placehold.co/600x400/98FB98/333333/png?text=Peppermint+Oil'
+),
+(
+  'Frankincense Oil', 'Boswellia carterii', 
+  'Resinous, Earthy, Spicy', 
+  ARRAY['Spirituality', 'Meditation', 'Protection'], 
+  'Generally safe. Non-toxic.', 
+  'A high-vibration oil used for thousands of years to enhance spiritual connection and meditation.',
+  'https://placehold.co/600x400/DAA520/FFFFFF/png?text=Frankincense+Oil'
+),
+(
+  'Tea Tree Oil', 'Melaleuca alternifolia', 
+  'Medicinal, Fresh, Woody', 
+  ARRAY['Cleansing', 'Protection', 'Healing'], 
+  'Toxic if ingested. Toxic to pets.', 
+  'Known as "Melaleuca," it is a potent antiseptic physically and energetically. Used to banish illness.',
+  'https://placehold.co/600x400/2E8B57/FFFFFF/png?text=Tea+Tree+Oil'
+),
+(
+  'Sweet Orange Oil', 'Citrus sinensis', 
+  'Citrus, Sweet, Fruity', 
+  ARRAY['Joy', 'Luck', 'Money'], 
+  'Phototoxic: Avoid direct sunlight on skin after application.', 
+  'A sunny, uplifting oil that brings joy and attracts abundance. Excellent for lifting the spirits.',
+  'https://placehold.co/600x400/FFA500/FFFFFF/png?text=Orange+Oil'
+);
