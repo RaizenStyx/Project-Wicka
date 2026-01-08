@@ -9,22 +9,7 @@ import { MessageCircle, Flag } from 'lucide-react'
 import RoleBadge from '../ui/RoleBadge';
 import CommentSection from './CommentSection'
 import Link from 'next/link'; 
-
-interface PostCardProps {
-  id: string; 
-  currentUserId: string; 
-  username: string;
-  handle?: string | null;
-  avatar_url?: string | null;
-  subtitle?: string;
-  timeAgo: string;
-  content: string;
-  currentUserRole?: string;
-  profileUserRole?: string;
-  image_url?: string | null; 
-  likes: { user_id: string }[]; 
-  commentsCount: number;
-}
+import { PostCardProps } from '@/app/types/database';
 
 const PostCard = ({ 
   id, 

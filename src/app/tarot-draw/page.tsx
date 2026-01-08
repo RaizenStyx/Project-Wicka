@@ -1,45 +1,69 @@
-import { getDailySpread } from "@/app/actions/tarot-actions";
-import DailySpreadInteractive from "@/components/tarot/DailySpreadInteractive";
+import { createClient } from '@/app/utils/supabase/server';
+import TarotDrawFlow from '@/components/tarot/TarotDrawFlow';
+import Link from 'next/link'; 
+import { History } from 'lucide-react'; 
 
 export const metadata = {
-  title: 'Tarot Spreads | Nyxus',
-  description: 'Use the platforms tarot cards to perform certain spreads!',
+  title: 'Divination Room | Nyxus',
+  description: 'Consult the cards and scribe your fate.',
 };
 
-export default async function TarotDraw() {
-  // Fetch data on the server
-  const result = await getDailySpread();
-    
-    // Handle null case
-    if (!result) {
-      return (
-        <div className="max-w-4xl mx-auto p-6">
-          <p className="text-center text-slate-400">Unable to load daily guidance.</p>
-        </div>
-      );
-    }
+export default async function TarotDrawPage() {
+  const supabase = await createClient();
 
-  const { cards, isNew } = result;
+  // 1. Fetch entire deck
+  const { data: rawDeck, error } = await supabase
+    .from('tarot_cards')
+    .select('*')
+    .order('id', { ascending: true });
 
+  if (error || !rawDeck) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-slate-500">
+        The spirits are silent. (Database Error)
+      </div>
+    );
+  }
 
-  // Sort them to ensure they appear in the order we expect (Postgres IN queries don't guarantee order)
-  
-  // TODO: For a real spread, you might want to save the order 
-  // specifically in the DB, but for now, just render them.
-  
+  // 2. EXTRACT CARD BACK
+  // Adjust this filter based on your exact data. 
+  // You mentioned "Card Back" is a card with a null number or specific name.
+  const cardBackEntry = rawDeck.find(c => c.name === 'Card Back' || c.number === null);
+  const cardBackUrl = cardBackEntry?.image_url || '/textures/wood.jpg'; // Fallback if missing
+
+  // 3. FILTER PLAYABLE DECK
+  // We don't want the user to actually "draw" the card back in a spread.
+  const playableDeck = rawDeck.filter(c => c.id !== cardBackEntry?.id);
+
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 p-6">
-      <header className="text-center mb-10">
-        <h1 className="text-4xl font-serif text-purple-200 drop-shadow-[0_0_10px_rgba(168,85,247,0.5)]">
-          Daily Guidance
-        </h1>
-        {isNew 
-            ? "Focus on your intent, and draw three cards from the deck."
-            : "Your guidance for today has been revealed."}
-      </header>
+    <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-purple-500/30">
+      <div className="max-w-5xl mx-auto p-4 md:p-8">
+        
+        {/* Header with Journal Link */}
+        <header className="mb-8 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="text-center md:text-left">
+            <h1 className="text-3xl md:text-4xl font-serif text-transparent bg-clip-text bg-gradient-to-r from-purple-200 to-indigo-200 drop-shadow-[0_0_15px_rgba(168,85,247,0.3)]">
+              The Divination Room
+            </h1>
+            <p className="text-slate-400 text-sm mt-2">
+              Focus your intent. Shuffle the deck. Reveal your path.
+            </p>
+          </div>
 
-      {/* 2. Load the Interactive Client Component */}
-      <DailySpreadInteractive cards={cards || []} isNew={isNew} />
+          <Link 
+            href="/tarot-draw/journal"
+            className="group flex items-center gap-3 px-5 py-3 rounded-full bg-slate-900 border border-slate-800 hover:border-purple-500/50 transition-all hover:bg-slate-900/80"
+          >
+            <div className="p-2 bg-slate-800 rounded-full group-hover:bg-purple-500/20 transition-colors">
+                <History className="w-4 h-4 text-slate-400 group-hover:text-purple-300" />
+            </div>
+            <span className="text-sm font-medium text-slate-300 group-hover:text-white">View Journal</span>
+          </Link>
+        </header>
+
+        {/* 4. Pass filtered deck AND cardBackUrl */}
+        <TarotDrawFlow fullDeck={playableDeck} cardBackUrl={cardBackUrl} />
+      </div>
     </div>
   );
 }

@@ -2698,3 +2698,57 @@ values
   'A sunny, uplifting oil that brings joy and attracts abundance. Excellent for lifting the spirits.',
   'https://placehold.co/600x400/FFA500/FFFFFF/png?text=Orange+Oil'
 );
+
+
+
+-- 1. Create the Readings/Journal Table for Tarot History
+-- Possibly will be removing older "user_daily_tarot" table
+-- Did remove or didnt remove
+create table public.user_tarot_readings (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users(id) on delete cascade not null,
+  
+  -- Metadata
+  spread_name text not null default 'Daily Draw', -- e.g. "Celtic Cross", "3-Card"
+  query text, -- The question they focused on (optional)
+  notes text, -- User's journal entry/reflection (optional)
+  
+  -- The Cards (JSONB is crucial here for reversals)
+  -- Structure: [ { "card_id": 12, "reversed": true, "position_name": "Past" }, ... ]
+  cards jsonb not null,
+  
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+-- 2. Enable RLS
+alter table public.user_tarot_readings enable row level security;
+
+-- 3. Policies
+
+-- View: Users can see their own history
+create policy "Users can view own readings"
+  on public.user_tarot_readings for select
+  using ( auth.uid() = user_id );
+
+-- Insert: Users can save a new reading
+create policy "Users can insert own readings"
+  on public.user_tarot_readings for insert
+  with check ( auth.uid() = user_id );
+
+-- Update: Users can edit the NOTES of their reading (journaling), but usually not the cards
+create policy "Users can update own readings"
+  on public.user_tarot_readings for update
+  using ( auth.uid() = user_id );
+
+-- Delete: Users can delete bad vibes
+create policy "Users can delete own readings"
+  on public.user_tarot_readings for delete
+  using ( auth.uid() = user_id );
+
+-- 4. Indexing for Performance
+-- Fast lookup for the "Profile Widget" (getting the latest active spread)
+create index idx_tarot_readings_user_latest 
+  on public.user_tarot_readings(user_id, created_at desc);
+
+-- 5. (Optional) Cleanup the old table if you are fully replacing it
+-- drop table if exists public.user_daily_tarot;

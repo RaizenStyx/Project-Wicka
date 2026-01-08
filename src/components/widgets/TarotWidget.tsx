@@ -57,15 +57,14 @@ const TarotWidget = () => {
   };
 
   return (
-    <WidgetFrame title="Card of the Day">
-      <p>TODO: Make first draw an intentional card, save to profile for the day?</p>
+    <WidgetFrame title="Explore the Tarot">
       <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-lg flex flex-col items-center justify-center min-h-[340px]">
       
         {/* Header */}
         <div className="flex w-full justify-between items-start mb-4">
             <h3 className="text-slate-400 text-xs font-bold tracking-[0.2em] uppercase flex gap-2 items-center">
                 <Sparkles className="w-3 h-3 text-indigo-400" />
-                Daily Draw
+                Draw a Card
             </h3>
             {/* Remaining Counter */}
             {remaining !== null && (

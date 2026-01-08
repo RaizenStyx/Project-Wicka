@@ -3,13 +3,8 @@
 import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { TarotCard } from '@/app/types/database'; 
 import { Search, ChevronDown, Sparkles, ChevronLeft, ChevronRight, RotateCw } from 'lucide-react';
-
-interface TarotGalleryProps {
-  initialCards: TarotCard[];
-  cardBack?: TarotCard | null; // NEW PROP
-}
+import { TarotGalleryProps } from '@/app/types/database';
 
 type ArcanaFilter = 'All' | 'Major' | 'Minor';
 type SuitFilter = 'All' | 'Wands' | 'Cups' | 'Swords' | 'Pentacles';

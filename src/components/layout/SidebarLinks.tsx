@@ -53,8 +53,8 @@ export default function SidebarLinks({ profile }: SidebarLinksProps) {
         { label: 'Grand Grimoire', href: '/grand-grimoire', allowedRoles: ['guardian', 'supporter', 'Goddess', 'Princess', 'Creator', 'admin']},
         { label: 'Spellbook', href: '/spellbook' },
         { label: 'Sanctuary', href: '/sanctuary'},
-        { label: 'Daily Tarot', href: '/tarot-draw', allowedRoles: ['guardian', 'supporter', 'Goddess', 'Princess', 'Creator', 'admin'] },
-        { label: 'Home Altar', href: '/altar' },
+        { label: 'Visual Altar', href: '/altar' },
+        { label: 'Divination Room', href: '/tarot-draw', allowedRoles: ['guardian', 'supporter', 'Goddess', 'Princess', 'Creator', 'admin'] },
         { label: 'Find your Deity', href: '/deities', allowedRoles: ['guardian', 'supporter', 'Goddess', 'Princess', 'Creator', 'admin'] },
         { label: 'Oracle AI', href: 'https://ai-oracle-eight.vercel.app/access', allowedRoles: ['supporter', 'Goddess', 'Princess', 'Creator', 'admin'], isExternal: true }
       ]

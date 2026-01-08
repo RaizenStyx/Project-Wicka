@@ -1,24 +1,3 @@
-// export interface Crystal {
-//   id: string;
-//   name: string;
-//   meaning: string;
-//   element: 'Earth' | 'Air' | 'Fire' | 'Water' | 'Spirit';
-//   color: string;
-//   image_url: string | null;
-//   created_at: string;
-//   color_category: string;
-//   zodiac?: string;
-//   chakra?: string;
-// }
-
-// export interface UserCollectionItem {
-//   id: string;
-//   user_id: string;
-//   crystal_id: string;
-//   acquired_at: string;
-//   crystals?: Crystal; 
-// }
-
 export interface Like {
   user_id: string;
   post_id: string;
@@ -37,6 +16,22 @@ export interface Comment {
     avatar_url: string;
   };
 }
+
+export interface PostCardProps {
+  id: string; 
+  currentUserId: string; 
+  username: string;
+  handle?: string | null;
+  avatar_url?: string | null;
+  subtitle?: string;
+  timeAgo: string;
+  content: string;
+  currentUserRole?: string;
+  profileUserRole?: string;
+  image_url?: string | null; 
+  likes: { user_id: string }[]; 
+  commentsCount: number;
+};
 
 export type ElementType = 'Fire' | 'Earth' | 'Air' | 'Water';
 export type ModalityType = 'Cardinal' | 'Fixed' | 'Mutable';
@@ -59,6 +54,8 @@ export interface ZodiacSign {
   body_part: string[];
 }
 
+// --- TAROT SYSTEM TYPES ---
+
 export interface TarotCard {
   id: number; 
   name: string;
@@ -73,6 +70,39 @@ export interface TarotCard {
   element: string | null;
   astrology: string | null;
   numerical_keyword: string | null;
+}
+
+// 1. The data we save into the JSONB column
+export interface SavedCardData {
+  card_id: number;
+  reversed: boolean;
+  position_name: string; // e.g. "The Situation", "The Obstacle"
+  position_index: number; // 0, 1, 2 (preserves order)
+}
+
+// 2. The Raw DB Row (What Supabase returns)
+export interface TarotReadingRow {
+  id: string;
+  user_id: string;
+  spread_name: string;
+  query: string | null; // This will store the "Intention"
+  notes: string | null;
+  cards: SavedCardData[]; // typed JSONB
+  created_at: string;
+}
+
+// 3. The Hydrated Object (For the UI)
+// We merge the static card data (image, name) with the dynamic reading data (reversed status)
+export interface HydratedTarotReading {
+  id: string;
+  spread_name: string;
+  query: string | null;
+  created_at: string;
+  cards: Array<{
+    info: TarotCard;       // The static DB data (Name, Image)
+    reversed: boolean;     // Dynamic state
+    position_name: string; // Dynamic context
+  }>
 }
 
 // 1. Helper for UI components (Dropdowns/Badges)
@@ -126,4 +156,20 @@ export interface CommonRitual extends BaseRitualBlock {
   estimated_time: string | null;
   image_url: string | null;
   created_at: string;
+}
+
+export interface TarotDrawFlowProps {
+  fullDeck: TarotCard[];
+  cardBackUrl: string;
+}
+
+export interface DrawnCard {
+  cardInfo: TarotCard;
+  reversed: boolean;
+  position: string;
+}
+
+export interface TarotGalleryProps {
+  initialCards: TarotCard[];
+  cardBack?: TarotCard | null; 
 }
