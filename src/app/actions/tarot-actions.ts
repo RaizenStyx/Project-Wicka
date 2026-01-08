@@ -130,9 +130,6 @@ export async function getReadingHistory() {
   return data || [];
 }
 
-// Helper: 78 Card Deck
-const FULL_DECK_IDS = Array.from({ length: 78 }, (_, i) => i + 1);
-
 export async function drawWidgetCard() {
   const supabase = await createClient();
 
@@ -141,48 +138,72 @@ export async function drawWidgetCard() {
 
   const today = new Date().toISOString().split('T')[0];
 
-  // 1. Fetch State
+  // --- 1. FETCH DECK CONFIGURATION (Dynamic) ---
+  // We run two queries: 
+  // A. Find the Card Back (for the UI)
+  // B. Find all "Playable" IDs (where number is NOT null)
+  const [cardBackResult, deckResult] = await Promise.all([
+    supabase
+      .from('tarot_cards')
+      .select('*')
+      .or('number.is.null,name.eq.card-back') // Robust check
+      .limit(1)
+      .maybeSingle(),
+    
+    supabase
+      .from('tarot_cards')
+      .select('id')
+      .not('number', 'is', null) // Only get cards with numbers
+  ]);
+
+  const cardBack = cardBackResult.data;
+  const playableIds = deckResult.data?.map(c => c.id) || [];
+
+  if (playableIds.length === 0) {
+    return { error: "Deck configuration error: No playable cards found." };
+  }
+
+  // --- 2. FETCH USER STATE ---
   let { data: userState } = await supabase
     .from('user_daily_tarot')
     .select('*')
     .eq('user_id', user.id)
-    .single();
-  
-  // Initialize if missing
+    .maybeSingle(); // Safer than single() if 0 rows
+
   if (!userState) {
-     const { data: newState } = await supabase
+    const { data: newState } = await supabase
         .from('user_daily_tarot')
         .insert({ user_id: user.id })
         .select()
         .single();
-     userState = newState;
+    userState = newState;
   }
 
-  // 2. Reset logic: If the date stored is NOT today, clear the deck
+  // --- 3. RESET LOGIC ---
   let alreadyDrawn: number[] = userState.widget_drawn_ids || [];
   
-  // If the last time we touched the widget wasn't today, reset the array
   if (userState.widget_date !== today) {
     alreadyDrawn = []; 
   }
 
-  // 3. Calculate remaining cards
-  // Filter out IDs that are inside the 'alreadyDrawn' array
-  const availableIds = FULL_DECK_IDS.filter(id => !alreadyDrawn.includes(id));
+  // --- 4. CALCULATE REMAINING ---
+  // Filter the dynamic playableIds, not a hardcoded array
+  const availableIds = playableIds.filter(id => !alreadyDrawn.includes(id));
 
   // CHECK: Is the deck empty?
   if (availableIds.length === 0) {
     return { 
         card: null, 
+        cardBack, // Return this so the UI can still show the "Back" of the empty deck
         remaining: 0, 
         message: "The deck is empty. Come back tomorrow." 
     };
   }
 
-  // 4. Draw ONE random card from the available ones
+  // --- 5. DRAW ---
   const randomId = availableIds[Math.floor(Math.random() * availableIds.length)];
 
-  // 5. Update DB (Add the new ID to the array and set date to today)
+  // --- 6. UPDATE DB ---
   await supabase
     .from('user_daily_tarot')
     .upsert({
@@ -191,7 +212,7 @@ export async function drawWidgetCard() {
       widget_drawn_ids: [...alreadyDrawn, randomId]
     });
 
-  // 6. Fetch Card Data
+  // --- 7. FETCH DRAWN CARD DATA ---
   const { data: card } = await supabase
     .from('tarot_cards')
     .select('*')
@@ -202,7 +223,8 @@ export async function drawWidgetCard() {
   
   return { 
       card, 
-      remaining: availableIds.length - 1, // Subtract 1 because we just drew it
+      cardBack, // <--- Now available for your UI!
+      remaining: availableIds.length - 1, 
       message: null 
   };
 }

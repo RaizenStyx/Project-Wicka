@@ -24,10 +24,10 @@ export default async function TarotPage() {
 
   // Find the Card Back 
   // Assuming 'Card Back' might have a specific ID or Name if slug is null:
-  const cardBack = cards?.find(c => c.name === 'Card Back') || null;
+  const cardBack = cards?.find(c => c.name === 'card-back') || null;
 
   // Filter the rest of the deck (Normal Cards)
-  const deck = cards?.filter(c => c.name !== 'Card Back') || [];
+  const deck = cards?.filter(c => c.name !== 'card-back') || [];
 
   return (
     <main className="min-h-screen bg-black text-white selection:bg-purple-500/30">

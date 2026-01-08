@@ -98,11 +98,22 @@ const TarotWidget = () => {
                         ${loading ? 'animate-pulse' : 'hover:-translate-y-1'}
                         `}
                         style={{
-                            backgroundImage: 'linear-gradient(135deg, #1e1b4b 25%, transparent 25%), linear-gradient(225deg, #1e1b4b 25%, transparent 25%), linear-gradient(45deg, #1e1b4b 25%, transparent 25%), linear-gradient(315deg, #1e1b4b 25%, #0f172a 25%)',
-                            backgroundSize: '20px 20px'
+                            // 1. Use the url() wrapper
+                            // 2. Point to your public folder path
+                            backgroundImage: "url('/tarot_card_backs/card-back.png')", 
+                            
+                            // 3. IMPORTANT: Change size to 'cover' so it fills the card
+                            backgroundSize: 'cover',
+                            
+                            // 4. Center it
+                            backgroundPosition: 'center',
+                            backgroundRepeat: 'no-repeat'
                         }}
                     >
-                        <span className="text-indigo-400 font-serif font-bold text-2xl">?</span>
+                        {/* Optional: Add a slight dark overlay so the '?' still pops if the image is bright */}
+                        <div className="absolute inset-0 bg-black/20" />
+                        
+                        <span className="relative z-10 text-indigo-400 font-serif font-bold text-2xl drop-shadow-md">?</span>
                     </div>
                     ) : (
                     /* CARD FRONT (Revealed) */
