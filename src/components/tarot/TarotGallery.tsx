@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, ChevronDown, Sparkles, ChevronLeft, ChevronRight, RotateCw } from 'lucide-react';
 import { TarotGalleryProps } from '@/app/types/database';
+import Image from 'next/image';
 
 type ArcanaFilter = 'All' | 'Major' | 'Minor';
 type SuitFilter = 'All' | 'Wands' | 'Cups' | 'Swords' | 'Pentacles';
@@ -85,10 +86,15 @@ export default function TarotGallery({ initialCards, cardBack }: TarotGalleryPro
                     style={{ aspectRatio: '2/3' }} // Force standard tarot ratio
                 >
                     {cardBack.image_url ? (
-                        <img 
+                        <Image 
                             src={cardBack.image_url} 
                             alt="Tarot Card Back" 
-                            className="w-full h-full object-cover"
+                            fill
+                            className="object-cover"
+                            // width={192}
+                            // height={288}
+                            sizes="(max-width: 768px) 192px, 192px"
+                            priority
                         />
                     ) : (
                         <div className="w-full h-full bg-slate-900 flex items-center justify-center">
@@ -190,11 +196,12 @@ export default function TarotGallery({ initialCards, cardBack }: TarotGalleryPro
                 <div className="group relative aspect-[2/3] overflow-hidden rounded-xl border border-white/10 bg-gray-900 transition-all hover:border-purple-500/50 hover:shadow-[0_0_20px_rgba(168,85,247,0.2)]">
                   
                   {card.image_url ? (
-                    <img 
+                    <Image 
                       src={card.image_url} 
                       alt={card.name}
-                      loading="lazy" 
-                      className="h-full w-full object-cover opacity-90 transition-transform duration-500 group-hover:scale-110 group-hover:opacity-100"
+                      fill
+                      sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
+                      className="object-cover opacity-90 transition-transform duration-500 group-hover:scale-110 group-hover:opacity-100"
                     />
                   ) : (
                     <div className="flex h-full w-full flex-col items-center justify-center bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] bg-slate-900 p-4 text-center opacity-60">

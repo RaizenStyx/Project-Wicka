@@ -3,23 +3,8 @@
 import { motion } from 'framer-motion'
 import { Sparkles, Flame, Star, Check, Plus, Image as ImageIcon, Camera, Minus } from 'lucide-react'
 import { CANDLE_NAMES, KNOWN_PANTHEONS } from '@/app/utils/constants'
-
-interface GrimoireCardProps {
-  id: string
-  title: string
-  subtitle?: string
-  image?: string | null
-  color?: string
-  
-  // User State
-  isOwned: boolean
-  isWishlisted: boolean
-  hasUserImage?: boolean
-  
-  onToggleOwned: () => void
-  onToggleWishlist: () => void
-  onClick: () => void 
-}
+import { GrimoireCardProps } from '@/app/types/database'
+import Image from 'next/image'
 
 export default function GrimoireCard({ 
   title, subtitle, image, color = '#a855f7', 
@@ -49,10 +34,12 @@ export default function GrimoireCard({
       {/* IMAGE SECTION */}
       <div className="relative h-40 w-full overflow-hidden bg-slate-950">
         {image ? (
-      <img 
+      <Image 
         src={image} 
         alt={title} 
         className="h-full w-full object-cover opacity-90 transition-transform duration-500 group-hover:scale-110" 
+        fill
+        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
       />
     ) : (
       <div className="relative flex h-full w-full items-center justify-center bg-slate-900/50 overflow-hidden">

@@ -5,27 +5,8 @@ import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Plus, ChevronLeft, Gem, Star, Wheat, Flame, Scroll, Droplet, Sparkles } from 'lucide-react'
 import SecureImage from '../profile/SecureImage'
-
-// Unified Interface for the Frontend
-export interface WidgetCollectionItem {
-  id: string
-  user_image_url: string | null
-  is_owned: boolean      
-  is_wishlisted: boolean
-  type: 'crystals' | 'herbs' | 'candles' | 'runes' | 'oils'
-  data: {
-    id: string
-    name: string
-    color?: string // Optional, primarily for crystals/candles
-    description?: string
-    meaning?: string
-    image_url?: string | null
-  }
-}
-
-interface WidgetClientProps {
-  items: WidgetCollectionItem[]
-}
+import { WidgetCollectionItem, WidgetClientProps } from '@/app/types/database'
+import Image from 'next/image'
 
 type Category = 'crystals' | 'herbs' | 'candles' | 'runes' | 'oils'
 
@@ -228,10 +209,12 @@ export default function ItemWidgetClient({ items }: WidgetClientProps) {
                                 className="w-full h-full object-cover" 
                             />
                         ) : selectedItem.data.image_url ? (
-                             <img 
+                             <Image 
                                 src={selectedItem.data.image_url} 
                                 alt={selectedItem.data.name} 
-                                className="w-full h-full object-cover opacity-80" 
+                                className="w-full h-full object-cover opacity-80"
+                                fill
+                                sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw" 
                             />
                         ) : (
                             <div className="w-full h-full flex items-center justify-center bg-slate-900/50 text-center p-4">

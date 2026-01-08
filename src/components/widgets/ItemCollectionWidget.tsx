@@ -3,7 +3,8 @@ import { createClient } from '@/app/utils/supabase/server';
 import WidgetFrame from './WidgetFrame'; 
 import Link from 'next/link';
 import { PackageOpen } from 'lucide-react';
-import ItemWidgetClient, { WidgetCollectionItem } from './ItemWidgetClient';
+import ItemWidgetClient from './ItemWidgetClient';
+import { WidgetCollectionItem } from '@/app/types/database';
 
 export default async function ItemCollectionWidget() {
   const supabase = await createClient();

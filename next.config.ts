@@ -8,27 +8,19 @@ const nextConfig: NextConfig = {
     },
   },
   
-  // 2. Your Existing Image Config
+  // 2. Image Config
   images: {
     remotePatterns: [
       {
         protocol: 'https',
         hostname: 'cuvhuawqcuvycbopgrmi.supabase.co', 
         port: '',
-        pathname: '/storage/v1/object/public/**', 
+        pathname: '/**', 
       },
       {
         protocol: 'https',
-        hostname: 'placehold.co', // Allow the placeholder site
+        hostname: 'placehold.co', 
       },
-      {
-        protocol: 'https',
-        hostname: 'firebasestorage.googleapis.com', // You'll likely need this later for user uploads
-      },
-      {
-        protocol: 'https',
-        hostname: 'supa_project_id.supabase.co', 
-      }
     ],
   },
 };

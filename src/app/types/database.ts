@@ -173,3 +173,42 @@ export interface TarotGalleryProps {
   initialCards: TarotCard[];
   cardBack?: TarotCard | null; 
 }
+
+
+// Unified Interface for the Frontend
+export interface WidgetCollectionItem {
+  id: string
+  user_image_url: string | null
+  is_owned: boolean      
+  is_wishlisted: boolean
+  type: 'crystals' | 'herbs' | 'candles' | 'runes' | 'oils'
+  data: {
+    id: string
+    name: string
+    color?: string // Optional, primarily for crystals/candles
+    description?: string
+    meaning?: string
+    image_url?: string | null
+  }
+}
+
+export interface WidgetClientProps {
+  items: WidgetCollectionItem[]
+}
+
+export interface GrimoireCardProps {
+  id: string
+  title: string
+  subtitle?: string
+  image?: string | null
+  color?: string
+  
+  // User State
+  isOwned: boolean
+  isWishlisted: boolean
+  hasUserImage?: boolean
+  
+  onToggleOwned: () => void
+  onToggleWishlist: () => void
+  onClick: () => void 
+}

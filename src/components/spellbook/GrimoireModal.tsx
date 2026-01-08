@@ -9,6 +9,7 @@ import {
 } from 'lucide-react' 
 import { createClient } from '@/app/utils/supabase/client'
 import { CANDLE_NAMES } from '@/app/utils/constants'
+import Image from 'next/image'
 
 interface GrimoireModalProps {
   isOpen: boolean
@@ -119,17 +120,21 @@ export default function GrimoireModal({
               <div className="relative h-48 w-full bg-slate-900">
                {activeTab === 'journey' && displayUrl ? (
                 // 1. User's Personal Photo (Highest Priority)
-                <img 
+                <Image
                     src={displayUrl} 
                     alt="My Personal Item" 
                     className="h-full w-full object-cover opacity-90" 
+                    fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
                 />
                 ) : item.image_url ? (
                 // 2. Database Image (Standard)
-                <img 
+                <Image
                     src={item.image_url} 
                     alt={item.name} 
                     className="h-full w-full object-cover opacity-80" 
+                    fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
                 />
                 ) : isCandle ? (
                 // 3. CSS Candle Fallback (If no image & is candle)

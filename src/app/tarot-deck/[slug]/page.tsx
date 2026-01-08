@@ -2,6 +2,7 @@ import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import Link from 'next/link';
+import Image from 'next/image';
 
 // 1. Anon Client for Static Generation
 const getPublicClient = () => {
@@ -89,10 +90,12 @@ export default async function TarotCardPage({ params }: { params: Promise<{ slug
           <div className="sticky top-24">
             <div className="relative aspect-[2/3] overflow-hidden rounded-2xl border border-white/10 bg-slate-900 shadow-[0_0_50px_rgba(168,85,247,0.15)]">
               {card.image_url ? (
-                 <img 
+                 <Image 
                  src={card.image_url} 
                  alt={card.name}
                  className="h-full w-full object-cover"
+                 fill
+                 sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
                />
               ) : (
                 <div className="flex h-full items-center justify-center text-slate-600">

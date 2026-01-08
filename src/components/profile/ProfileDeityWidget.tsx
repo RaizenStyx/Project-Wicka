@@ -20,10 +20,12 @@ export default function ProfileDeityWidget({ invocation, deity }: Props) {
       
       {/* Background Image Layer */}
       <div className="absolute inset-0 z-0">
-        <img 
+        <Image 
           src={deity.image_url} 
           alt={deity.name}
           className="w-full h-full object-cover opacity-30 transition-all duration-700 group-hover:scale-110 group-hover:opacity-40 grayscale group-hover:grayscale-0" 
+          fill
+          sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
         />
         {/* Multi-layer gradient for depth */}
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/80 to-transparent" />
