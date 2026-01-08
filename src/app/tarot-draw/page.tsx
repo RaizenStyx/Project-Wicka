@@ -29,7 +29,7 @@ export default async function TarotDrawPage() {
   // Adjust this filter based on your exact data. 
   // You mentioned "Card Back" is a card with a null number or specific name.
   const cardBackEntry = rawDeck.find(c => c.name === 'card-back' || c.number === null);
-  const cardBackUrl = cardBackEntry?.image_url || '/textures/wood.png'; 
+  const cardBackUrl = cardBackEntry?.image_url || 'tarot_card_backs/card-back.png'; 
 
   console.log("DEBUG: Found Card Back?", cardBackEntry?.name, cardBackEntry?.image_url);
   // 3. FILTER PLAYABLE DECK
