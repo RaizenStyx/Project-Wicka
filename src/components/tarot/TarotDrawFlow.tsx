@@ -221,7 +221,7 @@ export default function TarotDrawFlow({ fullDeck, cardBackUrl }: TarotDrawFlowPr
                     const card = drawnCards[index];
 
                    return (
-                        <div className="flex flex-col items-center gap-3">
+                        <div key={index} className="flex flex-col items-center gap-3">
                         <div className="relative w-32 h-48 md:w-40 md:h-60" style={{ perspective: '1000px' }}>
                             {/* Empty Slot Outline */}
                             {!card && (
@@ -258,29 +258,32 @@ export default function TarotDrawFlow({ fullDeck, cardBackUrl }: TarotDrawFlowPr
                                 }}
                                 >
                                 {/* FRONT (Face Up) */}
-                                <div 
-                                    className="absolute inset-0 bg-slate-800 rounded-xl overflow-hidden border border-slate-600"
-                                    style={{ 
-                                    backfaceVisibility: 'hidden',
-                                    WebkitBackfaceVisibility: 'hidden'
-                                    }}
-                                >
-                                    {card.cardInfo.image_url ? (
-                                    <Image 
-                                        src={card.cardInfo.image_url} 
-                                        alt={card.cardInfo.name} 
-                                        fill 
-                                        className={clsx("object-cover", card.reversed && "rotate-180")} 
-                                    />
-                                    ) : (
-                                    <div className="p-4 text-center h-full flex flex-col justify-center">
-                                        <h3 className="text-purple-300 font-serif">{card.cardInfo.name}</h3>
+                                <div className="absolute inset-0 backface-hidden">
+                                    
+                                    {/* 1. The Floating Tab Label (Positioned Above) */}
+                                    <div className="absolute -top-7 inset-x-0 flex justify-center pb-2">
+                                        <div className="bg-slate-900/90 border border-slate-600 border-b-0 rounded-t-lg px-3 py-1.5 shadow-lg">
+                                            <p className="text-[9px] font-bold uppercase text-indigo-300 tracking-widest whitespace-nowrap">
+                                                {card.cardInfo.name} {card.reversed ? "(Rev)" : ""}
+                                            </p>
+                                        </div>
                                     </div>
-                                    )}
-                                    <div className="absolute bottom-0 w-full bg-black/70 p-2 text-center">
-                                    <p className="text-[10px] uppercase text-slate-300 tracking-wider">
-                                        {card.cardInfo.name} {card.reversed ? "(Rev)" : ""}
-                                    </p>
+
+                                    {/* 2. The Card Image Container (Main Body) */}
+                                    <div className="relative h-full w-full rounded-xl overflow-hidden border border-slate-600 bg-slate-800 shadow-sm z-10">
+                                            {card.cardInfo.image_url ? (
+                                            <Image 
+                                                src={card.cardInfo.image_url} 
+                                                alt={card.cardInfo.name} 
+                                                fill 
+                                                sizes="(max-width: 768px) 150px, 200px"
+                                                className={clsx("object-cover", card.reversed && "rotate-180")} 
+                                            />
+                                            ) : (
+                                                <div className="p-4 text-center h-full flex flex-col justify-center">
+                                                <h3 className="text-purple-300 font-serif">{card.cardInfo.name}</h3>
+                                                </div>
+                                            )}
                                     </div>
                                 </div>
 
