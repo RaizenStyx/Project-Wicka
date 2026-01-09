@@ -104,7 +104,7 @@ export default async function ProfilePage({
 
   // 5. Check Ownership
   const isOwner = currentUser.id === profile.id
-  const isSupporter = ['supporter', 'admin', 'verified', 'Goddess', 'Princess'].includes(profile.role);
+  const isSupporter = ['supporter', 'admin', 'guardian', 'Goddess', 'Princess', 'Creator'].includes(profile.role);
 
   const showBackButton = from === 'members';
 
@@ -225,7 +225,7 @@ export default async function ProfilePage({
               <p className="text-xs text-slate-400 mt-1 flex items-center gap-1">
                   @{profile.handle}
                   {/* Role Badge */}
-                  {(profile.role === 'verified' || profile.role === 'supporter') && (
+                  {(profile.role === 'guardian' || profile.role === 'supporter') && (
                       <Shield className="w-3 h-3 text-purple-400 fill-purple-400/20" />
                   )}
                   {(profile.role === 'Goddess') && (
@@ -377,7 +377,7 @@ export default async function ProfilePage({
               {/* --- TABS NAVIGATION --- */}
               <div className="flex items-center gap-6 mb-6 border-b border-slate-800">
                  <Link 
-                   href={`/u/${handle}`} 
+                   href={`/u/${handle}${from === 'members' ? '?from=members' : ''}`}
                    scroll={false} 
                    className={clsx(
                      "pb-3 text-sm font-medium transition-colors border-b-2",
@@ -390,7 +390,7 @@ export default async function ProfilePage({
                  </Link>
 
                  <Link 
-                   href={`/u/${handle}?view=spells`} 
+                    href={`/u/${handle}?view=spells${from === 'members' ? '&from=members' : ''}`}
                    scroll={false}
                    className={clsx(
                      "pb-3 text-sm font-medium transition-colors border-b-2",

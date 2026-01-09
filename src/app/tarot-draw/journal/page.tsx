@@ -17,17 +17,14 @@ export default async function TarotJournalPage() {
   if (!user) {
     return <div className="p-8 text-center text-slate-500">Please log in to view your journal.</div>;
   }
-
-  // Fetch the simple list (ID, Date, Spread Name, Query)
-  // We will fetch full details on-demand or pass simplified data if preferred.
-  // Ideally, update getReadingHistory to return the cards JSONB too if the list isn't huge.
+  // Fetch Reading History
   const history = await getReadingHistory();
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 p-6 md:p-12">
       <div className="max-w-4xl mx-auto">
-        <Construction title="Tarot Journal" 
-        description='A history of your scribed fates. This page is done but data is not connected all the way, so page is under maintenance.' />
+        {/* <Construction title="Tarot Journal" 
+        description='A history of your scribed fates. This page is done but data is not connected all the way, so page is under maintenance.' /> */}
     
         <header className="mb-10 flex flex-col gap-4">
           <Link 

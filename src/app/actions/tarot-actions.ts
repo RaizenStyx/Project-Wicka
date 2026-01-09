@@ -72,12 +72,11 @@ export async function getLatestReading(): Promise<HydratedTarotReading | null> {
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
     .limit(1)
-    .maybeSingle<TarotReadingRow>(); // Use the Generic to type the return
+    .maybeSingle<TarotReadingRow>(); 
 
   if (!reading) return null;
 
   // B. Extract Card IDs to fetch static details
-  // reading.cards is already typed as SavedCardData[] thanks to the generic above
   const cardIds = reading.cards.map(c => c.card_id);
 
   // C. Fetch Static Data
@@ -88,12 +87,9 @@ export async function getLatestReading(): Promise<HydratedTarotReading | null> {
 
   if (!staticCards) return null;
 
-  // D. Hydrate (Merge the two data sets)
-  // We map over the SAVED cards to preserve order and position data
+  // D. Hydrate
   const hydratedCards = reading.cards.map((savedCard) => {
     const staticInfo = staticCards.find(sc => sc.id === savedCard.card_id);
-    
-    // Fallback if card not found (shouldn't happen)
     if (!staticInfo) throw new Error(`Card ID ${savedCard.card_id} missing`);
 
     return {
@@ -114,20 +110,82 @@ export async function getLatestReading(): Promise<HydratedTarotReading | null> {
 
 /**
  * 3. GET HISTORY (For the Journal Page)
- * Simplified fetch for a list view
+ * NOW UPDATED: Fetches full history AND hydrates the cards.
  */
-export async function getReadingHistory() {
+export async function getReadingHistory(): Promise<HydratedTarotReading[]> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return [];
 
-  const { data } = await supabase
+  // 1. Fetch RAW readings
+  const { data: readings } = await supabase
     .from('user_tarot_readings')
-    .select('id, spread_name, query, created_at')
+    .select('*')
     .eq('user_id', user.id)
     .order('created_at', { ascending: false });
 
-  return data || [];
+  if (!readings || readings.length === 0) return [];
+
+  // 2. Collect ALL unique Card IDs from ALL readings to fetch them in one batch
+  const allCardIds = new Set<number>();
+  readings.forEach((r: TarotReadingRow) => {
+    if (Array.isArray(r.cards)) {
+        r.cards.forEach((c) => allCardIds.add(c.card_id));
+    }
+  });
+
+  if (allCardIds.size === 0) return [];
+
+  // 3. Fetch Static Data for all involved cards
+  const { data: staticCards } = await supabase
+    .from('tarot_cards')
+    .select('*')
+    .in('id', Array.from(allCardIds));
+
+  if (!staticCards) return [];
+
+  // Create a quick lookup map
+  const cardMap = new Map(staticCards.map(c => [c.id, c]));
+
+  // 4. Hydrate every reading
+  const history: HydratedTarotReading[] = readings.map((r: TarotReadingRow) => {
+    const hydratedCards = (r.cards || []).map((savedCard) => {
+        const staticInfo = cardMap.get(savedCard.card_id);
+        
+        // Graceful fallback if card data is missing (shouldn't happen)
+        const fallbackInfo: TarotCard = staticInfo || {
+            id: savedCard.card_id,
+            name: "Unknown Card",
+            suit: null,
+            arcana_type: "Major",
+            number: 0,
+            slug: "unknown",
+            meaning_upright: "Card data not found",
+            meaning_reversed: "Card data not found",
+            description: null,
+            image_url: null,
+            element: null,
+            astrology: null,
+            numerical_keyword: null
+        };
+
+        return {
+            info: fallbackInfo,
+            reversed: savedCard.reversed,
+            position_name: savedCard.position_name
+        };
+    });
+
+    return {
+        id: r.id,
+        spread_name: r.spread_name,
+        query: r.query,
+        created_at: r.created_at,
+        cards: hydratedCards
+    };
+  });
+
+  return history;
 }
 
 export async function drawWidgetCard() {
@@ -138,22 +196,18 @@ export async function drawWidgetCard() {
 
   const today = new Date().toISOString().split('T')[0];
 
-  // --- 1. FETCH DECK CONFIGURATION (Dynamic) ---
-  // We run two queries: 
-  // A. Find the Card Back (for the UI)
-  // B. Find all "Playable" IDs (where number is NOT null)
   const [cardBackResult, deckResult] = await Promise.all([
     supabase
       .from('tarot_cards')
       .select('*')
-      .or('number.is.null,name.eq.card-back') // Robust check
+      .or('number.is.null,name.eq.card-back') 
       .limit(1)
       .maybeSingle(),
     
     supabase
       .from('tarot_cards')
       .select('id')
-      .not('number', 'is', null) // Only get cards with numbers
+      .not('number', 'is', null) 
   ]);
 
   const cardBack = cardBackResult.data;
@@ -163,12 +217,11 @@ export async function drawWidgetCard() {
     return { error: "Deck configuration error: No playable cards found." };
   }
 
-  // --- 2. FETCH USER STATE ---
   let { data: userState } = await supabase
     .from('user_daily_tarot')
     .select('*')
     .eq('user_id', user.id)
-    .maybeSingle(); // Safer than single() if 0 rows
+    .maybeSingle(); 
 
   if (!userState) {
     const { data: newState } = await supabase
@@ -179,31 +232,25 @@ export async function drawWidgetCard() {
     userState = newState;
   }
 
-  // --- 3. RESET LOGIC ---
   let alreadyDrawn: number[] = userState.widget_drawn_ids || [];
   
   if (userState.widget_date !== today) {
     alreadyDrawn = []; 
   }
 
-  // --- 4. CALCULATE REMAINING ---
-  // Filter the dynamic playableIds, not a hardcoded array
   const availableIds = playableIds.filter(id => !alreadyDrawn.includes(id));
 
-  // CHECK: Is the deck empty?
   if (availableIds.length === 0) {
     return { 
         card: null, 
-        cardBack, // Return this so the UI can still show the "Back" of the empty deck
+        cardBack, 
         remaining: 0, 
         message: "The deck is empty. Come back tomorrow." 
     };
   }
 
-  // --- 5. DRAW ---
   const randomId = availableIds[Math.floor(Math.random() * availableIds.length)];
 
-  // --- 6. UPDATE DB ---
   await supabase
     .from('user_daily_tarot')
     .upsert({
@@ -212,7 +259,6 @@ export async function drawWidgetCard() {
       widget_drawn_ids: [...alreadyDrawn, randomId]
     });
 
-  // --- 7. FETCH DRAWN CARD DATA ---
   const { data: card } = await supabase
     .from('tarot_cards')
     .select('*')
@@ -223,7 +269,7 @@ export async function drawWidgetCard() {
   
   return { 
       card, 
-      cardBack, // <--- Now available for your UI!
+      cardBack, 
       remaining: availableIds.length - 1, 
       message: null 
   };

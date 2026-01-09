@@ -10,8 +10,23 @@ export const metadata = {
 
 export default async function TarotDrawPage() {
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
 
-  // 1. Fetch entire deck
+  // 1. Fetch User Role
+  let userRole = 'user';
+  if (user) {
+    const { data: profile } = await supabase
+      .from('profiles') 
+      .select('role')
+      .eq('id', user.id)
+      .single();
+      
+    if (profile?.role) {
+        userRole = profile.role;
+    }
+  }
+
+  // 2. Fetch entire deck
   const { data: rawDeck, error } = await supabase
     .from('tarot_cards')
     .select('*')
@@ -25,14 +40,14 @@ export default async function TarotDrawPage() {
     );
   }
 
-  // 2. EXTRACT CARD BACK
+  // 3. EXTRACT CARD BACK
   // Adjust this filter based on your exact data. 
   // You mentioned "Card Back" is a card with a null number or specific name.
   const cardBackEntry = rawDeck.find(c => c.name === 'card-back' || c.number === null);
   const cardBackUrl = cardBackEntry?.image_url || 'tarot_card_backs/card-back.png'; 
 
   console.log("DEBUG: Found Card Back?", cardBackEntry?.name, cardBackEntry?.image_url);
-  // 3. FILTER PLAYABLE DECK
+  // 4. FILTER PLAYABLE DECK
   // We don't want the user to actually "draw" the card back in a spread.
   const playableDeck = rawDeck.filter(c => c.id !== cardBackEntry?.id);
 
@@ -63,7 +78,7 @@ export default async function TarotDrawPage() {
         </header>
 
         {/* 4. Pass filtered deck AND cardBackUrl */}
-        <TarotDrawFlow fullDeck={playableDeck} cardBackUrl={cardBackUrl} />
+        <TarotDrawFlow fullDeck={playableDeck} cardBackUrl={cardBackUrl} userRole={userRole} />
       </div>
     </div>
   );

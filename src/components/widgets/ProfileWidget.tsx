@@ -1,6 +1,6 @@
 import { createClient } from '@/app/utils/supabase/server';
 import { notFound } from 'next/navigation';
-import { Bell, Settings, Shield, Cannabis, Cat, Omega } from 'lucide-react';
+import { Bell, Settings, Shield, Cannabis, Cat, Omega, UserRoundCog } from 'lucide-react';
 import RoleBadge from '../ui/RoleBadge';
 import WidgetFrame from './WidgetFrame';
 import Link from 'next/link';
@@ -118,6 +118,9 @@ export default async function ProfileWidget() {
                             )}
                             {(profile.role === 'Creator') && (
                                 <Omega className="w-3 h-3 text-teal-400 fill-purple-400/20" />
+                            )}
+                            {(profile.role === 'admin') && (
+                                <UserRoundCog className="w-3 h-3 text-gray-100 fill-purple-400/20" />
                             )}
                         </p>
                         <p className="text-xs text-slate-500">Member since: {date}</p>

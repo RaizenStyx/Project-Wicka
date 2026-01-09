@@ -4,10 +4,10 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar, ChevronDown, Sparkles } from 'lucide-react';
 import { clsx } from 'clsx';
-import type { TarotReadingRow } from '@/app/types/database'; // Ensure this matches your types
+import type { HydratedTarotReading } from '@/app/types/database'; 
+import Image from 'next/image';
 
-export default function JournalList({ initialReadings }: { initialReadings: any[] }) {
-  // Using 'any' temporarily for the prop, strictly you should use the return type of getReadingHistory
+export default function JournalList({ initialReadings }: { initialReadings: HydratedTarotReading[] }) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   if (!initialReadings || initialReadings.length === 0) {
@@ -62,28 +62,42 @@ export default function JournalList({ initialReadings }: { initialReadings: any[
                   className="overflow-hidden bg-slate-950/30 border-t border-slate-800"
                 >
                   <div className="p-6">
-                    {/* NOTE: In a real implementation, you might want to fetch the FULL card details 
-                      here if you haven't stored the card names in the JSONB. 
-                      Assuming your JSONB has basic info or you fetch it on expand.
-                      For now, we'll list the positions if available.
-                    */}
+                     {/* Dynamic Grid Layout */}
                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         {reading.cards && Array.isArray(reading.cards) ? (
-                            reading.cards.map((card: any, idx: number) => (
-                                <div key={idx} className="p-4 bg-slate-900 rounded-lg border border-slate-800 text-center">
-                                    <p className="text-xs text-slate-500 uppercase mb-1">{card.position_name || `Card ${idx+1}`}</p>
-                                    <p className="text-indigo-300 font-serif">
-                                        {/* Ideally we have the Name stored, otherwise we only have ID */}
-                                        {/* If you only stored ID, we need to join data. 
-                                            For this UI to work perfectly, update saveReading to store 'card_name' in the JSON too 
-                                            OR fetch full history with a join. */}
-                                        Card #{card.card_id} 
+                            reading.cards.map((card, idx) => (
+                                <div key={idx} className="flex flex-col gap-2 p-4 bg-slate-900 rounded-lg border border-slate-800 items-center text-center">
+                                    {/* Position Label */}
+                                    <p className="text-xs text-slate-500 uppercase font-bold tracking-wider">
+                                        {card.position_name || `Card ${idx+1}`}
                                     </p>
-                                    {card.reversed && <span className="text-[10px] text-amber-500/80 uppercase tracking-widest">Reversed</span>}
+                                    
+                                    {/* Image (Small Thumbnail) */}
+                                    {card.info.image_url && (
+                                        <div className="relative w-24 h-36 rounded-md overflow-hidden border border-slate-700 my-2">
+                                            <Image 
+                                                src={card.info.image_url} 
+                                                alt={card.info.name} 
+                                                fill 
+                                                className={clsx("object-cover", card.reversed && "rotate-180")}
+                                            />
+                                        </div>
+                                    )}
+
+                                    {/* Card Name */}
+                                    <p className="text-indigo-300 font-serif text-lg">
+                                        {card.info.name}
+                                    </p>
+                                    
+                                    {/* Status / Keywords */}
+                                    <div className="flex flex-col gap-1">
+                                         {card.reversed && <span className="text-[10px] text-amber-500/80 uppercase tracking-widest font-bold">Reversed</span>}
+                                         <span className="text-xs text-slate-500">{card.info.numerical_keyword}</span>
+                                    </div>
                                 </div>
                             ))
                         ) : (
-                            <p className="text-sm text-slate-500">Card data unavailable.</p>
+                            <p className="text-sm text-slate-500 col-span-3 text-center">Card data unavailable.</p>
                         )}
                      </div>
                   </div>

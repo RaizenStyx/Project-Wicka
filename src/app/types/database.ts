@@ -212,3 +212,9 @@ export interface GrimoireCardProps {
   onToggleWishlist: () => void
   onClick: () => void 
 }
+
+// Define the structure for a 3-card template
+export type SpreadTemplate = {
+  name: string;
+  positions: string[];
+};

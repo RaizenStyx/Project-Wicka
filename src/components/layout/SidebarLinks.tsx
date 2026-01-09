@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ALL_SUPPORTER_ROLES, ALL_GUARDIAN_ROLES } from '@/app/utils/constants';
 import { clsx } from 'clsx';
 import { 
   Sparkles, 
@@ -39,8 +40,8 @@ export default function SidebarLinks({ profile }: SidebarLinksProps) {
     { label: 'Feed', href: '/' },
     { label: 'Profile', href: "/u/" + (profile?.handle || 'profile') },
     { label: 'Settings', href: '/settings' },
-    { label: 'Chat', href: '/chat', allowedRoles: ['guardian', 'supporter', 'Goddess', 'Princess', 'Creator', 'admin'] },
-    { label: 'Members', href: '/members', allowedRoles: ['guardian', 'supporter', 'Goddess', 'Princess', 'Creator', 'admin'] },
+    { label: 'Chat', href: '/chat', allowedRoles: ALL_GUARDIAN_ROLES },
+    { label: 'Members', href: '/members', allowedRoles: ALL_GUARDIAN_ROLES },
     { label: 'Support', href: '/support'}
   ];
 
@@ -50,13 +51,13 @@ export default function SidebarLinks({ profile }: SidebarLinksProps) {
       title: 'Spirit Tools',
       icon: Sparkles, 
       items: [
-        { label: 'Grand Grimoire', href: '/grand-grimoire', allowedRoles: ['guardian', 'supporter', 'Goddess', 'Princess', 'Creator', 'admin']},
+        { label: 'Grand Grimoire', href: '/grand-grimoire', allowedRoles: ALL_GUARDIAN_ROLES },
         { label: 'Spellbook', href: '/spellbook' },
         { label: 'Sanctuary', href: '/sanctuary'},
         { label: 'Visual Altar', href: '/altar' },
-        { label: 'Divination Room', href: '/tarot-draw', allowedRoles: ['guardian', 'supporter', 'Goddess', 'Princess', 'Creator', 'admin'] },
-        { label: 'Find your Deity', href: '/deities', allowedRoles: ['guardian', 'supporter', 'Goddess', 'Princess', 'Creator', 'admin'] },
-        { label: 'Oracle AI', href: 'https://ai-oracle-eight.vercel.app/access', allowedRoles: ['supporter', 'Goddess', 'Princess', 'Creator', 'admin'], isExternal: true }
+        { label: 'Divination Room', href: '/tarot-draw', allowedRoles: ALL_GUARDIAN_ROLES },
+        { label: 'Find your Deity', href: '/deities', allowedRoles: ALL_GUARDIAN_ROLES },
+        { label: 'Oracle AI', href: 'https://ai-oracle-eight.vercel.app/access', allowedRoles: ALL_SUPPORTER_ROLES, isExternal: true }
       ]
     },
     KNOWLEDGE: {
@@ -69,7 +70,7 @@ export default function SidebarLinks({ profile }: SidebarLinksProps) {
         { label: 'Runes', href: '/runes' },
         { label: 'Essential Olis', href: '/essential-oils' },
         { label: 'Zodiac Signs', href: '/astrology' },
-        { label: 'Tarot Meanings', href: '/tarot-deck', allowedRoles: ['guardian', 'supporter', 'Goddess', 'Princess', 'Creator', 'admin'] }
+        { label: 'Tarot Meanings', href: '/tarot-deck', allowedRoles: ALL_GUARDIAN_ROLES }
       ]
     },
     COVENS: {
