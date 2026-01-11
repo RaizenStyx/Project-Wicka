@@ -232,3 +232,19 @@ export async function getCommonRituals(): Promise<CommonRitual[]> {
 
   return data as CommonRitual[];
 }
+
+// Helper to fetch names from IDs
+  export const fetchNames = async (ids: string[], table: string) => {
+    const supabase = await createClient();
+
+    if (!ids || ids.length === 0) return 'None';
+
+    const { data } = await supabase
+      .from(table)
+      .select('name')
+      .in('id', ids);
+    
+    if (!data || data.length === 0) return 'None';
+    
+    return data.map(item => item.name).join(', ');
+  }

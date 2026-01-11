@@ -35,7 +35,18 @@ export default function IngredientBadgeList({ ids, tableName, label }: Ingredien
     fetchNames();
   }, [ids, tableName]);
 
-  if (!ids || ids.length === 0) return null;
+  if (!ids || ids.length === 0) return (
+    <div className="mb-3">
+      <span className="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-1">
+        {label}
+      </span>
+        <div className="flex flex-wrap gap-2">
+            <span className="inline-flex items-center px-2 py-1 rounded text-xs bg-slate-800 border border-slate-700 text-slate-300">
+             No smart ingredients for {label}
+            </span>
+        </div>
+    </div>
+  );
 
   return (
     <div className="mb-3">
