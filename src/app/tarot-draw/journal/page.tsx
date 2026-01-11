@@ -3,7 +3,6 @@ import { getReadingHistory } from '@/app/actions/tarot-actions';
 import JournalList from '@/components/tarot/JournalList';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
-import Construction from '@/components/ui/Construction';
 
 export const metadata = {
   title: 'Tarot Journal | Nyxus',
@@ -23,8 +22,6 @@ export default async function TarotJournalPage() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 p-6 md:p-12">
       <div className="max-w-4xl mx-auto">
-        {/* <Construction title="Tarot Journal" 
-        description='A history of your scribed fates. This page is done but data is not connected all the way, so page is under maintenance.' /> */}
     
         <header className="mb-10 flex flex-col gap-4">
           <Link 

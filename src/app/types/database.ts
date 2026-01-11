@@ -87,6 +87,7 @@ export interface TarotReadingRow {
   spread_name: string;
   query: string | null; // This will store the "Intention"
   notes: string | null;
+  is_public: boolean;
   cards: SavedCardData[]; // typed JSONB
   created_at: string;
 }
@@ -98,6 +99,8 @@ export interface HydratedTarotReading {
   spread_name: string;
   query: string | null;
   created_at: string;
+  notes: string | null;   
+  is_public: boolean;
   cards: Array<{
     info: TarotCard;       // The static DB data (Name, Image)
     reversed: boolean;     // Dynamic state

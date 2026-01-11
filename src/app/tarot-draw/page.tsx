@@ -1,7 +1,7 @@
 import { createClient } from '@/app/utils/supabase/server';
 import TarotDrawFlow from '@/components/tarot/TarotDrawFlow';
 import Link from 'next/link'; 
-import { History } from 'lucide-react'; 
+import { History, Users } from 'lucide-react'; 
 
 export const metadata = {
   title: 'Divination Room | Nyxus',
@@ -66,6 +66,18 @@ export default async function TarotDrawPage() {
             </p>
           </div>
 
+          <div className="flex flex-wrap items-center gap-3">
+            {/* COMMUNITY BUTTON */}
+            <Link 
+                href="/tarot-draw/community"
+                className="group flex items-center gap-3 px-5 py-3 rounded-full bg-slate-900 border border-slate-800 hover:border-indigo-500/50 transition-all hover:bg-slate-900/80"
+            >
+                <div className="p-2 bg-slate-800 rounded-full group-hover:bg-indigo-500/20 transition-colors">
+                    <Users className="w-4 h-4 text-slate-400 group-hover:text-indigo-300" />
+                </div>
+                <span className="text-sm font-medium text-slate-300 group-hover:text-white">Community</span>
+            </Link>
+
           <Link 
             href="/tarot-draw/journal"
             className="group flex items-center gap-3 px-5 py-3 rounded-full bg-slate-900 border border-slate-800 hover:border-purple-500/50 transition-all hover:bg-slate-900/80"
@@ -75,6 +87,7 @@ export default async function TarotDrawPage() {
             </div>
             <span className="text-sm font-medium text-slate-300 group-hover:text-white">View Journal</span>
           </Link>
+          </div>
         </header>
 
         {/* 4. Pass filtered deck AND cardBackUrl */}

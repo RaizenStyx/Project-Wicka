@@ -30,7 +30,8 @@ export default function TarotDrawFlow({ fullDeck, cardBackUrl, userRole = 'user'
   const [selectedSpreadType, setSelectedSpreadType] = useState<'3-Card' | 'Celtic Cross' | 'Zodiac'>('3-Card');
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [selectedTemplate, setSelectedTemplate] = useState<SpreadTemplate>(SPREAD_CATEGORIES['Daily Guidance'][0]);
-  const [customQuery, setCustomQuery] = useState(''); // For the "Custom" input box
+  const [customQuery, setCustomQuery] = useState(''); 
+  const [notes, setNotes] = useState('');
 
   const [shuffledDeck, setShuffledDeck] = useState<TarotCard[]>([]);
   const [isCharging, setIsCharging] = useState(false);
@@ -126,7 +127,7 @@ export default function TarotDrawFlow({ fullDeck, cardBackUrl, userRole = 'user'
     // Use custom query if provided, otherwise the Template Name
     const finalIntention = customQuery || `${selectedCategory} - ${selectedTemplate.name}`;
     
-    const result = await saveReading(selectedSpreadType, finalIntention, dbCards);
+    const result = await saveReading(selectedSpreadType, finalIntention, dbCards, notes);
 
     if (result.error) {
         setSaveMessage(result.error);
@@ -143,6 +144,7 @@ export default function TarotDrawFlow({ fullDeck, cardBackUrl, userRole = 'user'
     setChargeLevel(0);
     setSaveMessage(null);
     setCustomQuery('');
+    setNotes('');
   };
 
   // --- RENDERS ---
@@ -469,6 +471,23 @@ export default function TarotDrawFlow({ fullDeck, cardBackUrl, userRole = 'user'
                                 </p>
                             </div>
                         ))}
+                    </div>
+
+                    {/* --- NOTES SECTION --- */}
+                    <div className="mb-6">
+                        <label className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-2 block">
+                            Personal Notes (Optional)
+                        </label>
+                        <textarea
+                            value={notes}
+                            onChange={(e) => setNotes(e.target.value)}
+                            placeholder="Record your initial thoughts, feelings, or synchronicities..."
+                            className="w-full bg-slate-900/50 border border-slate-800 rounded-lg p-3 text-sm text-slate-300 placeholder:text-slate-600 focus:outline-none focus:border-indigo-500/50 transition-colors min-h-[80px] resize-none"
+                            disabled={!!saveMessage} // Disable after saving
+                        />
+                         <p className="text-[10px] text-slate-600 mt-1 italic">
+                            These notes will be private unless you share this reading to the Community. When in the community, everyone can read this but it will be anonymous.
+                        </p>
                     </div>
 
                     <div className="flex flex-col sm:flex-row justify-between items-center gap-4 border-t border-slate-800 pt-6">

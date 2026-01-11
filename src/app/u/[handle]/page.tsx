@@ -3,14 +3,16 @@ import { notFound, redirect } from 'next/navigation'
 import { Cannabis, Cat, Shield, ChevronLeft, Check, Omega, UserRoundCog, Sparkles, Flame } from 'lucide-react'
 import { signOut } from '@/app/actions/auth-actions'
 import { clsx } from 'clsx'
+import { ALL_SUPPORTER_ROLES } from '@/app/utils/constants'
 import RoleBadge from '@/components/ui/RoleBadge'
 import ProfileInfoWidget from '@/components/profile/ProfileInfoWidget'
+import ProfileDeityWidget from '@/components/profile/ProfileDeityWidget'
+import ProfileTarotWidget from '@/components/profile/ProfileTarotWidget'
 import ProfileHeader from '@/components/profile/ProfileHeader'
 import PostCard from '@/components/feed/PostCard'
 import SpellCard from '@/components/spellbook/SpellCard'
 import Link from 'next/link'
 import { Metadata } from 'next'
-import ProfileDeityWidget from '@/components/profile/ProfileDeityWidget'
 
 // 3. Metadata
 export async function generateMetadata({ params }: { params: Promise<{ handle: string }> }): Promise<Metadata> {
@@ -104,8 +106,8 @@ export default async function ProfilePage({
 
   // 5. Check Ownership
   const isOwner = currentUser.id === profile.id
-  const isSupporter = ['supporter', 'admin', 'guardian', 'Goddess', 'Princess', 'Creator'].includes(profile.role);
-
+  //const isSupporter = ['supporter', 'admin', 'guardian', 'Goddess', 'Princess', 'Creator'].includes(profile.role);
+  const isSupporter = ALL_SUPPORTER_ROLES;
   const showBackButton = from === 'members';
 
   return (
@@ -347,16 +349,8 @@ export default async function ProfilePage({
             </div>
             )}
 
-              {/* Placeholder Widget */}
-             <div className="p-6 rounded-xl bg-slate-900 border border-slate-800">
-               <h3 className="text-xs uppercase tracking-widest text-slate-500 mb-4 font-bold">Tarot Info</h3>
-               <div className="space-y-3 text-sm">
-                 <div className="flex justify-between pb-2">
-                   <span className="text-slate-500">Placeholder:</span>
-                   <p className="text-slate-400">Place daily tarot card here?</p>
-                  </div>
-               </div>
-             </div>
+            {/* Tarot Widget */}
+            <ProfileTarotWidget userId={profile.id} isOwner={isOwner} />
 
             {/* Placeholder Widget */}
              <div className="p-6 rounded-xl bg-slate-900 border border-slate-800">

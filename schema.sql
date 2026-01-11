@@ -2752,3 +2752,21 @@ create index idx_tarot_readings_user_latest
 
 -- 5. (Optional) Cleanup the old table if you are fully replacing it
 -- drop table if exists public.user_daily_tarot;
+
+
+
+
+-- 1. Drop the old "Owner Only" view policy
+DROP POLICY IF EXISTS "Users can view own readings" ON public.user_tarot_readings;
+
+-- 2. Create a new "Public View" policy
+-- This allows the Profile Widget (and anyone else) to read the tarot history
+CREATE POLICY "Readings are viewable by everyone"
+ON public.user_tarot_readings FOR SELECT
+USING ( true );
+
+
+
+-- 1. Add the toggle for community sharing
+ALTER TABLE public.user_tarot_readings 
+ADD COLUMN is_public BOOLEAN DEFAULT FALSE;
