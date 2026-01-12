@@ -19,12 +19,12 @@ interface Props {
   // State flags
   isInvoked: boolean
   isOwned: boolean 
-  isWishlisted: boolean // NEW PROP
+  isWishlisted: boolean 
   lastInvokedAt?: string | null
   lastOfferingAt?: string | null
   
   // Handlers
-  onToggleWishlist: () => void // NEW PROP
+  onToggleWishlist: () => void 
 }
 
 export default function DeityModal({ 
@@ -82,9 +82,10 @@ export default function DeityModal({
     await invokeDeity(deity.id)
     notifyStateChange()
     setLoading(false)
+    
+    // UPDATED: Close modal immediately, then navigate
+    onClose() 
     router.push('/sanctuary?view=altar')
-    setActiveTab('ritual') 
-    fetchHistory() 
   }
 
   const handleBanish = async () => {
@@ -98,11 +99,16 @@ export default function DeityModal({
     onClose()
   }
 
-  // Wrapper for the wishlist toggle to handle loading state/UI feedback if needed
   const handleAddToRoster = async () => {
       setLoading(true)
       await onToggleWishlist()
       setLoading(false)
+  }
+
+  // UPDATED: Helper to handle Offering/Extension success
+  const handleOfferingSuccess = () => {
+      notifyStateChange()
+      onClose() // Close modal after successful offering/extension
   }
 
   if (!isOpen || !deity || !mounted) return null
@@ -134,10 +140,8 @@ export default function DeityModal({
 
                 <div className="p-3 md:p-4 border-t border-slate-900 bg-slate-950">
                     
-                    {/* --- ACTION BUTTON LOGIC --- */}
                     {!isInvoked ? (
                         <>
-                            {/* STATE 1: Not in Roster -> Add to Roster */}
                             {!isWishlisted && (
                                 <button onClick={handleAddToRoster} disabled={loading} className="w-full py-2 md:py-3 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 text-sm md:text-base font-medium hover:bg-slate-800 hover:text-white transition-all flex items-center justify-center gap-2">
                                     <PlusCircle size={16} />
@@ -145,7 +149,6 @@ export default function DeityModal({
                                 </button>
                             )}
 
-                            {/* STATE 2: In Roster -> Invoke */}
                             {isWishlisted && (
                                 <button onClick={handleInvoke} disabled={loading} className="w-full py-2 md:py-3 rounded-lg bg-gradient-to-r from-purple-900 to-slate-900 border border-purple-500/50 text-purple-100 text-sm md:text-base font-medium hover:from-purple-800 hover:to-slate-800 transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_-5px_rgba(168,85,247,0.5)]">
                                     <Sparkles size={16} />
@@ -154,7 +157,6 @@ export default function DeityModal({
                             )}
                         </>
                     ) : (
-                         /* STATE 3: Invoked -> Show Timer */
                          <div className="text-center p-2 rounded border border-purple-900/50 bg-purple-900/10">
                             <p className="text-[10px] text-purple-400 uppercase tracking-widest mb-1">Currently Invoked</p>
                             <p className="text-white font-serif text-sm md:text-base">
@@ -168,12 +170,9 @@ export default function DeityModal({
 
             {/* RIGHT SIDE - CONTENT AREA */}
             <div className="flex-1 flex flex-col bg-slate-900 min-h-0">
-                {/* Header (Tabs) */}
                 <div className="flex items-center border-b border-slate-800 px-2 pt-2 bg-slate-900 flex-shrink-0">
                     <TabButton icon={<BookOpen size={14} />} label="Grimoire" active={activeTab === 'grimoire'} onClick={() => setActiveTab('grimoire')} />
                     <TabButton icon={<Flame size={14} />} label="Ritual" active={activeTab === 'ritual'} onClick={() => { setActiveTab('ritual'); fetchHistory(); }} />
-                    
-                    {/* GALLERY TAB: Now strictly controlled by isOwned */}
                     <TabButton 
                         icon={<ImageIcon size={14} />} 
                         label="Gallery" 
@@ -182,11 +181,9 @@ export default function DeityModal({
                         disabled={!isOwned} 
                         locked={!isOwned} 
                     />
-                    
                     <button onClick={onClose} className="hidden md:block ml-auto p-3 text-slate-500 hover:text-white transition-colors"><X size={20} /></button>
                 </div>
 
-                {/* Scrollable Body */}
                 <div className="flex-1 overflow-y-auto p-4 md:p-6 custom-scrollbar">
                     
                     {activeTab === 'grimoire' && (
@@ -206,10 +203,11 @@ export default function DeityModal({
                                     <h3 className="text-purple-200 font-serif mb-4 flex items-center gap-2"><Flame size={18} className="text-purple-400" />Current Invocation</h3>
                                     <div className="flex gap-3">
                                         <div className="flex-1">
+                                            {/* UPDATED: Offering Button uses new handler to close modal */}
                                             <OfferingButton 
                                                 deityId={deity.id} 
                                                 lastOfferingAt={lastOfferingAt || null} 
-                                                onUpdate={notifyStateChange}
+                                                onUpdate={handleOfferingSuccess}
                                             />
                                         </div>
 

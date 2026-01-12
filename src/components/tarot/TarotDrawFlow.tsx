@@ -208,27 +208,45 @@ export default function TarotDrawFlow({ fullDeck, cardBackUrl, userRole = 'user'
             className="flex flex-col items-center gap-6 z-10 w-full max-w-2xl"
           >
             <h2 className="text-2xl font-serif text-slate-200">What is your focus?</h2>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
-              {Object.keys(SPREAD_CATEGORIES).map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() => handleCategorySelect(cat)}
-                  className="px-6 py-4 bg-slate-800 border border-slate-700 hover:border-purple-500/50 hover:bg-slate-800/80 rounded-xl transition-all text-slate-300 hover:text-purple-200 flex justify-between items-center group"
-                >
-                  <span>{cat}</span>
-                  <ChevronRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-                </button>
-              ))}
-              
-              {/* Custom / View All Option */}
+
+      <div className="flex flex-col gap-4 w-full">
+        
+        {/* 1. Default / Quick Start Option (Centered & Separate) */}
+        <button
+          onClick={() => handleCategorySelect('Default')}
+          className="w-full sm:max-w-md mx-auto px-6 py-4 bg-slate-800 border border-slate-700 hover:border-purple-500/50 hover:bg-slate-800/80 rounded-xl transition-all text-slate-300 hover:text-purple-200 flex justify-between items-center group shadow-lg"
+        >
+          <div className="flex flex-col items-start">
+            <span className="font-semibold text-white">Default</span>
+            <span className="text-xs text-slate-400">Free Form / General 3-Card</span>
+          </div>
+          <ChevronRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+        </button>
+
+        {/* 2. Grid for the Rest of the Categories */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
+          {Object.keys(SPREAD_CATEGORIES)
+            .filter((cat) => cat !== 'Default')
+            .map((cat) => (
               <button
-                 onClick={() => handleCategorySelect('Custom')}
-                 className="px-6 py-4 bg-slate-900 border border-dashed border-slate-700 hover:border-indigo-500 rounded-xl transition-all text-slate-400 hover:text-indigo-300 col-span-1 sm:col-span-2"
+                key={cat}
+                onClick={() => handleCategorySelect(cat)}
+                className="px-6 py-4 bg-slate-800 border border-slate-700 hover:border-purple-500/50 hover:bg-slate-800/80 rounded-xl transition-all text-slate-300 hover:text-purple-200 flex justify-between items-center group"
               >
-                 All Templates / Custom Intent
+                <span>{cat}</span>
+                <ChevronRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
               </button>
-            </div>
+            ))}
+
+          {/* 3. Custom / View All Option (Spans full width of grid) */}
+          <button
+            onClick={() => handleCategorySelect('Custom')}
+            className="px-6 py-4 bg-slate-900 border border-dashed border-slate-700 hover:border-indigo-500 rounded-xl transition-all text-slate-400 hover:text-indigo-300 col-span-1 sm:col-span-2 flex justify-center items-center"
+          >
+            All Templates / Custom Intent
+          </button>
+        </div>
+      </div>
           </motion.div>
         )}
 

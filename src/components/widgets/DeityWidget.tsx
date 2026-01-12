@@ -1,12 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@/app/utils/supabase/client'
-import { Sparkles, Flame } from 'lucide-react'
+import { Sparkles, Flame, Loader2 } from 'lucide-react'
 import Image from 'next/image'
-import { formatDistanceToNow, addHours } from 'date-fns'
 import DeityModal from '@/components/deities/DeityModal'
 import { updateDeityState } from '@/app/actions/deity-actions'
+import { banishDeity } from '@/app/actions/deity-invocation-actions'
 
 // Types
 interface WidgetDeity {
@@ -33,58 +33,24 @@ export default function DeityWidget() {
   const [invokedDeity, setInvokedDeity] = useState<WidgetDeity | null>(null)
   const [roster, setRoster] = useState<WidgetDeity[]>([])
   
+  // Timer State
+  const [timeLeft, setTimeLeft] = useState<string>('')
+  const [isBanishing, setIsBanishing] = useState(false)
+  
   // Modal State
   const [selectedDeity, setSelectedDeity] = useState<WidgetDeity | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   const supabase = createClient()
+  const banishAttempted = useRef(false) // Prevent double-firing banish
 
   useEffect(() => {
     fetchWidgetData()
   }, [])
 
-  // Auto-refresh timer for countdown (every minute)
-  useEffect(() => {
-    if (!invokedDeity) return
-    const interval = setInterval(() => {
-        setInvokedDeity({ ...invokedDeity }) 
-    }, 60000)
-    return () => clearInterval(interval)
-  }, [invokedDeity])
-
-  const fetchWidgetData = async () => {
-    setLoading(true)
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
-
-    // 1. Get Invoked
-    const { data: active } = await supabase
-        .from('user_deities')
-        .select('*, deities(*)')
-        .eq('user_id', user.id)
-        .eq('is_invoked', true)
-        .maybeSingle()
-    
-    // 2. Get Roster (Wishlisted)
-    const { data: list } = await supabase
-        .from('user_deities')
-        .select('*, deities(*)')
-        .eq('user_id', user.id)
-        .eq('is_wishlisted', true)
-        .neq('is_invoked', true)
-        .order('created_at', { ascending: false })
-
-    if (active) setInvokedDeity(active)
-    else setInvokedDeity(null)
-    
-    if (list) setRoster(list)
-    setLoading(false)
-  }
-
   // 3. LISTEN FOR GLOBAL UPDATES
   useEffect(() => {
       const handleStateChange = () => {
-          console.log("Deity state changed, refreshing widget...");
           fetchWidgetData();
       };
 
@@ -93,6 +59,91 @@ export default function DeityWidget() {
           window.removeEventListener('deity-state-changed', handleStateChange);
       };
   }, []);
+
+  // --- OPTIMIZED TIMER & AUTO-BANISH LOGIC ---
+  useEffect(() => {
+    if (!invokedDeity?.last_invoked_at) return
+
+    const calculateTime = async () => {
+        const now = new Date().getTime()
+        const start = new Date(invokedDeity.last_invoked_at!).getTime()
+        const end = start + (24 * 60 * 60 * 1000) // 24 hours in ms
+        const diff = end - now
+
+        if (diff <= 0) {
+            // TIME EXPIRED
+            if (!banishAttempted.current) {
+                console.log("Invocation expired. Banishing...")
+                banishAttempted.current = true
+                setIsBanishing(true)
+                try {
+                    await banishDeity(invokedDeity.deity_id)
+                    // Short delay to allow DB propagation before refresh
+                    setTimeout(() => {
+                        fetchWidgetData()
+                        banishAttempted.current = false // Reset for next time
+                        setIsBanishing(false)
+                    }, 1000)
+                } catch (err) {
+                    console.error("Auto-banish failed:", err)
+                    setIsBanishing(false)
+                }
+            }
+            setTimeLeft('Expiring...')
+        } else {
+            // COUNTDOWN
+            const h = Math.floor(diff / (1000 * 60 * 60))
+            const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+            setTimeLeft(`${h}h ${m}m`)
+        }
+    }
+
+    // Run immediately, then every minute
+    calculateTime()
+    const interval = setInterval(calculateTime, 60000)
+
+    return () => clearInterval(interval)
+  }, [invokedDeity])
+
+
+  // --- OPTIMIZED FETCHING ---
+  const fetchWidgetData = async () => {
+    // Only show loading on initial mount, not on silent refreshes
+    if (!invokedDeity && roster.length === 0) setLoading(true)
+    
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
+
+    // Run queries in parallel for speed
+    const [activeReq, listReq] = await Promise.all([
+        supabase
+            .from('user_deities')
+            .select('*, deities(*)')
+            .eq('user_id', user.id)
+            .eq('is_invoked', true)
+            .maybeSingle(),
+        
+        supabase
+            .from('user_deities')
+            .select('*, deities(*)')
+            .eq('user_id', user.id)
+            .eq('is_wishlisted', true)
+            .neq('is_invoked', true)
+            .order('created_at', { ascending: false })
+    ])
+
+    if (activeReq.data) {
+        setInvokedDeity(activeReq.data)
+        // Reset banish ref if we successfully fetched a new active deity
+        banishAttempted.current = false 
+    } else {
+        setInvokedDeity(null)
+    }
+    
+    if (listReq.data) setRoster(listReq.data)
+    
+    setLoading(false)
+  }
 
   const openModal = (item: WidgetDeity) => {
     setSelectedDeity(item)
@@ -104,28 +155,23 @@ export default function DeityWidget() {
       fetchWidgetData() 
   }
 
-  // New: Handle Wishlist Toggle (Required for Modal Props)
   const handleToggleWishlist = async (deityId: string) => {
       if (!selectedDeity) return
 
-      // 1. Calculate new state
-      const currentVal = selectedDeity.is_wishlisted
-      const newVal = !currentVal
-
-      // 2. Optimistic Update
+      const newVal = !selectedDeity.is_wishlisted
+      
+      // Optimistic Update
       setSelectedDeity({ ...selectedDeity, is_wishlisted: newVal })
 
-      // 3. Server Action
       await updateDeityState(deityId, { 
           isOwned: selectedDeity.is_owned, 
           isWishlisted: newVal 
       })
 
-      // 4. Refresh Widget Data
       fetchWidgetData()
   }
 
-  if (loading) return <div className="h-48 rounded-xl bg-slate-900/50 animate-pulse" />
+  if (loading) return <div className="h-48 rounded-xl bg-slate-900/50 animate-pulse border border-slate-800" />
 
   return (
     <div className="relative overflow-hidden rounded-xl border border-slate-800 bg-slate-900 transition-all duration-500">
@@ -155,14 +201,18 @@ export default function DeityWidget() {
                 <h3 className="font-serif text-xl text-purple-200">{invokedDeity.deities.name}</h3>
                 <p className="text-xs text-purple-400/70 uppercase tracking-widest mb-4">Invocation Active</p>
 
-                <div className="w-full bg-slate-950/50 rounded-lg p-3 border border-slate-800/50 backdrop-blur-sm">
-                    <p className="text-xs text-slate-400">Time Remaining</p>
-                    <p className="font-mono text-sm text-slate-200">
-                        {invokedDeity.last_invoked_at 
-                            ? formatDistanceToNow(addHours(new Date(invokedDeity.last_invoked_at), 24)) 
-                            : '24h 00m'
-                        }
-                    </p>
+                <div className="w-full bg-slate-950/50 rounded-lg p-3 border border-slate-800/50 backdrop-blur-sm relative overflow-hidden">
+                    {isBanishing ? (
+                        <div className="flex items-center justify-center gap-2 text-orange-400">
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <span className="text-xs font-bold uppercase tracking-widest">Banishing...</span>
+                        </div>
+                    ) : (
+                        <>
+                            <p className="text-xs text-slate-400">Time Remaining</p>
+                            <p className="font-mono text-sm text-slate-200">{timeLeft}</p>
+                        </>
+                    )}
                 </div>
 
                 <button 
@@ -219,18 +269,12 @@ export default function DeityWidget() {
             isOpen={isModalOpen}
             onClose={handleModalClose}
             deity={selectedDeity?.deities}
-            
-            // Flags
             isInvoked={selectedDeity?.is_invoked || false}
             isOwned={selectedDeity?.is_owned || false}
-            isWishlisted={selectedDeity?.is_wishlisted || false} // PASSED
-            
-            // Timestamps
+            isWishlisted={selectedDeity?.is_wishlisted || false}
             lastInvokedAt={selectedDeity?.last_invoked_at}
             lastOfferingAt={selectedDeity?.last_offering_at}
-            
-            // Actions
-            onToggleWishlist={() => selectedDeity && handleToggleWishlist(selectedDeity.deity_id)} // PASSED
+            onToggleWishlist={() => selectedDeity && handleToggleWishlist(selectedDeity.deity_id)}
         />
     </div>
   )
