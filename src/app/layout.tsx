@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
   
   title: {
-    default: "Nyxus | Creators of Night",
+    default: "Nyxus App | Creators of Night",
     template: "%s | Nyxus",
   },
   description: "The Nyxus App. A mystical social platform for witches, wizards, and tarot readers. Share spells, track moon phases, and connect with your coven.",
