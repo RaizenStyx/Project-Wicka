@@ -69,7 +69,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Nyxus | Creators of Night",
     description: "Share spells, track the moon, and find your coven.",
-    creator: "@NyxusApp", // Update if you have a handle
+    creator: "@NyxusApp",
   },
 
   icons: {
