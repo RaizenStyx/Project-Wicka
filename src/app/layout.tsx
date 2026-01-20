@@ -27,10 +27,11 @@ export const metadata: Metadata = {
     default: "Nyxus | Creators of Night",
     template: "%s | Nyxus",
   },
-  description: "A mystical social platform for witches, wizards, and tarot readers. Share spells, track moon phases, and connect with your coven.",
+  description: "The Nyxus App. A mystical social platform for witches, wizards, and tarot readers. Share spells, track moon phases, and connect with your coven.",
   
   // 2. SEO Keywords
   keywords: [
+    "Nyxus App",
     "Social Media for Witches",
     "Tarot Community",
     "Spells and Rituals",
