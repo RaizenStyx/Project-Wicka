@@ -21,11 +21,11 @@ export default async function Image() {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          color: '#e2e8f0', // Slate-200
-          fontFamily: 'serif', // Matches your Playfair Display vibe
+          color: '#e2e8f0', 
+          fontFamily: 'serif', 
         }}
       >
-        {/* Moon Icon / Graphic representation */}
+
         <div style={{ 
             display: 'flex', 
             alignItems: 'center', 

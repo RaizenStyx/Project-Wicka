@@ -10,7 +10,7 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-serif" });
 
 // 1. Set your actual production URL here
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://project-wicka.vercel.app";
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://www.nyxusapp.com";
 
 export const viewport: Viewport = {
   themeColor: '#4B0082', 

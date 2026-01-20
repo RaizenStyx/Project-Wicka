@@ -21,12 +21,11 @@ export default async function Image() {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          color: '#e2e8f0', // Slate-200
-          fontFamily: 'serif', // Matches your Playfair Display vibe
+          color: '#e2e8f0', 
+          fontFamily: 'serif',
         }}
       >
-        {/* Moon Icon / Graphic representation */}
-        <div style={{ 
+         <div style={{ 
             display: 'flex', 
             alignItems: 'center', 
             justifyContent: 'center',
@@ -43,7 +42,7 @@ export default async function Image() {
         <div style={{ 
             fontSize: 32, 
             marginTop: 20, 
-            color: '#a5b4fc', // Indigo-300
+            color: '#a5b4fc', 
             textTransform: 'uppercase',
             letterSpacing: '0.2em'
         }}>
